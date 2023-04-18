@@ -4,7 +4,7 @@
 HashMap decoderLUT;
 Decoder decoderUF;
 
-#pragma HLS TOP
+
 void decoderTop(int syndrome[SYN_LEN], Lint* correction, bool insert)
 {
 	if(insert)
