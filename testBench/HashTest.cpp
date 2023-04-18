@@ -1,4 +1,4 @@
-#include "../src/Decoder.cpp"
+#include "../src/Project.cpp"
 
 
 int main()
