@@ -5,5 +5,4 @@ class Decoder
 {
 public:
 	Lint decode(int syndrome[SYN_LEN]);
-	//test
 };
