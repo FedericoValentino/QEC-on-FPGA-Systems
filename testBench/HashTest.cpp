@@ -1,4 +1,5 @@
 #include "../src/Project.cpp"
+#include <assert.h>
 
 
 int main()
@@ -6,7 +7,7 @@ int main()
 	int syndrome[SYN_LEN] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,0,0,0,0,1,0,0,0,1,0};
 	Lint correction = 20;
 
-	decoder(syndrome, &correction, false);
+	decoderTop(syndrome, &correction, false);
 
 	correction = 19;
 

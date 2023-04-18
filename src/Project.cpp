@@ -1,9 +1,11 @@
 #include "Hashmap.h"
+#include "Decoder.h"
 
 HashMap decoderLUT;
+Decoder decoderUF;
 
 #pragma HLS TOP
-void decoder(int syndrome[SYN_LEN], Lint& correction, bool insert)
+void decoderTop(int syndrome[SYN_LEN], Lint* correction, bool insert)
 {
 	if(insert)
 	{
@@ -12,9 +14,9 @@ void decoder(int syndrome[SYN_LEN], Lint& correction, bool insert)
 	else
 	{
 		*correction = decoderLUT.retrieve(syndrome);
-		if(correction == 0)
+		if(*correction == 0)
 		{
-			correction = Decoder.decode(syndrome);
+			*correction = decoderUF.decode(syndrome);
 		}
 	}
 
