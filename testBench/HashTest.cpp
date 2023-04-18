@@ -1,4 +1,4 @@
-#include "../src/Project.cpp"
+#include "../src/Project.h"
 #include <assert.h>
 
 

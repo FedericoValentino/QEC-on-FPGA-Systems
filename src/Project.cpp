@@ -1,9 +1,8 @@
-#include "Hashmap.h"
-#include "Decoder.h"
+#include "Project.h"
+
 
 HashMap decoderLUT;
 Decoder decoderUF;
-
 
 void decoderTop(int syndrome[SYN_LEN], Lint* correction, bool insert)
 {

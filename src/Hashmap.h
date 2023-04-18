@@ -1,4 +1,7 @@
-#include <math.h>
+#ifndef HASHMAP_H
+#define HASHMAP_H
+
+
 #include "Defines.h"
 
 
@@ -8,7 +11,7 @@ struct entry
 	Lint correction;
 	bool full = false;
 
-	size_t frequency = 0;
+	unsigned int frequency = 0;
 };
 
 typedef struct entry Entry;
@@ -31,3 +34,5 @@ public:
 
 
 };
+
+#endif
