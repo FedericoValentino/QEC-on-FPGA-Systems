@@ -15,14 +15,17 @@ BINARY_TO_DECIMAL_LOOP:
 
 void HashMap::insert(Lint correction, int syndrome[SYN_LEN])
 {
-	Lint index = this->hash(syndrome);
+	Lint synDec = this->hash(syndrome);
+    int index = synDec % MAX_SIZE;
+    this->map[index].syndrome = synDec;
 	this->map[index].correction = correction;
 	this->map[index].full = true;
 }
 
 Lint HashMap::retrieve(int syndrome[SYN_LEN])
 {
-	Lint index = this->hash(syndrome);
+	Lint synDec = this->hash(syndrome);
+    int index = synDec%MAX_SIZE;
 	if(this->map[index].full)
 	{
 		++this->map[index].frequency;

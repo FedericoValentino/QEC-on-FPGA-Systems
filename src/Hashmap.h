@@ -4,7 +4,8 @@
 
 struct entry
 {
-	long long unsigned int correction;
+    Lint syndrome;
+	Lint correction;
 	bool full = false;
 
 	size_t frequency = 0;

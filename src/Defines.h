@@ -1,4 +1,4 @@
-#define MAX_SIZE 2000000
+#define MAX_SIZE 1000000
 
 //code definition
 
