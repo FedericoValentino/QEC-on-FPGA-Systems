@@ -6,6 +6,7 @@ Lint HashMap::hash(int syndrome[SYN_LEN])
 BINARY_TO_DECIMAL_LOOP:
 	for(int i = 0; i < SYN_LEN; i++)
 	{
+#pragma HLS PIPELINE
 		sum += syndrome[i] * pow(2, i);
 	}
 	return sum;
