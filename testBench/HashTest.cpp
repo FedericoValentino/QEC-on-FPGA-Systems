@@ -1,5 +1,6 @@
 #include "../src/Project.h"
 #include <assert.h>
+#include <stdio.h>
 
 
 int main()
@@ -12,4 +13,6 @@ int main()
 	correction = 19;
 
 	assert(decoderLUT.retrieve(syndrome) == 20);
+
+    printf("ALL TESTs WERE SUCCESSFUL");
 }
