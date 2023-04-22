@@ -1,6 +1,8 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include "ap_int.h"
+
 
 #define MAX_SIZE 1000000
 

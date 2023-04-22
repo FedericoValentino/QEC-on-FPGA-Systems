@@ -11,12 +11,12 @@ Lint binaryToDec(int array[CORR_LEN]){
 }
 
 int main(){
-    FILE* f=fopen("../testBench/data.txt","r");
-    int syndrome[SYN_LEN];
-    int correction[CORR_LEN];
+    FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+    int syndrome[SYN_LEN] = {0};
+    ap_uint<CORR_LEN> correction = 0;
+    ap_uint<CORR_LEN> correctionTest = 0;
     int i;
     int perc=0;
-    Lint corrDec;
     while(!feof(f)){
         fgetc(f);
         for(i=0;i<SYN_LEN;++i){
@@ -30,11 +30,12 @@ int main(){
             fgetc(f);
         }
         fgetc(f);
-        corrDec = binaryToDec(correction);
-        decoderTop(syndrome,&corrDec,true);
-        assert(decoderLUT.retrieve(syndrome)==corrDec);
+        decoderTop(syndrome,&correction,true);
+
+        correctionTest = decoderLUT.retrieve(syndrome);
+        assert(correctionTest == correction);
         ++perc;
-        printf("%f %\n",(float)perc/5000);
+        printf("%f %\n",(float)perc/24.90f);
     }
     printf("ALL TESTs WERE SUCCESSFUL");
 }

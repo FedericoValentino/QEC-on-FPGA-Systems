@@ -7,12 +7,9 @@
 
 struct entry
 {
-    Lint syndrome;
-	Lint correction;
+    ap_uint<SYN_LEN> syndrome;
+	ap_uint<CORR_LEN> correction;
 	bool full = false;
-
-    struct entry* right;
-    struct entry* left;
 
 };
 
@@ -22,21 +19,19 @@ typedef struct entry Entry;
 class HashMap
 {
 private:
-	Entry blocks[MAX_SIZE];
-    Entry* map[MAX_SIZE/2] = {nullptr};
+    Entry map[MAX_SIZE/2];
 
     unsigned int lastBlockUsed = 0;
 
-	Lint hash(int syndrome[SYN_LEN]);
+	ap_uint<SYN_LEN> binToDec(int syndrome[SYN_LEN]);
+
+	unsigned int hash(ap_uint<SYN_LEN> synDec);
 
 public:
 
-	void insert(Lint correction, int syndrome[SYN_LEN]);
+	void insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN]);
 
-	Lint retrieve(int syndrome[SYN_LEN]);
-
-
-
+	ap_uint<CORR_LEN> retrieve(int syndrome[SYN_LEN]);
 
 };
 
