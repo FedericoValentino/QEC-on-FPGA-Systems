@@ -11,8 +11,10 @@ Lint binaryToDec(int array[CORR_LEN]){
 }
 
 int main(){
-    FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
-    int syndrome[SYN_LEN] = {0};
+    //for the moment just change the commented line for testing, TODO
+	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\data.txt","r");
+    FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\data.txt","r");
+	int syndrome[SYN_LEN] = {0};
     ap_uint<CORR_LEN> correction = 0;
     ap_uint<CORR_LEN> correctionTest = 0;
     int i;
@@ -35,7 +37,8 @@ int main(){
         correctionTest = decoderLUT.retrieve(syndrome);
         assert(correctionTest == correction);
         ++perc;
-        printf("%f %\n",(float)perc/24.90f);
+        printf("Execution n: %d \n",perc);
+
     }
     printf("ALL TESTs WERE SUCCESSFUL");
 }
