@@ -47,7 +47,7 @@ ap_uint<CORR_LEN> HashMap::retrieve(int syndrome[SYN_LEN])
 
     for(unsigned int i = index; i <= MAX_SIZE/2; i += 3)
     {
-    	if(i == MAX_SIZE/2)
+    	if(i >= MAX_SIZE/2)
     	{
     		i = 0;
     	}
