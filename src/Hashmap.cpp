@@ -15,11 +15,11 @@ int HashMap::hash(ap_uint<SYN_LEN> synDec, int i)
 {
 	int hash;
 	do{
-		hash = (synDec+3*i) % SYN_LEN;
+		hash = (synDec+3*i) % MAX_SIZE/2;
 		++i;
 		if(this->map[hash].syndrome==synDec)
 			return hash;
-		if(i==SYN_LEN)
+		if(i==MAX_SIZE)
 			return -1;
 	}while(this->map[hash].full);
 
