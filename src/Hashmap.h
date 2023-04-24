@@ -25,7 +25,7 @@ private:
 
 	ap_uint<SYN_LEN> binToDec(int syndrome[SYN_LEN]);
 
-	unsigned int hash(ap_uint<SYN_LEN> synDec);
+	int hash(ap_uint<SYN_LEN> synDec, int i);
 
 public:
 
