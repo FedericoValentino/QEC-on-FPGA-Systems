@@ -2,8 +2,8 @@
 #define PROJECT_H
 
 
-#include "Hashmap.h"
-#include "Decoder.h"
+#include "LUT/Hashmap.h"
+#include "UnionFind/Decoder.h"
 
 extern HashMap decoderLUT;
 extern Decoder decoderUF;
