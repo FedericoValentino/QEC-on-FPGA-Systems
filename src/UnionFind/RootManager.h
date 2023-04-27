@@ -3,6 +3,7 @@
 
 #include "../Defines.h"
 #include "../Utility/Vector.h"
+#include "../Utility/Map.h"
 
 
 struct ClusterNFO
@@ -19,13 +20,10 @@ private:
 	Vector<uint32_t> roots;
 	Vector<uint32_t> oddRoots;
 
-	Vector<ClusterNFO> sizes;
-	Vector<ClusterNFO> parity;
+	Map<uint32_t, uint32_t> sizes;
+	Map<uint32_t, uint32_t> parity;
 
 public:
-
-	uint32_t findSize(int Vertex);
-	uint32_t findParity(int Vertex);
 
 	void initializeRoots(Vector<uint32_t> roots);
 };

@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+
+#include "../src/Utility/Map.h"
 #include "../src/Utility/Vector.h"
 #include "../src/Project.h"
 
@@ -11,6 +13,26 @@ Lint binaryToDec(int array[CORR_LEN]){
         sum += array[i] * (1 << i);
     }
     return sum;
+}
+
+
+void MapTest()
+{
+	Map<uint32_t, uint32_t> test;
+
+	test.add(1, 45);
+	test.add(2, 78);
+	test.add(4, 192);
+
+	assert(*test.find(1) == 45);
+
+
+	test.update(1, 49);
+
+	assert(*test.find(1) == 49);
+
+	printf("ALL MAP TESTS WERE SUCCESSFUL\n");
+
 }
 
 
@@ -36,7 +58,7 @@ void vectorTest()
 
 	assert(test.at(3) == 2);
 
-	printf("ALL VECTOR TEST WERE SUCCESSFUL\n");
+	printf("ALL VECTOR TESTs WERE SUCCESSFUL\n");
 
 }
 
@@ -83,4 +105,5 @@ int main()
 {
 	hashTest();
 	vectorTest();
+	MapTest();
 }
