@@ -26,6 +26,10 @@ private:
 public:
 
 	void initializeRoots(Vector<uint32_t> roots);
+
+	bool hasOddRoots();
+
+	Vector<uint32_t>* oddRoots_();
 };
 
 

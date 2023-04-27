@@ -11,3 +11,13 @@ void RootManager::initializeRoots(Vector<uint32_t> roots)
 		this->parity.add(tmp, 1);
 	}
 }
+
+bool RootManager::hasOddRoots()
+{
+	return oddRoots.getSize() > 0;
+}
+
+Vector<uint32_t>* RootManager::oddRoots_()
+{
+	return &oddRoots;
+}

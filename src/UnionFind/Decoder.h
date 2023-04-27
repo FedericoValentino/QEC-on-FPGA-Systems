@@ -4,6 +4,7 @@
 
 #include "../Defines.h"
 #include "../Utility/Vector.h"
+#include "../Utility/Map.h"
 #include "RootManager.h"
 
 
@@ -18,16 +19,19 @@ class Decoder
 private:
 	Vector<uint32_t> connection_counts;
 	Vector<uint32_t> support;
+	Vector<uint32_t> root_of_vertex;
 
 
 	RootManager mngr;
 
-	Vector<VertexNeighbors> border_vertices;
+	Map<uint32_t, Vector<uint32_t>> border_vertices;
 
+	void init_cluster(Vector<uint32_t> roots);
 
+	void grow(uint32_t root);
 public:
 	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
-	void init_cluster(Vector<uint32_t> roots);
+
 };
 
 #endif
