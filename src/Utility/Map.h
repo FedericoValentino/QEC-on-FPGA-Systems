@@ -50,6 +50,20 @@ public:
 		return map.getSize();
 	}
 
+	void erase(uint32_t key)
+	{
+		uint32_t pos;
+		for(int i = 0; i < map.getSize(); ++i)
+		{
+			if(map.at(i).v1 == key)
+			{
+				pos = i;
+				break;
+			}
+		}
+		map.erase(pos);
+	}
+
 };
 
 

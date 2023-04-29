@@ -53,6 +53,29 @@ public:
 	{
 		return array[lastPos-1];
 	}
+	void empty()
+	{
+		lastPos = 0;
+		size = 0;
+	}
+	void erase(uint32_t pos)
+	{
+		for(int i = pos; i < lastPos; ++i)
+		{
+			array[pos] = array[pos+1];
+		}
+		size--;
+		lastPos--;
+	}
+
+	void pushFront(T element)
+	{
+		for(int i = lastPos; i >=0 ; --i)
+		{
+			array[i] = array[i-1];
+		}
+		array[0] = element;
+	}
 };
 
 

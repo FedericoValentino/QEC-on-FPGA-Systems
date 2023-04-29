@@ -12,6 +12,7 @@ struct ClusterNFO
 	uint32_t NFO;
 };
 
+
 typedef struct ClusterNFO ClusterNFO;
 
 class RootManager
@@ -30,6 +31,12 @@ public:
 	bool hasOddRoots();
 
 	Vector<uint32_t>* oddRoots_();
+
+	uint32_t* size(uint32_t root);
+
+	bool isRoot(uint32_t root);
+
+	void merge(uint32_t r1, uint32_t r2);
 };
 
 

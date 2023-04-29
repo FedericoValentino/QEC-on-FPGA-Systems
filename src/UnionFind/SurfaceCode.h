@@ -87,29 +87,42 @@ private:
 public:
 
 	void buildCode()
+	{
+		uint32_t L = D;
+		Vector<uint32_t> col_indices;
+		Vector<uint32_t> indptr;
+
+		indptr.emplace(0);
+		for(uint32_t nx = 0; nx < L; ++nx)
 		{
-			uint32_t L = D;
-			Vector<uint32_t> col_indices;
-			Vector<uint32_t> indptr;
-
-			indptr.emplace(0);
-			for(uint32_t nx = 0; nx < L; ++nx)
+			for(uint32_t ny = 0; ny < L; ++ny)
 			{
-				for(uint32_t ny = 0; ny < L; ++ny)
+				Vector<uint32_t> m = toric_x_stabilizers_qubits(L, nx * L + ny);
+				indptr.emplace(indptr.back()+ m.getSize());
+				for(int i = 0; i < m.getSize(); ++i)
 				{
-					Vector<uint32_t> m = toric_x_stabilizers_qubits(L, nx * L + ny);
-					indptr.emplace(indptr.back()+ m.getSize());
-
-					for(int i = 0; i < m.getSize(); ++i)
-					{
-						col_indices.emplace(m.at(i));
-					}
+					col_indices.emplace(m.at(i));
 				}
 			}
-			setCode(L * L, 2 * L * L, col_indices, indptr);
-
 		}
+		setCode(L * L, 2 * L * L, col_indices, indptr);
 
+	}
+
+	Vector<uint32_t> vertexConnectionsOf(uint32_t i)
+	{
+		return vertex_connections.at(i);
+	}
+
+	uint32_t vertexConnectionCountOf(uint32_t i)
+	{
+		return vertex_connections.at(i).getSize();
+	}
+
+	uint32_t edgeIdx(Edge e)
+	{
+		return *edge_idx.find(e);
+	}
 };
 
 #endif
