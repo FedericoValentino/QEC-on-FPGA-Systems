@@ -40,6 +40,16 @@ public:
 		*toUpdate = v2;
 	}
 
+	Touple<T, U>* get(uint32_t pos)
+	{
+		return map.get(pos);
+	}
+
+	uint32_t size()
+	{
+		return map.getSize();
+	}
+
 };
 
 

@@ -8,7 +8,7 @@ template <class T>
 class Vector
 {
 private:
-	T array[CORR_LEN * 2] = {0};
+	T array[CORR_LEN * 2];
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
 public:
@@ -48,6 +48,10 @@ public:
 	void set(T element, uint32_t pos)
 	{
 		array[pos] = element;
+	}
+	T back()
+	{
+		return array[lastPos-1];
 	}
 };
 

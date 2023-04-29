@@ -49,7 +49,6 @@ void Decoder::grow(uint32_t root)
 	Vector<uint32_t>* borders = border_vertices.find(root);
 	for(int i = 0; i < borders->getSize(); i++)
 	{
-
 	}
 }
 

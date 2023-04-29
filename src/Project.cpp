@@ -4,6 +4,7 @@
 HashMap decoderLUT;
 Decoder decoderUF;
 
+
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {
 	if(insert)
