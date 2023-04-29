@@ -25,7 +25,10 @@ ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 
 	Vector<Edge> correction = peel(syndrome);
 
-	return 0;
+
+	ap_uint<CORR_LEN> FinalCorrection = translate(correction);
+
+	return FinalCorrection;
 }
 
 void Decoder::init_cluster(Vector<uint32_t> roots)
@@ -217,9 +220,22 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 }
 
 
+ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
+{
+	ap_uint<CORR_LEN> correction;
+	for(int i = 0; i < correctionEdges.getSize(); ++i)
+	{
+		Edge e = correctionEdges.at(i);
+		correction[Code.edgeIdx(e)] = 1;
+	}
+	return correction;
+}
 
 
-
+void Decoder::buildCode()
+{
+	Code.buildCode();
+}
 
 
 

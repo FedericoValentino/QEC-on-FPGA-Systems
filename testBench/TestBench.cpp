@@ -1,10 +1,12 @@
 #include <assert.h>
 #include <stdio.h>
+#include <chrono>
 
 
 #include "../src/Utility/Map.h"
 #include "../src/Utility/Vector.h"
 #include "../src/Project.h"
+#include "../src/UnionFind/Decoder.h"
 
 
 Lint binaryToDec(int array[CORR_LEN]){
@@ -15,6 +17,24 @@ Lint binaryToDec(int array[CORR_LEN]){
     return sum;
 }
 
+
+void correctionTest()
+{
+	Decoder decoder;
+
+	decoder.buildCode();
+
+	int syndrome[] = {0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0};
+
+	auto start = std::chrono::high_resolution_clock::now();
+	ap_uint<CORR_LEN> correction = decoder.decode(syndrome);
+	auto stop = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+	printf("SYNDROME DECODED IN %f", duration.count());
+
+}
 
 void MapTest()
 {
@@ -107,4 +127,5 @@ int main()
 	hashTest();
 	vectorTest();
 	MapTest();
+	correctionTest();
 }

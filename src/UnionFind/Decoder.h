@@ -45,8 +45,13 @@ private:
 	void mergeBoundary(uint32_t r1, uint32_t r2);
 
 	Vector<Edge> peel(int syndrome[SYN_LEN]);
+
+	ap_uint<CORR_LEN> translate(Vector<Edge> correctionEdges);
+
 public:
 	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
+
+	void buildCode();
 
 };
 
