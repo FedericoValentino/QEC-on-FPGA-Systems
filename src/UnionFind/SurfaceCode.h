@@ -32,8 +32,8 @@ private:
 		for(int i = 0; i < edge_idx.size(); ++i)
 		{
 			Edge e = edge_idx.get(i)->v1;
-			vertex_connections.at(e.u).emplace(e.v);
-			vertex_connections.at(e.v).emplace(e.u);
+			vertex_connections.get(e.u)->emplace(e.v);
+			vertex_connections.get(e.v)->emplace(e.u);
 		}
 	}
 
@@ -121,7 +121,14 @@ public:
 
 	uint32_t edgeIdx(Edge e)
 	{
-		return *edge_idx.find(e);
+		if(edge_idx.find(e) != 0)
+		{
+			return *edge_idx.find(e);
+		}
+		else
+		{
+			return 0;
+		}
 	}
 };
 

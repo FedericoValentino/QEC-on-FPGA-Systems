@@ -54,9 +54,9 @@ void Decoder::grow(uint32_t root)
 	for(int i = 0; i < borders->getSize(); i++)
 	{
 		Vector<uint32_t> connections = Code.vertexConnectionsOf(borders->at(i));
-		for(int i = 0; i < connections.getSize(); ++i)
+		for(int j = 0; j < connections.getSize(); ++j)
 		{
-			Edge e = {borders->at(i), connections.at(i)};
+			Edge e = {borders->at(i), connections.at(j)};
 			uint32_t elt = support.at(Code.edgeIdx(e));
 
 			if(elt == 2){continue;}
