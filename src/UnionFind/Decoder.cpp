@@ -57,10 +57,11 @@ void Decoder::grow(uint32_t root)
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
 			Edge e = {borders->at(i), connections.at(j)};
-			uint32_t elt = support.at(Code.edgeIdx(e));
+			uint32_t* elt = support.get(Code.edgeIdx(e));
 
-			if(elt == 2){continue;}
-			if(++elt == 2)
+			if(*elt == 2){continue;}
+			*elt += 1;
+			if(*elt == 2)
 			{
 				*connection_counts.get(e.u) += 1;
 				*connection_counts.get(e.v) += 1;
@@ -108,7 +109,7 @@ void Decoder::fusion()
 			continue;
 		}
 
-		if(*mngr.size(root1) < *mngr.size(root2))
+		if(mngr.size(root1) < mngr.size(root2))
 		{
 			uint32_t tmp = root1;
 			root1 = root2;
@@ -119,7 +120,7 @@ void Decoder::fusion()
 
 		if(!mngr.isRoot(root2))
 		{
-			*mngr.size(root1) += 1;
+			mngr.growSize(root1);
 			border_vertices.find(root1)->emplace(root2);
 		}
 		else

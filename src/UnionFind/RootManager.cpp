@@ -22,14 +22,24 @@ Vector<uint32_t>* RootManager::oddRoots_()
 	return &oddRoots;
 }
 
-uint32_t* RootManager::size(uint32_t root)
+uint32_t RootManager::size(uint32_t root)
 {
 	if(!isRoot(root))
 	{
 		return 0;
 	}
 	auto size = sizes.find(root);
-	return size;
+	return *size;
+}
+
+void RootManager::growSize(uint32_t root)
+{
+	if(isRoot(root))
+	{
+		auto size = sizes.find(root);
+		*size += 1;
+	}
+
 }
 
 bool RootManager::isRoot(uint32_t root)

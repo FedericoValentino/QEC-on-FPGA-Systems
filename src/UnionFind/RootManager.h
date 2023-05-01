@@ -32,7 +32,9 @@ public:
 
 	Vector<uint32_t>* oddRoots_();
 
-	uint32_t* size(uint32_t root);
+	uint32_t size(uint32_t root);
+
+	void growSize(uint32_t root);
 
 	bool isRoot(uint32_t root);
 
