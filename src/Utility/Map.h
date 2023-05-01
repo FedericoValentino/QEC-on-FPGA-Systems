@@ -31,7 +31,7 @@ public:
 				return &map.get(i)->v2;
 			}
 		}
-		return 0;
+		return nullptr;
 	}
 
 	void update(T v1, U v2)

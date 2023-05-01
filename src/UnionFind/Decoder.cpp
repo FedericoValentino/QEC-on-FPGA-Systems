@@ -51,21 +51,26 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 void Decoder::grow(uint32_t root)
 {
 	Vector<uint32_t>* borders = border_vertices.find(root);
-	for(int i = 0; i < borders->getSize(); i++)
+	if(borders)
 	{
-		Vector<uint32_t> connections = Code.vertexConnectionsOf(borders->at(i));
-		for(int j = 0; j < connections.getSize(); ++j)
+		for(int i = 0; i < borders->getSize(); i++)
 		{
-			Edge e = {borders->at(i), connections.at(j)};
-			uint32_t* elt = support.get(Code.edgeIdx(e));
-
-			if(*elt == 2){continue;}
-			*elt += 1;
-			if(*elt == 2)
+			Vector<uint32_t> connections = Code.vertexConnectionsOf(borders->at(i));
+			for(int j = 0; j < connections.getSize(); ++j)
 			{
-				*connection_counts.get(e.u) += 1;
-				*connection_counts.get(e.v) += 1;
-				fuseList.emplace(e);
+				Edge e = {borders->at(i), connections.at(j)};
+				uint32_t* elt = support.get(Code.edgeIdx(e));
+
+				if(*elt == 2)
+				{
+					continue;
+				}
+				if(++*elt == 2)
+				{
+					++*connection_counts.get(e.u);
+					++*connection_counts.get(e.v);
+					fuseList.emplace(e);
+				}
 			}
 		}
 	}
@@ -101,6 +106,7 @@ void Decoder::fusion()
 	for(int i = 0; i < fuseList.getSize(); ++i)
 	{
 		Edge e = *fuseList.get(i);
+		fuseList.erase(0);
 		uint32_t root1 = findRoot(e.v);
 		uint32_t root2 = findRoot(e.u);
 
@@ -108,6 +114,8 @@ void Decoder::fusion()
 		{
 			continue;
 		}
+
+		peeling_edges.emplace(e);
 
 		if(mngr.size(root1) < mngr.size(root2))
 		{
@@ -148,7 +156,7 @@ void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 		uint32_t vertex = borderR2->at(i);
 		if(connection_counts.at(vertex) == Code.vertexConnectionCountOf(vertex))
 		{
-			border_vertices.erase(vertex);
+			borderR1->elementErase(vertex);
 		}
 	}
 	border_vertices.erase(r2);

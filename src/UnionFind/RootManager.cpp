@@ -66,18 +66,18 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 	}
 	else
 	{
-		oddRoots.erase(r1);
+		oddRoots.elementErase(r1);
 	}
 
 
 	sizes.update(r1, *sizes.find(r1) + *sizes.find(r2));
 	parity.update(r1, newParity);
 
-	oddRoots.erase(r2);
+	oddRoots.elementErase(r2);
 
 	sizes.erase(r2);
 	parity.erase(r2);
-	roots.erase(r2);
+	roots.elementErase(r2);
 
 }
 

@@ -8,7 +8,7 @@ template <class T>
 class Vector
 {
 private:
-	T array[CORR_LEN * 2];
+	T array[CORR_LEN * 2] = {};
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
 public:
@@ -62,7 +62,7 @@ public:
 	{
 		for(int i = pos; i < lastPos; ++i)
 		{
-			array[pos] = array[pos+1];
+			array[i] = array[i+1];
 		}
 		size--;
 		lastPos--;
@@ -75,6 +75,18 @@ public:
 			array[i] = array[i-1];
 		}
 		array[0] = element;
+	}
+
+	void elementErase(T element)
+	{
+		for(int i = 0; i < lastPos; ++i)
+		{
+			if(array[i] == element)
+			{
+				erase(i);
+				break;
+			}
+		}
 	}
 };
 
