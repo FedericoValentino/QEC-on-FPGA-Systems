@@ -6,7 +6,7 @@ ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
 	{
-		if(syndrome[i])
+		if(syndrome[i] % 2 != 0)
 		{
 			syndrome_vertices.emplace(i);
 		}
@@ -43,7 +43,7 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
 	{
-		root_of_vertex.insert(i, i);
+		root_of_vertex.set(i, i);
 	}
 }
 
@@ -51,26 +51,22 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 void Decoder::grow(uint32_t root)
 {
 	Vector<uint32_t>* borders = border_vertices.find(root);
-	if(borders)
+	for(int i = 0; i < borders->getSize(); i++)
 	{
-		for(int i = 0; i < borders->getSize(); i++)
+		Vector<uint32_t> connections = Code.vertexConnectionsOf(borders->at(i));
+		for(int j = 0; j < connections.getSize(); ++j)
 		{
-			Vector<uint32_t> connections = Code.vertexConnectionsOf(borders->at(i));
-			for(int j = 0; j < connections.getSize(); ++j)
+			Edge e = {borders->at(i), connections.at(j)};
+			uint32_t* elt = support.get(Code.edgeIdx(e));
+			if(*elt == 2)
 			{
-				Edge e = {borders->at(i), connections.at(j)};
-				uint32_t* elt = support.get(Code.edgeIdx(e));
-
-				if(*elt == 2)
-				{
-					continue;
-				}
-				if(++*elt == 2)
-				{
-					++*connection_counts.get(e.u);
-					++*connection_counts.get(e.v);
-					fuseList.emplace(e);
-				}
+				continue;
+			}
+			if(++*elt == 2)
+			{
+				++*connection_counts.get(e.u);
+				++*connection_counts.get(e.v);
+				fuseList.emplace(e);
 			}
 		}
 	}
@@ -103,12 +99,12 @@ uint32_t Decoder::findRoot(uint32_t vertex)
 
 void Decoder::fusion()
 {
-	for(int i = 0; i < fuseList.getSize(); ++i)
+	while(fuseList.getSize() != 0)
 	{
-		Edge e = *fuseList.get(i);
+		Edge e = *fuseList.get(0);
 		fuseList.erase(0);
-		uint32_t root1 = findRoot(e.v);
-		uint32_t root2 = findRoot(e.u);
+		uint32_t root1 = findRoot(e.u);
+		uint32_t root2 = findRoot(e.v);
 
 		if(root1 == root2)
 		{

@@ -49,7 +49,9 @@ bool RootManager::isRoot(uint32_t root)
 	{
 		if(root == roots.at(i))
 		{
-			++count;
+			if(++count > 1)
+				return false;
+
 		}
 	}
 	return count==1;
@@ -70,7 +72,10 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 	}
 
 
-	sizes.update(r1, *sizes.find(r1) + *sizes.find(r2));
+	if(isRoot(r2))
+	{
+		sizes.update(r1, *sizes.find(r1) + *sizes.find(r2));
+	}
 	parity.update(r1, newParity);
 
 	oddRoots.elementErase(r2);
