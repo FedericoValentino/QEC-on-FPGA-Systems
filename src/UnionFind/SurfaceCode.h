@@ -20,115 +20,96 @@ struct Edge
 class SurfaceCode
 {
 private:
-	uint32_t num_vertices;
-	uint32_t num_edges;
-
-	Vector<Vector<uint32_t>> vertex_connections;
-	Map<Edge, uint32_t> edge_idx;
-
-
-	void buildVertexConnections()
-	{
-		for(int i = 0; i < edge_idx.size(); ++i)
-		{
-			Edge e = edge_idx.get(i)->v1;
-			vertex_connections.get(e.u)->emplace(e.v);
-			vertex_connections.get(e.v)->emplace(e.u);
-		}
-	}
-
-	void buildEdgeIdx(uint32_t ancillas, Vector<Vector<uint32_t>> ancilla_associated_dataqbits)
-	{
-		for(int i = 0; i < ancillas; ++i)
-		{
-			Vector<uint32_t>* q_parities = ancilla_associated_dataqbits.get(i);
-			Edge edge = {q_parities->at(0), q_parities->at(1)};
-			if(edge_idx.find(edge) == 0)
-			{
-				edge_idx.add(edge, i);
-			}
-		}
-	}
-
-	void setCode(uint32_t dataqbits, uint32_t ancillas, Vector<uint32_t> colIndices, Vector<uint32_t> indptr)
-	{
-		num_vertices = dataqbits;
-		num_edges = ancillas;
-
-		Vector<Vector<uint32_t>> ancilla_associated_dataqbits;
-		for(uint32_t i = 0; i < dataqbits; ++i)
-		{
-			for(uint32_t j = indptr.at(i); j < indptr.at(i+1); ++j)
-			{
-				ancilla_associated_dataqbits.get(colIndices.at(j))->emplace(i);
-			}
-		}
-
-		buildEdgeIdx(ancillas, ancilla_associated_dataqbits);
-		buildVertexConnections();
-
-	}
-
-	Vector<uint32_t> toric_x_stabilizers_qubits(const uint32_t L, uint32_t vertex)
-	{
-		uint32_t row = vertex / L;
-		uint32_t col = vertex % L;
-
-		Vector<uint32_t> toReturn;
-
-		toReturn.emplace(2 * row * L + col);
-		toReturn.emplace(2 * row * L + (col + L));
-		toReturn.emplace(2 * row * L + (col - 1 + L) % L);
-		toReturn.emplace(2 * ((row - 1 + L) % L) * L + col + L);
-
-		return toReturn;
-	}
+	uint32_t L;
 
 public:
 
-	void buildCode()
+	uint32_t to_vertex_index(uint32_t row, uint32_t col)
 	{
-		uint32_t L = D;
-		Vector<uint32_t> col_indices;
-		Vector<uint32_t> indptr;
+		return (((row + L) % L)) * L + (col + L) % L;
+	}
 
-		indptr.emplace(0);
-		for(uint32_t nx = 0; nx < L; ++nx)
-		{
-			for(uint32_t ny = 0; ny < L; ++ny)
+	uint32_t vertex_connection_count(uint32_t vertex)
+	{
+		return 4;
+	}
+
+	Vector<uint32_t> vertex_connections(uint32_t v)
+	{
+		uint32_t row = v/L;
+		uint32_t col = v%L;
+
+		Vector<uint32_t> vector;
+
+		vector.emplace(to_vertex_index(row - 1, col));
+		vector.emplace(to_vertex_index(row + 1, col));
+		vector.emplace(to_vertex_index(row, col - 1));
+		vector.emplace(to_vertex_index(row, col + 1));
+
+		return vector;
+	}
+
+	uint32_t num_vertices()
+	{
+		return L*L;
+	}
+
+	uint32_t num_edges()
+	{
+		return 2*L*L;
+	}
+
+	uint32_t edge_idx(Edge e)
+	{
+		return to_edge_idx(L, e);
+	}
+
+	uint32_t to_edge_idx(uint32_t L, Edge e)
+	{
+		if(is_horizontal(L, e))
 			{
-				Vector<uint32_t> m = toric_x_stabilizers_qubits(L, nx * L + ny);
-				indptr.emplace(indptr.back()+ m.getSize());
-				for(int i = 0; i < m.getSize(); ++i)
-				{
-					col_indices.emplace(m.at(i));
-				}
+				auto u = left(L, e);
+				Edge tmp = vertex_to_coord(L, u);
+				uint32_t row = tmp.u;
+				uint32_t col = tmp.v;
+				return L * row + col + L * L;
 			}
-		}
-		setCode(L * L, 2 * L * L, col_indices, indptr);
-
+			else
+			{
+				auto u = upper(L, e);
+				Edge tmp = vertex_to_coord(L, u);
+				uint32_t row = tmp.u;
+				uint32_t col = tmp.v;
+				return L * row + col;
+			}
 	}
 
-	Vector<uint32_t> vertexConnectionsOf(uint32_t i)
+	bool is_horizontal(uint32_t L, Edge e)
 	{
-		return vertex_connections.at(i);
+		return ((e.v - e.u) == 1) || ((e.v - e.u) == (L - 1));
 	}
 
-	uint32_t vertexConnectionCountOf(uint32_t i)
+	uint32_t left(uint32_t L, Edge e)
 	{
-		return vertex_connections.at(i).getSize();
-	}
-
-	uint32_t edgeIdx(Edge e)
-	{
-		if(edge_idx.find(e) != 0)
+		if((e.v - e.u) == 1)
 		{
-			return *edge_idx.find(e);
+			return e.u;
 		}
-		else
+		return e.v;
+	}
+
+	uint32_t upper(uint32_t L, Edge e)
+	{
+		if((e.v - e.u) == L)
 		{
-			return 0;
+			return e.v;
 		}
+		return e.u;
+	}
+
+	Edge vertex_to_coord(const uint32_t L, const uint32_t vidx)
+	{
+		return {vidx / L, vidx % L};
 	}
 };
 

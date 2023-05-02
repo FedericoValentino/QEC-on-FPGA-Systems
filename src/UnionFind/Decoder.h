@@ -51,8 +51,6 @@ private:
 public:
 	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
 
-	void buildCode();
-
 };
 
 #endif

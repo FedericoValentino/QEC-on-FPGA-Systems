@@ -53,7 +53,7 @@ void Decoder::grow(uint32_t root)
 	Vector<uint32_t>* borders = border_vertices.find(root);
 	for(int i = 0; i < borders->getSize(); i++)
 	{
-		Vector<uint32_t> connections = Code.vertexConnectionsOf(borders->at(i));
+		Vector<uint32_t> connections = Code.vertex_connections(borders->at(i));
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
 			Edge e = {borders->at(i), connections.at(j)};
@@ -150,7 +150,7 @@ void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 	for(int i = 0; i<borderR2->getSize(); ++i)
 	{
 		uint32_t vertex = borderR2->at(i);
-		if(connection_counts.at(vertex) == Code.vertexConnectionCountOf(vertex))
+		if(connection_counts.at(vertex) == Code.vertex_connection_count(vertex))
 		{
 			borderR1->elementErase(vertex);
 		}
@@ -231,15 +231,9 @@ ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
 	for(int i = 0; i < correctionEdges.getSize(); ++i)
 	{
 		Edge e = correctionEdges.at(i);
-		correction[Code.edgeIdx(e)] = 1;
+		correction[Code.edge_idx(e)] = 1;
 	}
 	return correction;
-}
-
-
-void Decoder::buildCode()
-{
-	Code.buildCode();
 }
 
 
