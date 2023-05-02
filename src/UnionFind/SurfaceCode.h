@@ -20,7 +20,7 @@ struct Edge
 class SurfaceCode
 {
 private:
-	uint32_t L;
+	uint32_t L = D;
 
 public:
 
