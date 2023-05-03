@@ -29,6 +29,12 @@ void correctionTest()
 					  0, 0, 0, 0, 0, 0, 0,
 					  0, 0, 0, 0, 0, 0, 0,
 					  0, 0, 0, 0, 0, 1, 0};
+
+	/*
+	 * [0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 	 	0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+ 	 	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+	 */
 	auto start = std::chrono::high_resolution_clock::now();
 	ap_uint<CORR_LEN> correction = decoder.decode(syndrome);
 	auto stop = std::chrono::high_resolution_clock::now();
