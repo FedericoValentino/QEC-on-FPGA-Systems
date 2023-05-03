@@ -8,11 +8,11 @@
 
 //code definition
 
-#define K 1
+#define K 2
 #define D 7
-#define N 85
+#define N 98
 
-#define CORR_LEN 170
+#define CORR_LEN 98
 #define SYN_LEN 49
 
 typedef long long unsigned int Lint;

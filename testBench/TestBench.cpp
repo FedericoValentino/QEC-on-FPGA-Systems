@@ -22,19 +22,50 @@ void correctionTest()
 {
 	Decoder decoder;
 
-	int syndrome[] = {0, 1, 1, 1, 0, 1, 0,
-					  1, 0, 0, 0, 0, 0, 0,
-					  0, 0, 0, 0, 0, 0, 0,
-					  1, 1, 0, 0, 0, 0, 0,
-					  0, 0, 0, 0, 0, 0, 0,
-					  0, 0, 0, 0, 0, 0, 0,
-					  0, 0, 0, 0, 0, 1, 0};
+	//decoder.buildCode();
+
+	int syndrome[] = {1, 0, 0, 0, 0, 0, 0,
+					  0, 1, 0, 0, 0, 0, 0,
+					  1, 0, 0, 0, 1, 0, 1,
+					  0, 0, 0, 1, 1, 0, 0,
+					  0, 1, 0, 0, 0, 1, 0,
+					  0, 1, 0, 0, 1, 0, 1,
+					  1, 1, 0, 0, 0, 0, 0};
 
 	/*
-	 * [0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
- 	 	0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0
- 	 	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 0, 1, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 1, 0, 0,
+	 * 0, 0, 0, 0, 1, 0, 0,
+	 * 0, 1, 0, 0, 1, 0, 1,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 1, 0, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 0, 1,
+	 * 0, 0, 0, 1, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 1, 0,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 1, 0, 0, 0, 0, 0, 0
+	 *
+	 *
+	 * 1x, 1x, 0, 0, 0, 0, 0,
+	 * 0, 1, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 1, 0, 0,
+	 * 0, 0, 0, 0, 1, 0, 0,
+	 * 0, 1, 0, 0, 1, 0, 1,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 0x, 0, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 0, 1,
+	 * 0, 0, 0, 1, 0, 0, 0,
+	 * 0, 0, 0, 0, 0, 1, 0,
+	 * 0, 0, 0, 0, 0, 0, 0,
+	 * 0x, 0, 0, 0, 0, 0, 0,
 	 */
+
+
 	auto start = std::chrono::high_resolution_clock::now();
 	ap_uint<CORR_LEN> correction = decoder.decode(syndrome);
 	auto stop = std::chrono::high_resolution_clock::now();
@@ -44,11 +75,13 @@ void correctionTest()
 	for(int i = 0; i < CORR_LEN; ++i)
 	{
 		correctionArr[i] = correction[i];
+
+		printf("%d, ", correctionArr[i]);
 	}
 
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-	printf("SYNDROME DECODED IN %lld\n", duration.count());
+	printf("\nSYNDROME DECODED IN %lld\n", duration.count());
 
 }
 

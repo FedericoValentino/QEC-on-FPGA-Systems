@@ -38,7 +38,7 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
 	{
 		Vector<uint32_t> Border;
-		Border.emplace(roots.at(i));
+		Border.elementEmplace(roots.at(i));
 		border_vertices.add(roots.at(i), Border);
 	}
 
@@ -170,42 +170,29 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 	Vector<Edge> corrections;
 
 
-	Map<uint32_t, int> vertex_count;
+	int vertex_count[CORR_LEN] = {0};
 
 	for(int i = 0; i < peeling_edges.getSize(); ++i)
 	{
 		Edge* e = peeling_edges.get(i);
-		if(vertex_count.find(e->u) == 0)
-		{
-			vertex_count.add(e->u, 1);
-		}
-		else
-		{
-			vertex_count.update(e->u, *vertex_count.find(e->u)+1);
-		}
-		if(vertex_count.find(e->v) == 0)
-		{
-			vertex_count.add(e->v, 1);
-		}
-		else
-		{
-			vertex_count.update(e->v, *vertex_count.find(e->v)+1);
-		}
+
+		++vertex_count[e->u];
+		++vertex_count[e->v];
 	}
 
 	while(peeling_edges.getSize() != 0)
 	{
 		Edge leaf_edge = peeling_edges.at(peeling_edges.getSize()-1);
 		peeling_edges.erase(peeling_edges.getSize()-1);
-		uint32_t u;
-		uint32_t v;
+		uint32_t u = 0;
+		uint32_t v = 0;
 
-		if(*vertex_count.find(leaf_edge.u) == 1)
+		if(vertex_count[leaf_edge.u] == 1)
 		{
 			u = leaf_edge.u;
 			v = leaf_edge.v;
 		}
-		else if(*vertex_count.find(leaf_edge.v) == 1)
+		else if(vertex_count[leaf_edge.v] == 1)
 		{
 			u = leaf_edge.v;
 			v = leaf_edge.u;
@@ -216,14 +203,14 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 			continue;
 		}
 
-		*vertex_count.find(u) = *vertex_count.find(u) - 1;
-		*vertex_count.find(v) = *vertex_count.find(v) - 1;
+		--vertex_count[u];
+		--vertex_count[v];
 
 		if(syndrome[u] == 1)
 		{
 			corrections.emplace(leaf_edge);
 			syndrome[u] = 0;
-			syndrome[v] = 1;
+			syndrome[v] ^= 1U;
 		}
 	}
 
@@ -239,11 +226,17 @@ ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
 		Edge e = correctionEdges.at(i);
 
 
-		correction[Code.decoded_edge_to_qubit_idx(e)] = 1;
+		correction[Code.edge_idx(e)] = 1;
 	}
 	return correction;
 }
 
+/*
+ * void Decoder::buildCode()
+ *	{
+ *	Code.buildCode();
+ *	}
+*/
 
 
 

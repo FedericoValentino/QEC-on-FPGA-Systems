@@ -70,11 +70,13 @@ public:
 
 	void pushFront(T element)
 	{
-		for(int i = lastPos; i >=0 ; --i)
+		for(int i = lastPos; i >0 ; --i)
 		{
 			array[i] = array[i-1];
 		}
 		array[0] = element;
+		size++;
+		lastPos++;
 	}
 
 	void elementErase(T element)
@@ -87,6 +89,18 @@ public:
 				break;
 			}
 		}
+	}
+
+	void elementEmplace(T element)
+	{
+		for(int i = 0; i < lastPos; ++i)
+		{
+			if(array[i] == element)
+			{
+				return;
+			}
+		}
+		emplace(element);
 	}
 };
 

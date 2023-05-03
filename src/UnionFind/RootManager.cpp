@@ -5,8 +5,8 @@ void RootManager::initializeRoots(Vector<uint32_t> roots)
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
 		uint32_t tmp = roots.at(i);
-		this->roots.emplace(tmp);
-		this->oddRoots.emplace(tmp);
+		this->roots.elementEmplace(tmp);
+		this->oddRoots.elementEmplace(tmp);
 		this->sizes.add(tmp, 1);
 		this->parity.add(tmp, 1);
 	}
@@ -64,7 +64,7 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 
 	if((newParity % 2)== 1)
 	{
-		oddRoots.emplace(r1);
+		oddRoots.elementEmplace(r1);
 	}
 	else
 	{

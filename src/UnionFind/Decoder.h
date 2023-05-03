@@ -8,7 +8,6 @@
 #include "RootManager.h"
 #include "SurfaceCode.h"
 
-
 struct VertexNeighbors
 {
 	uint32_t vertex;
@@ -50,6 +49,8 @@ private:
 
 public:
 	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
+
+	//void buildCode();
 
 };
 
