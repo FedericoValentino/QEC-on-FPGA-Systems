@@ -22,15 +22,27 @@ void correctionTest()
 {
 	Decoder decoder;
 
-	int syndrome[] = {0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0};
-
+	int syndrome[] = {0, 1, 1, 1, 0, 1, 0,
+					  1, 0, 0, 0, 0, 0, 0,
+					  0, 0, 0, 0, 0, 0, 0,
+					  1, 1, 0, 0, 0, 0, 0,
+					  0, 0, 0, 0, 0, 0, 0,
+					  0, 0, 0, 0, 0, 0, 0,
+					  0, 0, 0, 0, 0, 1, 0};
 	auto start = std::chrono::high_resolution_clock::now();
 	ap_uint<CORR_LEN> correction = decoder.decode(syndrome);
 	auto stop = std::chrono::high_resolution_clock::now();
 
+	int correctionArr[CORR_LEN] = {0};
+
+	for(int i = 0; i < CORR_LEN; ++i)
+	{
+		correctionArr[i] = correction[i];
+	}
+
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-	printf("SYNDROME DECODED IN %f", duration.count());
+	printf("SYNDROME DECODED IN %lld\n", duration.count());
 
 }
 
@@ -87,7 +99,8 @@ void vectorTest()
 
 void hashTest(){
     //for the moment just change the commented line for testing, TODO
-	FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
+	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
+	FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
     //FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
 	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/2000samples.txt","r");
 	int syndrome[SYN_LEN] = {0};

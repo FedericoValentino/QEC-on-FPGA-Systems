@@ -84,6 +84,27 @@ public:
 			}
 	}
 
+	uint32_t decoded_edge_to_qubit_idx(Edge e)
+	{
+		if(is_horizontal(L, e))
+		{
+			auto u = left(L, e);
+			Edge tmp = vertex_to_coord(L, u);
+			uint32_t row = tmp.u;
+			uint32_t col = tmp.v;
+			return L * ((row + 1) % L) + ((col + 1) % L);
+		}
+		else
+		{
+			auto u = upper(L, e);
+			Edge tmp = vertex_to_coord(L, u);
+			uint32_t row = tmp.u;
+			uint32_t col = tmp.v;
+			return L * (row % L) + col + L * L;
+		}
+
+	}
+
 	bool is_horizontal(uint32_t L, Edge e)
 	{
 		return ((e.v - e.u) == 1) || ((e.v - e.u) == (L - 1));

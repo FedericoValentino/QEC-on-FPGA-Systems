@@ -2,6 +2,7 @@
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
+	assert(49 == Code.num_vertices());
 	Vector<uint32_t> syndrome_vertices;
 
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
@@ -41,7 +42,7 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 		border_vertices.add(roots.at(i), Border);
 	}
 
-	for(uint32_t i = 0; i < roots.getSize(); ++i)
+	for(uint32_t i = 0; i < Code.num_vertices(); ++i)
 	{
 		root_of_vertex.set(i, i);
 	}
@@ -56,8 +57,13 @@ void Decoder::grow(uint32_t root)
 		Vector<uint32_t> connections = Code.vertex_connections(borders->at(i));
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
-			Edge e = {borders->at(i), connections.at(j)};
-			uint32_t* elt = support.get(Code.edge_idx(e));
+			Edge e;
+
+			e.u = std::min(borders->at(i), connections.at(j));
+			e.v = std::max(borders->at(i), connections.at(j));
+
+			uint32_t edgeIdx = Code.edge_idx(e);
+			uint32_t* elt = support.get(edgeIdx);
 			if(*elt == 2)
 			{
 				continue;
@@ -227,11 +233,13 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 
 ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
 {
-	ap_uint<CORR_LEN> correction;
+	ap_uint<CORR_LEN> correction = 0;
 	for(int i = 0; i < correctionEdges.getSize(); ++i)
 	{
 		Edge e = correctionEdges.at(i);
-		correction[Code.edge_idx(e)] = 1;
+
+
+		correction[Code.decoded_edge_to_qubit_idx(e)] = 1;
 	}
 	return correction;
 }

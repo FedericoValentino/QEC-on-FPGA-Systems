@@ -13,7 +13,7 @@
 #define N 85
 
 #define CORR_LEN 170
-#define SYN_LEN 84
+#define SYN_LEN 49
 
 typedef long long unsigned int Lint;
 
