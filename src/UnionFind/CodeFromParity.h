@@ -5,6 +5,8 @@
 #include "../Utility/Vector.h"
 #include "../Utility/Map.h"
 
+#include <assert.h>
+
 
 struct Edge
 {
@@ -39,9 +41,9 @@ private:
 		}
 	}
 
-	void buildEdgeIdx(uint32_t ancillas, Vector<Vector<uint32_t>> ancilla_associated_dataqbits)
+	void buildEdgeIdx(uint32_t dataqubits, Vector<Vector<uint32_t>> ancilla_associated_dataqbits)
 	{
-		for(int i = 0; i < ancillas; ++i)
+		for(int i = 0; i < dataqubits; ++i)
 		{
 			Vector<uint32_t>* q_parities = ancilla_associated_dataqbits.get(i);
 			Edge edge = {q_parities->at(0), q_parities->at(1)};
@@ -52,13 +54,13 @@ private:
 		}
 	}
 
-	void setCode(uint32_t dataqbits, uint32_t ancillas, Vector<uint32_t> colIndices, Vector<uint32_t> indptr)
+	void setCode(uint32_t ancillas, uint32_t dataqubit, Vector<uint32_t> colIndices, Vector<uint32_t> indptr)
 	{
-		num_vertex = dataqbits;
-		num_edge = ancillas;
+		num_vertex = ancillas;
+		num_edge = dataqubit;
 
 		Vector<Vector<uint32_t>> ancilla_associated_dataqbits;
-		for(uint32_t i = 0; i < dataqbits; ++i)
+		for(uint32_t i = 0; i < ancillas; ++i)
 		{
 			for(uint32_t j = indptr.at(i); j < indptr.at(i+1); ++j)
 			{
@@ -66,8 +68,13 @@ private:
 			}
 		}
 
-		buildEdgeIdx(ancillas, ancilla_associated_dataqbits);
+		buildEdgeIdx(dataqubit, ancilla_associated_dataqbits);
 		buildVertexConnections();
+
+		for(int i = 0; i < vertex_connection.getSize(); ++i)
+		{
+			assert(vertex_connection.at(i).getSize() == 4);
+		}
 
 	}
 

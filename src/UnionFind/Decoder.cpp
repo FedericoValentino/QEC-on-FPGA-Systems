@@ -2,7 +2,7 @@
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
-	assert(49 == Code.num_vertices());
+	assert(SYN_LEN == Code.num_vertices());
 	Vector<uint32_t> syndrome_vertices;
 
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
@@ -231,11 +231,11 @@ ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
 	return correction;
 }
 
-/*
- * void Decoder::buildCode()
- *	{
- *	Code.buildCode();
- *	}
+
+/*void Decoder::buildCode()
+{
+	Code.buildCode();
+}
 */
 
 
