@@ -20,56 +20,32 @@ Lint binaryToDec(int array[CORR_LEN]){
 
 void correctionTest()
 {
+	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
 	Decoder decoder;
-
-	//decoder.buildCode();
-
-	int syndrome[] = {0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0};
-
-	/*
-	 * [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-	 * 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-	 *
-	 * success with SurfaceCode.h d = 3
-	 *
-	 * [0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-	 * [0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-	 *
-	 * success with SurfaceCode.h d = 6
-	 *
-	 * [0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
-	 *  0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0
-	 *
-	 *  SurfaceCode.h d = 7? fail :(
-	 *
-	 *  [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0]
-	 *   0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 1 0 0 1 1 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-	 *
-	 *   SurfaceCode.h d = 8? fail :(
-	 *
-	 *   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 0 0 0 0 0
-	 *   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 0 0 0 0 0
-	 *
-	 */
-
-
-	auto start = std::chrono::high_resolution_clock::now();
-	ap_uint<CORR_LEN> correction = decoder.decode(syndrome);
-	auto stop = std::chrono::high_resolution_clock::now();
-
-	int correctionArr[CORR_LEN] = {0};
-
-	for(int i = 0; i < CORR_LEN; ++i)
-	{
-		correctionArr[i] = correction[i];
-
-		printf("%d ", correctionArr[i]);
+	ap_uint<CORR_LEN> correction = 0;
+	ap_uint<CORR_LEN> correctionTest = 0;
+	int syndrome[SYN_LEN]={0};
+	int i;
+	while(!feof(f)){
+		fgetc(f);
+	    for(i=0;i<SYN_LEN;++i){
+	    	syndrome[i]=fgetc(f)-48;
+	        fgetc(f);
+	    }
+	    fgetc(f);
+	    fgetc(f);
+	    for(i=0;i<CORR_LEN;++i){
+	    	correction[i]=fgetc(f)-48;
+	        fgetc(f);
+	    }
+	    fgetc(f);
+	    correctionTest=decoder.decode(syndrome);
+	    assert(correction==correctionTest);
 	}
-
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-
-	printf("\nSYNDROME DECODED IN %lld\n", duration.count());
-
+	printf("Decoding test was successful for d=%d\n",D);
 }
 
 void MapTest()
@@ -120,14 +96,11 @@ void vectorTest()
 
 
 
-
-
-
 void hashTest(){
     //for the moment just change the commented line for testing, TODO
-	FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
+	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
 	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
-    //FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
+    FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
 	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/2000samples.txt","r");
 	int syndrome[SYN_LEN] = {0};
     ap_uint<CORR_LEN> correction = 0;
@@ -161,8 +134,8 @@ void hashTest(){
 
 int main()
 {
-	hashTest();
+	/*hashTest();
 	vectorTest();
-	MapTest();
+	MapTest();*/
 	correctionTest();
 }
