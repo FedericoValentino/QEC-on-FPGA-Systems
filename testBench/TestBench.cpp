@@ -20,13 +20,15 @@ Lint binaryToDec(int array[CORR_LEN]){
 
 void simpleCorrectionTest()
 {
-	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/test.txt","r");
 
 	Decoder decoder;
 	ap_uint<CORR_LEN> correctionTest = 0;
 	int syndrome[SYN_LEN]={0};
+	int syndromeOriginal[SYN_LEN] = {0};
 	int correctionTestArr[CORR_LEN] = {0};
 	int correctionArr[CORR_LEN] = {0};
+	int correctedCount = 0;
 
 	while(!feof(f))
 	{
@@ -36,7 +38,7 @@ void simpleCorrectionTest()
 
 		int count = 0;
 
-		while(count != 2)
+		while(count != 2 && !feof(f))
 		{
 			char c = fgetc(f);
 			if(c == 49 || c == 48)
@@ -44,6 +46,7 @@ void simpleCorrectionTest()
 				if(count == 0)
 				{
 					syndrome[i] = c-48;
+					syndromeOriginal[i] = c-48;
 					++i;
 				}
 				if(count == 1)
@@ -74,13 +77,24 @@ void simpleCorrectionTest()
 		}
 
 
-		if(!ok)
-			printf("\nSyndrome decoding was bad");
+		if(ok)
+		{
+			printf("good\n");
+			correctedCount++;
+		}
 		else
-			printf("\nSyndrome decoding was good");
+		{
+			printf("incorrectly decoded syndrome: \n");
+			for(i = 0; i < SYN_LEN; ++i)
+			{
+				printf("%d ", syndromeOriginal[i]);
+			}
+			printf("\n");
+		}
+
 	}
 
-	printf("\nSimple Test Completed\n");
+	printf("\nSimple Test Completed\nCorrectly Decoded %f", (float)correctedCount/10000.0f);
 
 }
 
@@ -88,12 +102,12 @@ void simpleCorrectionTest()
 void correctionTest()
 {
 	Decoder decoder;
-	int syndrome[SYN_LEN]={1, 0, 0, 0, 1, 0,
-						   0, 0, 0, 1, 0, 0,
-						   0, 0, 0, 0, 0, 1,
-						   1, 1, 0, 0, 0, 1,
-						   0, 0, 0, 0, 0, 1,
-						   1, 1, 0, 0, 1, 1};
+	int syndrome[SYN_LEN]={1, 0, 0, 1, 1, 1,
+						   1, 1, 0, 1, 0, 0,
+						   1, 0, 0, 0, 1, 0,
+						   0, 0, 0, 0, 0, 0,
+						   0, 0, 0, 0, 0, 0,
+						   1 ,0 ,1, 1, 0, 0 };
 	int correctionTestArr[CORR_LEN] = {0};
 	//1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1
 	//0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0
