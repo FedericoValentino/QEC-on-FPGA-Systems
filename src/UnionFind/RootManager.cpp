@@ -2,6 +2,11 @@
 
 void RootManager::initializeRoots(Vector<uint32_t> roots)
 {
+	this->roots.fillnReset(0);
+	oddRoots.fillnReset(0);
+	sizes.reset();
+	parity.reset();
+
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
 		uint32_t tmp = roots.at(i);
@@ -86,6 +91,14 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 
 }
 
+void RootManager::clear()
+{
+	roots.fillnReset(0);
+	oddRoots.fillnReset(0);
+
+	sizes.reset();
+	parity.reset();
+}
 
 
 

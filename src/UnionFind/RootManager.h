@@ -39,6 +39,8 @@ public:
 	bool isRoot(uint32_t root);
 
 	void merge(uint32_t r1, uint32_t r2);
+
+	void clear();
 };
 
 

@@ -64,6 +64,13 @@ public:
 		map.erase(pos);
 	}
 
+	void reset()
+	{
+		while(map.getSize() != 0)
+		{
+			map.erase(0);
+		}
+	}
 };
 
 

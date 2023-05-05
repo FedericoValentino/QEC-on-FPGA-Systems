@@ -102,6 +102,16 @@ public:
 		}
 		emplace(element);
 	}
+
+	void fillnReset(T element)
+	{
+		for(int i = 0; i < CORR_LEN*2; ++i)
+		{
+			array[i] = element;
+		}
+		size = 0;
+		lastPos = 0;
+	}
 };
 
 

@@ -231,6 +231,19 @@ ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
 	return correction;
 }
 
+void Decoder::clear()
+{
+	connection_counts.fillnReset(0);
+	support.fillnReset(0);
+	root_of_vertex.fillnReset(0);
+	border_vertices.reset();
+
+	Edge e = {0,0};
+	fuseList.fillnReset(e);
+	peeling_edges.fillnReset(e);
+
+	mngr.clear();
+}
 
 /*void Decoder::buildCode()
 {

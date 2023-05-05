@@ -18,34 +18,94 @@ Lint binaryToDec(int array[CORR_LEN]){
 }
 
 
-void correctionTest()
+void simpleCorrectionTest()
 {
-	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
-	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
-	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
-	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+
 	Decoder decoder;
-	ap_uint<CORR_LEN> correction = 0;
 	ap_uint<CORR_LEN> correctionTest = 0;
 	int syndrome[SYN_LEN]={0};
-	int i;
-	while(!feof(f)){
-		fgetc(f);
-	    for(i=0;i<SYN_LEN;++i){
-	    	syndrome[i]=fgetc(f)-48;
-	        fgetc(f);
-	    }
-	    fgetc(f);
-	    fgetc(f);
-	    for(i=0;i<CORR_LEN;++i){
-	    	correction[i]=fgetc(f)-48;
-	        fgetc(f);
-	    }
-	    fgetc(f);
-	    correctionTest=decoder.decode(syndrome);
-	    assert(correction==correctionTest);
+	int correctionTestArr[CORR_LEN] = {0};
+	int correctionArr[CORR_LEN] = {0};
+
+	while(!feof(f))
+	{
+		bool ok = true;
+
+		int i = 0;
+
+		int count = 0;
+
+		while(count != 2)
+		{
+			char c = fgetc(f);
+			if(c == 49 || c == 48)
+			{
+				if(count == 0)
+				{
+					syndrome[i] = c-48;
+					++i;
+				}
+				if(count == 1)
+				{
+					correctionArr[i] = c-48;
+					++i;
+				}
+			}
+			else if(c == 93)
+			{
+				i = 0;
+				++count;
+			}
+		}
+
+
+		correctionTest = decoder.decode(syndrome);
+		decoder.clear();
+
+		for(i = 0; i < CORR_LEN; ++i)
+		{
+			correctionTestArr[i] = correctionTest[i];
+			if(correctionTestArr[i] != correctionArr[i])
+			{
+				ok = false;
+				break;
+			}
+		}
+
+
+		if(!ok)
+			printf("\nSyndrome decoding was bad");
+		else
+			printf("\nSyndrome decoding was good");
 	}
-	printf("Decoding test was successful for d=%d\n",D);
+
+	printf("\nSimple Test Completed\n");
+
+}
+
+
+void correctionTest()
+{
+	Decoder decoder;
+	int syndrome[SYN_LEN]={1, 0, 0, 0, 1, 0,
+						   0, 0, 0, 1, 0, 0,
+						   0, 0, 0, 0, 0, 1,
+						   1, 1, 0, 0, 0, 1,
+						   0, 0, 0, 0, 0, 1,
+						   1, 1, 0, 0, 1, 1};
+	int correctionTestArr[CORR_LEN] = {0};
+	//1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1
+	//0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0
+	ap_uint<CORR_LEN> correctionTest = 0;
+
+	correctionTest = decoder.decode(syndrome);
+	for(int i = 0; i < CORR_LEN; ++i)
+	{
+		correctionTestArr[i] = correctionTest[i];
+		printf("%d ", correctionTestArr[i]);
+	}
+
 }
 
 void MapTest()
@@ -136,6 +196,7 @@ int main()
 {
 	/*hashTest();
 	vectorTest();
-	MapTest();*/
+	MapTest();
+	simpleCorrectionTest();*/
 	correctionTest();
 }
