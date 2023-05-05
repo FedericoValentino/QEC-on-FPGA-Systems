@@ -68,19 +68,14 @@ public:
 	{
 		if(is_horizontal(L, e))
 			{
-				auto u = left(L, e);
-				Edge tmp = vertex_to_coord(L, u);
-				uint32_t row = tmp.u;
-				uint32_t col = tmp.v;
-				return L * row + col + L * L;
+
+				Edge tmp=vertex_to_coord(L,left(L,e));
+				return tmp.u*L + left(L,e);
 			}
 			else
 			{
-				auto u = upper(L, e);
-				Edge tmp = vertex_to_coord(L, u);
-				uint32_t row = tmp.u;
-				uint32_t col = tmp.v;
-				return L * row + col;
+				Edge tmp=vertex_to_coord(L,upper(L,e));
+				return L*(2*tmp.u+1)+tmp.v;
 			}
 	}
 
@@ -123,9 +118,9 @@ public:
 	{
 		if((e.v - e.u) == L)
 		{
-			return e.v;
+			return e.u;
 		}
-		return e.u;
+		return e.v;
 	}
 
 	Edge vertex_to_coord(const uint32_t L, const uint32_t vidx)

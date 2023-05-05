@@ -20,7 +20,8 @@ Lint binaryToDec(int array[CORR_LEN]){
 
 void simpleCorrectionTest()
 {
-	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/test.txt","r");
+	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/test.txt","r");
+	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
 
 	Decoder decoder;
 	ap_uint<CORR_LEN> correctionTest = 0;
@@ -208,9 +209,9 @@ void hashTest(){
 
 int main()
 {
-	/*hashTest();
-	vectorTest();
-	MapTest();
-	simpleCorrectionTest();*/
-	correctionTest();
+	//hashTest();
+	//vectorTest();
+	//MapTest();
+	simpleCorrectionTest();
+	//correctionTest();
 }
