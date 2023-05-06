@@ -17,6 +17,13 @@ struct Edge
 	}
 };
 
+
+struct Coord
+{
+	uint32_t x;
+	uint32_t y;
+};
+
 class SurfaceCode
 {
 private:
@@ -24,9 +31,27 @@ private:
 
 public:
 
-	uint32_t to_vertex_index(uint32_t row, uint32_t col)
+	uint32_t to_vertex_index(int row, int col)
 	{
-		return (((row + L) % L)) * L + (col + L) % L;
+		if(row < 0)
+		{
+			row += L;
+		}
+		else if(row >= L)
+		{
+			row -= L;
+		}
+		if(col < 0)
+		{
+			col += L;
+		}
+		else if(col >= L)
+		{
+			col -= L;
+		}
+
+
+		return L * row + col;
 	}
 
 	uint32_t vertex_connection_count(uint32_t vertex)
@@ -36,8 +61,8 @@ public:
 
 	Vector<uint32_t> vertex_connections(uint32_t v)
 	{
-		uint32_t row = v/L;
-		uint32_t col = v%L;
+		int row = v/L;
+		int col = v%L;
 
 		Vector<uint32_t> vector;
 
@@ -67,37 +92,15 @@ public:
 	uint32_t to_edge_idx(uint32_t L, Edge e)
 	{
 		if(is_horizontal(L, e))
-			{
-
-				Edge tmp=vertex_to_coord(L,left(L,e));
-				return tmp.u*L + left(L,e);
-			}
-			else
-			{
-				Edge tmp=vertex_to_coord(L,upper(L,e));
-				return L*(2*tmp.u+1)+tmp.v;
-			}
-	}
-
-	uint32_t decoded_edge_to_qubit_idx(Edge e)
-	{
-		if(is_horizontal(L, e))
-		{
-			auto u = left(L, e);
-			Edge tmp = vertex_to_coord(L, u);
-			uint32_t row = tmp.u;
-			uint32_t col = tmp.v;
-			return L * ((row + 1) % L) + ((col + 1) % L);
-		}
-		else
-		{
-			auto u = upper(L, e);
-			Edge tmp = vertex_to_coord(L, u);
-			uint32_t row = tmp.u;
-			uint32_t col = tmp.v;
-			return L * (row % L) + col + L * L;
-		}
-
+				{
+					Coord tmp=vertex_to_coord(L,left(L,e));
+					return tmp.x*L + left(L,e);
+				}
+				else
+				{
+					Coord tmp=vertex_to_coord(L,upper(L,e));
+					return L*(2*tmp.x+1)+tmp.y;
+				}
 	}
 
 	bool is_horizontal(uint32_t L, Edge e)
@@ -123,7 +126,7 @@ public:
 		return e.v;
 	}
 
-	Edge vertex_to_coord(const uint32_t L, const uint32_t vidx)
+	Coord vertex_to_coord(const uint32_t L, const uint32_t vidx)
 	{
 		return {vidx / L, vidx % L};
 	}

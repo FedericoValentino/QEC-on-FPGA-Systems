@@ -21,7 +21,8 @@ Lint binaryToDec(int array[CORR_LEN]){
 void simpleCorrectionTest()
 {
 	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/test.txt","r");
-	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
+	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
+	FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
 
 	Decoder decoder;
 	ap_uint<CORR_LEN> correctionTest = 0;
@@ -70,6 +71,10 @@ void simpleCorrectionTest()
 		for(i = 0; i < CORR_LEN; ++i)
 		{
 			correctionTestArr[i] = correctionTest[i];
+		}
+
+		for(i = 0; i < CORR_LEN; ++i)
+		{
 			if(correctionTestArr[i] != correctionArr[i])
 			{
 				ok = false;
@@ -90,12 +95,22 @@ void simpleCorrectionTest()
 			{
 				printf("%d ", syndromeOriginal[i]);
 			}
+			printf("\nOur decoding: \n");
+			for(i = 0; i < CORR_LEN; ++i)
+			{
+				printf("%d ", correctionTestArr[i]);
+			}
+			printf("\nCorrect Decoding: \n");
+			for(i = 0; i < CORR_LEN; ++i)
+			{
+				printf("%d ", correctionArr[i]);
+			}
 			printf("\n");
 		}
 
 	}
 
-	printf("\nSimple Test Completed\nCorrectly Decoded %f", (float)correctedCount/10000.0f);
+	printf("\nSimple Test Completed\nCorrectly Decoded %f", (float)correctedCount/100.0f);
 
 }
 
@@ -103,15 +118,15 @@ void simpleCorrectionTest()
 void correctionTest()
 {
 	Decoder decoder;
-	int syndrome[SYN_LEN]={1, 0, 0, 1, 1, 1,
-						   1, 1, 0, 1, 0, 0,
-						   1, 0, 0, 0, 1, 0,
+	int syndrome[SYN_LEN]={0, 1, 0, 1, 0, 1,
+						   0, 1, 1, 1, 1, 1,
+						   0, 0, 1, 0, 0, 0,
 						   0, 0, 0, 0, 0, 0,
-						   0, 0, 0, 0, 0, 0,
-						   1 ,0 ,1, 1, 0, 0 };
+						   0, 0, 1, 0, 1, 1,
+						   1, 0, 0, 1, 1, 1};
+
 	int correctionTestArr[CORR_LEN] = {0};
-	//1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1
-	//0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0
+
 	ap_uint<CORR_LEN> correctionTest = 0;
 
 	correctionTest = decoder.decode(syndrome);
@@ -212,6 +227,6 @@ int main()
 	//hashTest();
 	//vectorTest();
 	//MapTest();
-	simpleCorrectionTest();
-	//correctionTest();
+	//simpleCorrectionTest();
+	correctionTest();
 }

@@ -245,7 +245,9 @@ void Decoder::clear()
 	mngr.clear();
 }
 
-/*void Decoder::buildCode()
+
+/*
+void Decoder::buildCode()
 {
 	Code.buildCode();
 }
