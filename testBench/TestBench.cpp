@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <chrono>
 
-
 #include "../src/Utility/Map.h"
 #include "../src/Utility/Vector.h"
 #include "../src/Project.h"
@@ -21,8 +20,8 @@ Lint binaryToDec(int array[CORR_LEN]){
 void simpleCorrectionTest()
 {
 	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/test.txt","r");
-	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
-	FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
+	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
+	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
 
 	Decoder decoder;
 	ap_uint<CORR_LEN> correctionTest = 0;
@@ -115,26 +114,67 @@ void simpleCorrectionTest()
 }
 
 
-void correctionTest()
-{
+void correctionTest(){
+
+	FILE* f = fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
+	//FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+
 	Decoder decoder;
-	int syndrome[SYN_LEN]={0, 1, 0, 1, 0, 1,
-						   0, 1, 1, 1, 1, 1,
-						   0, 0, 1, 0, 0, 0,
-						   0, 0, 0, 0, 0, 0,
-						   0, 0, 1, 0, 1, 1,
-						   1, 0, 0, 1, 1, 1};
-
+	int syndrome[SYN_LEN] = {0};
 	int correctionTestArr[CORR_LEN] = {0};
+	ap_uint<CORR_LEN> correction = 0;
+	ap_uint<CORR_LEN> logicals[K] = 0;
+    int bitstring[K];
+    int check[K];
+    int accuracy=0;
 
-	ap_uint<CORR_LEN> correctionTest = 0;
+    while(!feof(f)){
 
-	correctionTest = decoder.decode(syndrome);
-	for(int i = 0; i < CORR_LEN; ++i)
-	{
-		correctionTestArr[i] = correctionTest[i];
-		printf("%d ", correctionTestArr[i]);
-	}
+    	fgetc(f); //first square bracket
+
+        for(int i=0;i<SYN_LEN;i++){
+            syndrome[i]=fgetc(f)-48;
+            fgetc(f);//space
+        }
+
+        fgetc(f);//end of line
+        fgetc(f);//first square bracket
+        fgetc(f);//second square bracket
+
+        for(int i=0;i<K;i++){
+            for(int j=0;j<CORR_LEN;j++){
+            	logicals[i][j]=fgetc(f)-48;
+            	fgetc(f);//space
+            }
+            fgetc(f);//end of line
+            fgetc(f);//bracket
+            fgetc(f);//space
+        }
+
+        for(int i=0;i<K;i++){
+        	check[i]=fgetc(f)-48;
+        	fgetc(f);
+        }
+        fgetc(f);
+        correction = decoder.decode(syndrome);
+        decoder.clear();
+        for(int i=0;i<K;i++){
+        	bitstring[i]=0;
+        	for(int j=0;j<CORR_LEN;j++){
+        		bitstring[i]+=correction[j]*logicals[i][j];
+        	}
+        	bitstring[i]=bitstring[i]%2;
+        }
+
+
+        for(int i=0;i<K;i++){
+        	//assert(check[i]==bitstring[i]);
+        	if(check[i]!=bitstring[i])
+        		accuracy++;
+        }
+
+    }
+	printf("All test have been concluded with accuracy %f\n",(float)accuracy/1000);
 
 }
 
@@ -187,25 +227,25 @@ void vectorTest()
 
 
 void hashTest(){
-    //for the moment just change the commented line for testing, TODO
+
 	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
 	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
-    FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
 	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/2000samples.txt","r");
+	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+
 	int syndrome[SYN_LEN] = {0};
     ap_uint<CORR_LEN> correction = 0;
     ap_uint<CORR_LEN> correctionTest = 0;
-    int i;
     int perc=0;
     while(!feof(f)){
-        fgetc(f);
-        for(i=0;i<SYN_LEN;++i){
+        fgetc(f); //square bracket
+        for(int i=0;i<SYN_LEN;i++){
             syndrome[i]=fgetc(f)-48;
-            fgetc(f);
+            fgetc(f); //space
         }
-        fgetc(f);
-        fgetc(f);
-        for(i=0;i<CORR_LEN;++i){
+        fgetc(f); //end of line
+        fgetc(f); //square bracket
+        for(int i=0;i<CORR_LEN;i++){
             correction[i]=fgetc(f)-48;
             fgetc(f);
         }
