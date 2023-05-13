@@ -2,7 +2,6 @@
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
-	assert(SYN_LEN == Code.num_vertices());
 	Vector<uint32_t> syndrome_vertices;
 
 	for(uint32_t i = 0; i < SYN_LEN; ++i)

@@ -2,6 +2,8 @@
 #define DEFINES_H
 
 #include "ap_int.h"
+#include <stdint.h>
+#include <algorithm>
 
 
 #define MAX_SIZE 1000000
