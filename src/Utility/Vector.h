@@ -21,9 +21,10 @@ public:
 			{
 				array[i] = array[i-1];
 			}
-			++lastPos;
+
 		}
 		array[pos] = element;
+		++lastPos;
 		++size;
 	}
 
@@ -100,7 +101,29 @@ public:
 				return;
 			}
 		}
-		emplace(element);
+
+		uint32_t pos = 0;
+		if(size == 0)
+		{
+			emplace(element);
+		}
+		else
+		{
+			for(int i = 0; i < lastPos; i++)
+			{
+				if(element < array[i])
+				{
+					insert(element, i);
+					return;
+				}
+				else
+				{
+					pos = i+1;
+				}
+			}
+			insert(element, pos);
+			return;
+		}
 	}
 
 	void fillnReset(T element)
