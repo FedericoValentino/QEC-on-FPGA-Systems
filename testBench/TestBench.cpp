@@ -164,13 +164,11 @@ void correctionTest(){
     	}
 
         fgetc(f);//end of line
-        fgetc(f);//bracket
         fgetc(f);//space
+        fgetc(f);//bracket
     }
 
     while(!feof(f)){
-
-    	fgetc(f); //first square bracket
 
         for(int i=0; i<SYN_LEN && !feof(f); i++){
             syndrome[i]=fgetc(f)-48;
@@ -186,6 +184,7 @@ void correctionTest(){
         }
 
         fgetc(f);//end of line
+        fgetc(f); //next square bracket
         correction = decoder.decode(syndrome);
         decoder.clear();
 
@@ -193,7 +192,7 @@ void correctionTest(){
         	bitstring[i]=0;
 
         	for(int j=0; j<CORR_LEN; j++)
-        		bitstring[i]+=correction[j]*logicals[i][j];
+        		bitstring[i]+=logicals[i][j]*correction[j];
 
         	bitstring[i]=bitstring[i]%2;
         }
@@ -207,7 +206,7 @@ void correctionTest(){
         }
 
     }
-	printf("All test have been concluded with accuracy %f\n",(float)accuracy/1000);
+	printf("All test have been concluded with accuracy %f%\n",(float)accuracy/10);
 
 }
 
