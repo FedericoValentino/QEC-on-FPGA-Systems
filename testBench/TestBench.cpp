@@ -201,7 +201,7 @@ void correctionTest(){
         for(int i=0; i<K; i++){
 
         	if(check[i]!=bitstring[i])
-        		accuracy++;
+        		++accuracy;
 
         }
 
