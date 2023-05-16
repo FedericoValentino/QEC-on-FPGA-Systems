@@ -147,57 +147,63 @@ void correctionTest(){
 	//FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 	Decoder decoder;
+	ap_uint<N> logicals[K] = 0;
 	int syndrome[SYN_LEN] = {0};
-	int correctionTestArr[CORR_LEN] = {0};
 	ap_uint<CORR_LEN> correction = 0;
-	ap_uint<CORR_LEN> logicals[K] = 0;
-    int bitstring[K];
-    int check[K];
+	int check[K];
+	int bitstring[K];
     int accuracy=0;
+
+    fgetc(f); //first bracket
+    fgetc(f); //second bracket
+    for(int i=0; i<K && !feof(f); i++){
+
+    	for(int j=0; j<N && !feof(f); j++){
+    		logicals[i][j]=fgetc(f)-48;
+            fgetc(f);//space or bracket
+    	}
+
+        fgetc(f);//end of line
+        fgetc(f);//bracket
+        fgetc(f);//space
+    }
 
     while(!feof(f)){
 
     	fgetc(f); //first square bracket
 
-        for(int i=0;i<SYN_LEN;i++){
+        for(int i=0; i<SYN_LEN && !feof(f); i++){
             syndrome[i]=fgetc(f)-48;
             fgetc(f);//space
         }
 
         fgetc(f);//end of line
         fgetc(f);//first square bracket
-        fgetc(f);//second square bracket
 
-        for(int i=0;i<K;i++){
-            for(int j=0;j<CORR_LEN;j++){
-            	logicals[i][j]=fgetc(f)-48;
-            	fgetc(f);//space
-            }
-            fgetc(f);//end of line
-            fgetc(f);//bracket
-            fgetc(f);//space
-        }
-
-        for(int i=0;i<K;i++){
+        for(int i=0; i<K && !feof(f); i++){
         	check[i]=fgetc(f)-48;
-        	fgetc(f);
+        	fgetc(f); //space or bracket
         }
-        fgetc(f);
+
+        fgetc(f);//end of line
         correction = decoder.decode(syndrome);
         decoder.clear();
-        for(int i=0;i<K;i++){
+
+        for(int i=0; i<K; i++){
         	bitstring[i]=0;
-        	for(int j=0;j<CORR_LEN;j++){
+
+        	for(int j=0; j<CORR_LEN; j++)
         		bitstring[i]+=correction[j]*logicals[i][j];
-        	}
+
         	bitstring[i]=bitstring[i]%2;
         }
 
 
-        for(int i=0;i<K;i++){
-        	//assert(check[i]==bitstring[i]);
+        for(int i=0; i<K; i++){
+
         	if(check[i]!=bitstring[i])
         		accuracy++;
+
         }
 
     }
@@ -295,6 +301,6 @@ int main()
 	//vectorTest();
 	//MapTest();
 	//singleCorrectionTest();
-	simpleCorrectionTest();
-	//correctionTest();
+	//simpleCorrectionTest();
+	correctionTest();
 }
