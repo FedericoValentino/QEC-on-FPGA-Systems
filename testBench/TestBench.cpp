@@ -19,7 +19,7 @@ Lint binaryToDec(int array[CORR_LEN]){
 
 void singleCorrectionTest()
 {
-	int syndrome[SYN_LEN] = {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1};
+	int syndrome[SYN_LEN] = {0, 0, 0, 1, 1, 1, 0, 0, 1};
 	ap_uint<CORR_LEN> correctionTest = 0;
 	int correctionArr[CORR_LEN] = {0};
 
@@ -143,11 +143,11 @@ void simpleCorrectionTest()
 
 void correctionTest(){
 
-	FILE* f = fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
-	//FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+	//FILE* f = fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
+	FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 	Decoder decoder;
-	ap_uint<N> logicals[K] = 0;
+	int logicals[K][N] = {0};
 	int syndrome[SYN_LEN] = {0};
 	ap_uint<CORR_LEN> correction = 0;
 	int check[K];
@@ -198,11 +198,9 @@ void correctionTest(){
         }
 
 
-        for(int i=0; i<K; i++){
-
-        	if(check[i]!=bitstring[i])
-        		++accuracy;
-
+        if(check[0] == bitstring[0] && check[1] == bitstring[1])
+        {
+        	++accuracy;
         }
 
     }

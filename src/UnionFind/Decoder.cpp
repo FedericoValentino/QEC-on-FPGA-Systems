@@ -149,7 +149,7 @@ void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 
 	for(int i = 0; i<borderR2->getSize(); ++i)
 	{
-		borderR1->emplace(borderR2->at(i));
+		borderR1->elementEmplace(borderR2->at(i));
 	}
 
 	for(int i = 0; i<borderR2->getSize(); ++i)

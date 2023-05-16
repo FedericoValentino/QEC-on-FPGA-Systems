@@ -120,9 +120,9 @@ public:
 	{
 		if((e.v - e.u) == L)
 		{
-			return e.u;
+			return e.v;
 		}
-		return e.v;
+		return e.u;
 	}
 
 	Coord vertex_to_coord(const uint32_t L, const uint32_t vidx)
