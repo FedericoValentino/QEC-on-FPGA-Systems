@@ -17,11 +17,38 @@ Lint binaryToDec(int array[CORR_LEN]){
 }
 
 
+void singleCorrectionTest()
+{
+	int syndrome[SYN_LEN] = {0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1};
+	ap_uint<CORR_LEN> correctionTest = 0;
+	int correctionArr[CORR_LEN] = {0};
+
+	Decoder decoder;
+
+	correctionTest = decoder.decode(syndrome);
+	decoder.clear();
+
+	for(int i = 0; i < CORR_LEN; ++i)
+	{
+		correctionArr[i] = correctionTest[i];
+	}
+
+
+	printf("\nOur decoding: \n");
+	for(int i = 0; i < CORR_LEN; ++i)
+	{
+		printf("%d ", correctionArr[i]);
+	}
+
+
+}
+
+
 void simpleCorrectionTest()
 {
-	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/test.txt","r");
+	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
 	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
-	FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
 
 	Decoder decoder;
 	ap_uint<CORR_LEN> correctionTest = 0;
@@ -267,6 +294,7 @@ int main()
 	//hashTest();
 	//vectorTest();
 	//MapTest();
+	//singleCorrectionTest();
 	simpleCorrectionTest();
 	//correctionTest();
 }

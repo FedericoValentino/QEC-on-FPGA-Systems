@@ -94,12 +94,11 @@ public:
 		if(is_horizontal(L, e))
 				{
 					Coord tmp=vertex_to_coord(L,left(L,e));
-					return tmp.x*L + left(L,e);
+					return L*(L+tmp.x)+tmp.y;
 				}
 				else
 				{
-					Coord tmp=vertex_to_coord(L,upper(L,e));
-					return L*(2*tmp.x+1)+tmp.y;
+					return lower(L,e);
 				}
 	}
 
@@ -117,7 +116,7 @@ public:
 		return e.v;
 	}
 
-	uint32_t upper(uint32_t L, Edge e)
+	uint32_t lower(uint32_t L, Edge e)
 	{
 		if((e.v - e.u) == L)
 		{
