@@ -206,7 +206,7 @@ void correctionTest(){
         }
 
     }
-	printf("All test have been concluded with accuracy %f%\n",(float)accuracy/10);
+	printf("Decoding test concluded with accuracy %f%\n",(float)accuracy/10);
 
 }
 
