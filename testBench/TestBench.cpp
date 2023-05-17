@@ -143,8 +143,8 @@ void simpleCorrectionTest()
 
 void correctionTest(){
 
-	//FILE* f = fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
-	FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+	FILE* f = fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
+	//FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 	Decoder decoder;
 	int logicals[K][N] = {0};
@@ -153,6 +153,9 @@ void correctionTest(){
 	int check[K];
 	int bitstring[K];
     int accuracy=0;
+    std::chrono::nanoseconds total=static_cast<std::chrono::nanoseconds>(0);
+
+
 
     fgetc(f); //first bracket
     fgetc(f); //second bracket
@@ -185,8 +188,13 @@ void correctionTest(){
 
         fgetc(f);//end of line
         fgetc(f); //next square bracket
+        auto start=std::chrono::high_resolution_clock::now();
         correction = decoder.decode(syndrome);
         decoder.clear();
+        auto stop=std::chrono::high_resolution_clock::now();
+        auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+        total=total+duration;
+
 
         for(int i=0; i<K; i++){
         	bitstring[i]=0;
@@ -204,11 +212,11 @@ void correctionTest(){
         }
 
     }
-	printf("Decoding test concluded with accuracy %f%\n",(float)accuracy/10);
+	printf("Decoding test concluded with accuracy %f%\nAverage running time: %f",(float)accuracy/5,(float)total.count()/500);
 
 }
 
-void MapTest()
+void mapTest()
 {
 	Map<uint32_t, uint32_t> test;
 
@@ -217,7 +225,6 @@ void MapTest()
 	test.add(4, 192);
 
 	assert(*test.find(1) == 45);
-
 
 	test.update(1, 49);
 
@@ -296,7 +303,7 @@ int main()
 {
 	//hashTest();
 	//vectorTest();
-	//MapTest();
+	//mapTest();
 	//singleCorrectionTest();
 	//simpleCorrectionTest();
 	correctionTest();
