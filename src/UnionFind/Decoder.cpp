@@ -47,6 +47,20 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 	}
 }
 
+uint32_t min(uint32_t a, uint32_t b){
+	if(a<b)
+		return a;
+	else
+		return b;
+}
+
+uint32_t max(uint32_t a, uint32_t b){
+	if(a>b)
+		return a;
+	else
+		return b;
+}
+
 
 void Decoder::grow(uint32_t root)
 {
@@ -58,8 +72,8 @@ void Decoder::grow(uint32_t root)
 		{
 			Edge e;
 
-			e.u = std::min(borders->at(i), connections.at(j));
-			e.v = std::max(borders->at(i), connections.at(j));
+			e.u = min(borders->at(i), connections.at(j));
+			e.v = max(borders->at(i), connections.at(j));
 
 			uint32_t edgeIdx = Code.edge_idx(e);
 			uint32_t* elt = support.get(edgeIdx);
