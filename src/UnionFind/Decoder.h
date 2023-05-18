@@ -35,19 +35,23 @@ private:
 
 	void init_cluster(Vector<uint32_t> roots);
 
-	void grow(uint32_t root);
+
 
 	void fusion();
 
 	uint32_t findRoot(uint32_t vertex);
 
-	void mergeBoundary(uint32_t r1, uint32_t r2);
 
 	Vector<Edge> peel(int syndrome[SYN_LEN]);
 
 	ap_uint<CORR_LEN> translate(Vector<Edge> correctionEdges);
 
 public:
+
+	void grow(uint32_t root);
+
+	void mergeBoundary(uint32_t r1, uint32_t r2);
+
 	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
 
 	void clear();

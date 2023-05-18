@@ -135,6 +135,11 @@ public:
 		size = 0;
 		lastPos = 0;
 	}
+
+	void plusOne(uint32_t pos)
+	{
+		++array[pos];
+	}
 };
 
 

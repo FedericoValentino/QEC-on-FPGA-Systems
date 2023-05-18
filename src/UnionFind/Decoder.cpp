@@ -64,27 +64,29 @@ uint32_t max(uint32_t a, uint32_t b){
 
 void Decoder::grow(uint32_t root)
 {
-	Vector<uint32_t>* borders = border_vertices.find(root);
-	for(int i = 0; i < borders->getSize(); i++)
+	Vector<uint32_t> borders = border_vertices.find(root);
+	for(int i = 0; i < borders.getSize(); i++)
 	{
-		Vector<uint32_t> connections = Code.vertex_connections(borders->at(i));
+		Vector<uint32_t> connections = Code.vertex_connections(borders.at(i));
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
 			Edge e;
 
-			e.u = min(borders->at(i), connections.at(j));
-			e.v = max(borders->at(i), connections.at(j));
+			e.u = min(borders.at(i), connections.at(j));
+			e.v = max(borders.at(i), connections.at(j));
 
 			uint32_t edgeIdx = Code.edge_idx(e);
-			uint32_t* elt = support.get(edgeIdx);
-			if(*elt == 2)
+			uint32_t elt = support.at(edgeIdx);
+			if(elt == 2)
 			{
 				continue;
 			}
-			if(++*elt == 2)
+			support.plusOne(edgeIdx);
+			elt = support.at(edgeIdx);
+			if(elt == 2)
 			{
-				++*connection_counts.get(e.u);
-				++*connection_counts.get(e.v);
+				connection_counts.plusOne(e.u);
+				connection_counts.plusOne(e.v);
 				fuseList.emplace(e);
 			}
 		}
@@ -144,7 +146,9 @@ void Decoder::fusion()
 		if(!mngr.isRoot(root2))
 		{
 			mngr.growSize(root1);
-			border_vertices.find(root1)->emplace(root2);
+			Vector<uint32_t> border = border_vertices.find(root1);
+			border.emplace(root2);
+			border_vertices.update(root1, border);
 		}
 		else
 		{
@@ -158,22 +162,24 @@ void Decoder::fusion()
 
 void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 {
-	Vector<uint32_t>* borderR1 = border_vertices.find(r1);
-	Vector<uint32_t>* borderR2 = border_vertices.find(r2);
+	Vector<uint32_t> borderR1 = border_vertices.find(r1);
+	Vector<uint32_t> borderR2 = border_vertices.find(r2);
 
-	for(int i = 0; i<borderR2->getSize(); ++i)
+	for(int i = 0; i<borderR2.getSize(); ++i)
 	{
-		borderR1->elementEmplace(borderR2->at(i));
+		borderR1.elementEmplace(borderR2.at(i));
 	}
 
-	for(int i = 0; i<borderR2->getSize(); ++i)
+	for(int i = 0; i<borderR2.getSize(); ++i)
 	{
-		uint32_t vertex = borderR2->at(i);
+		uint32_t vertex = borderR2.at(i);
 		if(connection_counts.at(vertex) == Code.vertex_connection_count(vertex))
 		{
-			borderR1->elementErase(vertex);
+			borderR1.elementErase(vertex);
 		}
 	}
+
+	border_vertices.update(r1, borderR1);
 	border_vertices.erase(r2);
 }
 

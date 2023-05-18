@@ -4,6 +4,11 @@
 HashMap decoderLUT;
 Decoder decoderUF;
 
+void test(int syndrome[SYN_LEN])
+{
+	decoderUF.decode(syndrome);
+}
+
 
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {

@@ -34,7 +34,7 @@ uint32_t RootManager::size(uint32_t root)
 		return 0;
 	}
 	auto size = sizes.find(root);
-	return *size;
+	return size;
 }
 
 void RootManager::growSize(uint32_t root)
@@ -42,7 +42,8 @@ void RootManager::growSize(uint32_t root)
 	if(isRoot(root))
 	{
 		auto size = sizes.find(root);
-		*size += 1;
+		size += 1;
+		sizes.update(root, size);
 	}
 
 }
@@ -65,7 +66,7 @@ bool RootManager::isRoot(uint32_t root)
 
 void RootManager::merge(uint32_t r1, uint32_t r2)
 {
-	uint32_t newParity = *parity.find(r1) + *parity.find(r2);
+	uint32_t newParity = parity.find(r1) + parity.find(r2);
 
 	if((newParity % 2)== 1)
 	{
@@ -79,7 +80,7 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 
 	if(isRoot(r2))
 	{
-		sizes.update(r1, *sizes.find(r1) + *sizes.find(r2));
+		sizes.update(r1, sizes.find(r1) + sizes.find(r2));
 	}
 	parity.update(r1, newParity);
 

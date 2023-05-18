@@ -15,6 +15,7 @@ class Map
 {
 private:
 	Vector<Touple<T, U>> map;
+	U defaultValue;
 public:
 	void add(T v1, U v2)
 	{
@@ -22,22 +23,27 @@ public:
 		map.emplace(tmp);
 	}
 
-	U* find(T v1)
+	U find(T v1)
 	{
 		for(int i = 0; i < map.getSize(); ++i)
 		{
 			if(map.at(i).v1 == v1)
 			{
-				return &map.get(i)->v2;
+				return map.get(i)->v2;
 			}
 		}
-		return nullptr;
+		return defaultValue;
 	}
 
 	void update(T v1, U v2)
 	{
-		U* toUpdate = find(v1);
-		*toUpdate = v2;
+		for(int i = 0; i < map.getSize(); ++i)
+		{
+			if(map.at(i).v1 == v1)
+			{
+				map.get(i)->v2 = v2;
+			}
+		}
 	}
 
 	Touple<T, U>* get(uint32_t pos)

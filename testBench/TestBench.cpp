@@ -20,6 +20,8 @@ Lint binaryToDec(int array[CORR_LEN]){
 void singleCorrectionTest()
 {
 	int syndrome[SYN_LEN] = {0, 0, 0, 1, 1, 1, 0, 0, 1};
+	//0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0
+	//0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0
 	ap_uint<CORR_LEN> correctionTest = 0;
 	int correctionArr[CORR_LEN] = {0};
 
@@ -143,8 +145,8 @@ void simpleCorrectionTest()
 
 void correctionTest(){
 
-	FILE* f = fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
-	//FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+	//FILE* f = fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
+	FILE* f = fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 	Decoder decoder;
 	int logicals[K][N] = {0};
@@ -224,11 +226,11 @@ void mapTest()
 	test.add(2, 78);
 	test.add(4, 192);
 
-	assert(*test.find(1) == 45);
+	assert(test.find(1) == 45);
 
 	test.update(1, 49);
 
-	assert(*test.find(1) == 49);
+	assert(test.find(1) == 49);
 
 	printf("ALL MAP TESTS WERE SUCCESSFUL\n");
 
@@ -297,7 +299,6 @@ void hashTest(){
     }
     printf("ALL HASHTABLE TESTs WERE SUCCESSFUL\n");
 }
-
 
 int main()
 {
