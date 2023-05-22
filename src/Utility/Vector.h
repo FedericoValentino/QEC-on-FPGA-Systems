@@ -8,6 +8,7 @@ template <class T>
 class Vector
 {
 private:
+#pragma HLS ARRAY_RESHAPE variable=array
 	T array[CORR_LEN * 2] = {};
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
@@ -19,6 +20,7 @@ public:
 		{
 			for(int i = lastPos; i > pos; --i)
 			{
+#pragma HLS PIPELINE
 				array[i] = array[i-1];
 			}
 
@@ -61,8 +63,10 @@ public:
 	}
 	void erase(uint32_t pos)
 	{
+ERASING_LOOP:
 		for(int i = pos; i < lastPos; ++i)
 		{
+#pragma HLS PIPELINE
 			array[i] = array[i+1];
 		}
 		size--;
@@ -71,8 +75,10 @@ public:
 
 	void pushFront(T element)
 	{
+PUSHFRONT_LOOP:
 		for(int i = lastPos; i >0 ; --i)
 		{
+#pragma HLS PIPELINE
 			array[i] = array[i-1];
 		}
 		array[0] = element;
@@ -82,8 +88,10 @@ public:
 
 	void elementErase(T element)
 	{
+ERASE_LOOP:
 		for(int i = 0; i < lastPos; ++i)
 		{
+#pragma HLS UNROLL factor=8
 			if(array[i] == element)
 			{
 				erase(i);
@@ -94,8 +102,10 @@ public:
 
 	void elementEmplace(T element)
 	{
+SEARCH_ELEMENT_LOOP:
 		for(int i = 0; i < lastPos; ++i)
 		{
+#pragma HLS UNROLL factor=8
 			if(array[i] == element)
 			{
 				return;
@@ -111,6 +121,7 @@ public:
 		{
 			for(int i = 0; i < lastPos; i++)
 			{
+#pragma HLS PIPELINE
 				if(element < array[i])
 				{
 					insert(element, i);
@@ -128,8 +139,10 @@ public:
 
 	void fillnReset(T element)
 	{
+RESET_LOOP:
 		for(int i = 0; i < CORR_LEN*2; ++i)
 		{
+#pragma HLS UNROLL factor=CORR_LEN*2
 			array[i] = element;
 		}
 		size = 0;

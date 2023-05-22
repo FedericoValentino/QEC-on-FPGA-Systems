@@ -25,8 +25,10 @@ public:
 
 	U find(T v1)
 	{
+FIND_LOOP:
 		for(int i = 0; i < map.getSize(); ++i)
 		{
+#pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == v1)
 			{
 				return map.get(i)->v2;
@@ -37,8 +39,10 @@ public:
 
 	void update(T v1, U v2)
 	{
+UPDATE_LOOP:
 		for(int i = 0; i < map.getSize(); ++i)
 		{
+#pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == v1)
 			{
 				map.get(i)->v2 = v2;
@@ -59,8 +63,10 @@ public:
 	void erase(uint32_t key)
 	{
 		uint32_t pos;
+ERASE_LOOP:
 		for(int i = 0; i < map.getSize(); ++i)
 		{
+#pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == key)
 			{
 				pos = i;
@@ -72,6 +78,7 @@ public:
 
 	void reset()
 	{
+RESET_LOOP:
 		while(map.getSize() != 0)
 		{
 			map.erase(0);
