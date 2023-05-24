@@ -7,8 +7,10 @@ void RootManager::initializeRoots(Vector<uint32_t> roots)
 	sizes.reset();
 	parity.reset();
 
+ROOT_INITIALIZE:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
+#pragma HLS PIPELINE
 		uint32_t tmp = roots.at(i);
 		this->roots.elementEmplace(tmp);
 		this->oddRoots.elementEmplace(tmp);
@@ -66,6 +68,7 @@ bool RootManager::isRoot(uint32_t root)
 
 void RootManager::merge(uint32_t r1, uint32_t r2)
 {
+#pragma HLS DATAFLOW
 	uint32_t newParity = parity.find(r1) + parity.find(r2);
 
 	if((newParity % 2)== 1)
@@ -94,6 +97,7 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 
 void RootManager::clear()
 {
+#pragma HLS DATAFLOW
 	roots.fillnReset(0);
 	oddRoots.fillnReset(0);
 

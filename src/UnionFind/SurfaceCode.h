@@ -66,6 +66,7 @@ public:
 
 		Vector<uint32_t> vector;
 
+#pragma HLS DATAFLOW
 		vector.emplace(to_vertex_index(row - 1, col));
 		vector.emplace(to_vertex_index(row + 1, col));
 		vector.emplace(to_vertex_index(row, col - 1));
