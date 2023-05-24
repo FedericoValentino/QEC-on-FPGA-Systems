@@ -13,10 +13,10 @@ struct Touple
 template <class T, class U>
 class Map
 {
-private:
+public:
 	Vector<Touple<T, U>> map;
 	U defaultValue;
-public:
+
 	void add(T v1, U v2)
 	{
 		Touple<T, U> tmp = {v1, v2};

@@ -17,14 +17,12 @@ typedef struct ClusterNFO ClusterNFO;
 
 class RootManager
 {
-private:
+public:
 	Vector<uint32_t> roots;
 	Vector<uint32_t> oddRoots;
 
 	Map<uint32_t, uint32_t> sizes;
 	Map<uint32_t, uint32_t> parity;
-
-public:
 
 	void initializeRoots(Vector<uint32_t> roots);
 

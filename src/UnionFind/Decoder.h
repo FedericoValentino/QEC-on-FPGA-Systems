@@ -16,7 +16,7 @@ struct VertexNeighbors
 
 class Decoder
 {
-private:
+public:
 
 	SurfaceCode Code;
 
@@ -49,8 +49,6 @@ private:
 	void grow(uint32_t root);
 
 	void mergeBoundary(uint32_t r1, uint32_t r2);
-
-public:
 
 	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
 

@@ -7,12 +7,10 @@
 template <class T>
 class Vector
 {
-private:
-#pragma HLS ARRAY_RESHAPE variable=array
+public:
 	T array[CORR_LEN * 2] = {};
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
-public:
 
 	void insert(T element, uint32_t pos)
 	{
