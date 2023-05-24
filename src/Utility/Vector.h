@@ -87,9 +87,9 @@ PUSHFRONT_LOOP:
 	void elementErase(T element)
 	{
 ERASE_LOOP:
-		for(int i = 0; i < lastPos; ++i)
+		for(int i = 0; i < 256; ++i)
 		{
-#pragma HLS UNROLL factor=8
+#pragma HLS UNROLL
 			if(array[i] == element)
 			{
 				erase(i);
@@ -101,9 +101,9 @@ ERASE_LOOP:
 	void elementEmplace(T element)
 	{
 SEARCH_ELEMENT_LOOP:
-		for(int i = 0; i < lastPos; ++i)
+		for(int i = 0; i < 256; ++i)
 		{
-#pragma HLS UNROLL factor=8
+#pragma HLS UNROLL
 			if(array[i] == element)
 			{
 				return;
@@ -140,7 +140,7 @@ SEARCH_ELEMENT_LOOP:
 RESET_LOOP:
 		for(int i = 0; i < CORR_LEN*2; ++i)
 		{
-#pragma HLS UNROLL factor=CORR_LEN*2
+#pragma HLS UNROLL
 			array[i] = element;
 		}
 		size = 0;

@@ -187,7 +187,7 @@ MERGE:
 #pragma HLS PIPELINE
 		borderR1.elementEmplace(borderR2.at(i));
 	}
-ERASE_LEFTOVERS
+ERASE_LEFTOVERS:
 	for(int i = 0; i<borderR2.getSize(); ++i)
 	{
 #pragma HLS PIPELINE
