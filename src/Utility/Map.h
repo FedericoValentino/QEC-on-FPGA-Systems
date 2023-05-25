@@ -26,7 +26,7 @@ public:
 	U find(T v1)
 	{
 FIND_LOOP:
-		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
+		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == v1 && i < map.getSize())
@@ -44,7 +44,7 @@ FIND_LOOP:
 	void update(T v1, U v2)
 	{
 UPDATE_LOOP:
-		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
+		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == v1 && i < map.getSize())
@@ -73,7 +73,7 @@ UPDATE_LOOP:
 	{
 		uint32_t pos;
 ERASE_LOOP:
-		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
+		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == key && i < map.getSize())

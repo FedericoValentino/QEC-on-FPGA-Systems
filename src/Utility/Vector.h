@@ -14,14 +14,18 @@ public:
 
 	void insert(T element, uint32_t pos)
 	{
+		T tmp;
 		if(array[pos])
 		{
 			for(int i = (CORR_LEN * 2) - 1; i >= 0; --i)
 			{
 #pragma HLS UNROLL factor=16
 				if(i <= pos)
+				{
 					break;
-				array[i] = array[i-1];
+				}
+				tmp = array[i-1];
+				array[i] = tmp;
 			}
 		}
 		array[pos] = element;
@@ -62,12 +66,16 @@ public:
 	}
 	void erase(uint32_t pos)
 	{
+		T tmp;
 ERASING_LOOP:
-		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
+		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=16
 			if(i >= pos)
-				array[i] = array[i+1];
+			{
+				tmp = array[i+1];
+				array[i] = tmp;
+			}
 		}
 		size--;
 		lastPos--;
@@ -75,11 +83,13 @@ ERASING_LOOP:
 
 	void pushFront(T element)
 	{
+		T tmp;
 PUSHFRONT_LOOP:
 		for(int i = (CORR_LEN*2)-1; i >0 ; --i)
 		{
 #pragma HLS UNROLL factor=16
-			array[i] = array[i-1];
+			tmp = array[i-1];
+			array[i] = tmp;
 		}
 		array[0] = element;
 		size++;
@@ -89,7 +99,7 @@ PUSHFRONT_LOOP:
 	void elementErase(T element)
 	{
 ERASE_LOOP:
-		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
+		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=16
 			if(array[i] == element && i < lastPos)
@@ -106,7 +116,7 @@ ERASE_LOOP:
 	void elementEmplace(T element)
 	{
 SEARCH_ELEMENT_LOOP:
-		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
+		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=16
 			if(array[i] == element && i < lastPos)
@@ -126,7 +136,7 @@ SEARCH_ELEMENT_LOOP:
 		}
 		else
 		{
-			for(int i = 0; i < (CORR_LEN*2)-1; i++)
+			for(int i = 0; i < (CORR_LEN*2); i++)
 			{
 #pragma HLS UNROLL factor=16
 				if(element < array[i] && i < lastPos)

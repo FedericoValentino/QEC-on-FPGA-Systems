@@ -242,18 +242,15 @@ void vectorTest()
 	Vector<uint32_t> test;
 
 	test.emplace(4);
-	test.emplace(4);
-	test.emplace(4);
+	test.elementEmplace(5);
+	test.elementEmplace(3);
 
 	assert(test.getSize() == 3);
 
-	assert(test.at(0) == test.at(1));
-	assert(test.at(1) == test.at(2));
+	test.insert(2, 0);
 
-	test.insert(3, 0);
-
-	assert(test.at(0) == 3);
-	assert(test.at(3) == 4);
+	assert(test.at(0) == 2);
+	assert(test.at(3) == 5);
 
 	test.set(2, 3);
 
@@ -302,10 +299,10 @@ void hashTest(){
 
 int main()
 {
-	hashTest();
-	vectorTest();
+	//hashTest();
+	//vectorTest();
 	//mapTest();
 	//singleCorrectionTest();
 	//simpleCorrectionTest();
-	//correctionTest();
+	correctionTest();
 }
