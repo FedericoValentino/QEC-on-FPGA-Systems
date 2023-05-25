@@ -26,7 +26,7 @@ public:
 	U find(T v1)
 	{
 FIND_LOOP:
-		for(int i = 0; i < 256; ++i)
+		for(int i = 0; i < map.getSize(); ++i)
 		{
 #pragma HLS UNROLL
 			if(map.at(i).v1 == v1)
@@ -40,7 +40,7 @@ FIND_LOOP:
 	void update(T v1, U v2)
 	{
 UPDATE_LOOP:
-		for(int i = 0; i < 256; ++i)
+		for(int i = 0; i < map.getSize(); ++i)
 		{
 #pragma HLS UNROLL
 			if(map.at(i).v1 == v1)
@@ -65,7 +65,7 @@ UPDATE_LOOP:
 	{
 		uint32_t pos;
 ERASE_LOOP:
-		for(int i = 0; i < 256; ++i)
+		for(int i = 0; i < map.getSize(); ++i)
 		{
 #pragma HLS UNROLL
 			if(map.at(i).v1 == key)

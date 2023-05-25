@@ -45,8 +45,9 @@ BORDER_INIT:
 	}
 
 ROOT_INIT:
-	for(uint32_t i = 0; i < Code.num_vertices(); ++i)
+	for(uint32_t i = 0; i < SYN_LEN; ++i)
 	{
+#pragma HLS UNROLL
 		root_of_vertex.set(i, i);
 	}
 }

@@ -21,7 +21,6 @@ public:
 #pragma HLS PIPELINE
 				array[i] = array[i-1];
 			}
-
 		}
 		array[pos] = element;
 		++lastPos;
@@ -87,7 +86,7 @@ PUSHFRONT_LOOP:
 	void elementErase(T element)
 	{
 ERASE_LOOP:
-		for(int i = 0; i < 256; ++i)
+		for(int i = 0; i < lastPos; ++i)
 		{
 #pragma HLS UNROLL
 			if(array[i] == element)
@@ -101,7 +100,7 @@ ERASE_LOOP:
 	void elementEmplace(T element)
 	{
 SEARCH_ELEMENT_LOOP:
-		for(int i = 0; i < 256; ++i)
+		for(int i = 0; i < lastPos; ++i)
 		{
 #pragma HLS UNROLL
 			if(array[i] == element)
@@ -119,7 +118,7 @@ SEARCH_ELEMENT_LOOP:
 		{
 			for(int i = 0; i < lastPos; i++)
 			{
-#pragma HLS PIPELINE
+#pragma HLS UNROLL
 				if(element < array[i])
 				{
 					insert(element, i);
