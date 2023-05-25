@@ -44,8 +44,8 @@ BORDER_INIT:
 #pragma HLS PIPELINE
 		Vector<uint32_t> Border;
 		uint32_t tmp = roots.at(i);
-		Border.elementEmplace(root);
-		border_vertices.add(root, Border);
+		Border.elementEmplace(tmp);
+		border_vertices.add(tmp, Border);
 	}
 
 ROOT_INIT:
