@@ -39,6 +39,7 @@ BORDER_INIT:
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
 	{
 		Vector<uint32_t> Border;
+#pragma HLS ARRAY_PARTITION variable=Border.array type=cyclic factor=16
 		uint32_t tmp = roots.at(i);
 		Border.elementEmplace(tmp);
 		border_vertices.add(tmp, Border);

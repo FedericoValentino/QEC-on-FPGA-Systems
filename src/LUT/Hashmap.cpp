@@ -12,9 +12,11 @@ BINARY_TO_DECIMAL_LOOP:
 	return sum;
 }
 
-int HashMap::hash(ap_uint<SYN_LEN> synDec, int i)
+int HashMap::hash(ap_uint<SYN_LEN> synDec)
 {
+	int i = 0;
 	int hash;
+HASH_LOOP:
 	do{
 		hash = (synDec+3*i) % MAX_SIZE/2;
 		++i;
@@ -23,7 +25,6 @@ int HashMap::hash(ap_uint<SYN_LEN> synDec, int i)
 		if(i==MAX_SIZE)
 			return -1;
 	}while(this->map[hash].full);
-
 	return hash;
 }
 
@@ -31,7 +32,7 @@ int HashMap::hash(ap_uint<SYN_LEN> synDec, int i)
 void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
-    int index = this->hash(synDec,0);
+    int index = this->hash(synDec);
 
     if(index!=-1){
     	this->map[index].syndrome = synDec;
@@ -39,7 +40,6 @@ void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
     	this->map[index].full = true;
     	++this->lastBlockUsed;
     }
-   //it has to be managed the case in which we want to insert but no space available TODO
 
 
 }
@@ -47,7 +47,7 @@ void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
 ap_uint<CORR_LEN> HashMap::retrieve(int syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
-	int index = this->hash(synDec,0);
+	int index = this->hash(synDec);
 
     if(index!=-1)
     	return this->map[index].correction;

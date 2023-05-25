@@ -28,7 +28,7 @@ public:
 FIND_LOOP:
 		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
 		{
-#pragma HLS UNROLL
+#pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == v1 && i < map.getSize())
 			{
 				return map.get(i)->v2;
@@ -46,7 +46,7 @@ FIND_LOOP:
 UPDATE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
 		{
-#pragma HLS UNROLL
+#pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == v1 && i < map.getSize())
 			{
 				map.get(i)->v2 = v2;
@@ -75,7 +75,7 @@ UPDATE_LOOP:
 ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
 		{
-#pragma HLS UNROLL
+#pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == key && i < map.getSize())
 			{
 				pos = i;

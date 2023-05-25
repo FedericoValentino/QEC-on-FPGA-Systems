@@ -269,8 +269,8 @@ void hashTest(){
 
 	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
 	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
-	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/2000samples.txt","r");
-	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
 
 	int syndrome[SYN_LEN] = {0};
     ap_uint<CORR_LEN> correction = 0;
@@ -302,10 +302,10 @@ void hashTest(){
 
 int main()
 {
-	//hashTest();
+	hashTest();
 	vectorTest();
 	//mapTest();
 	//singleCorrectionTest();
 	//simpleCorrectionTest();
-	correctionTest();
+	//correctionTest();
 }
