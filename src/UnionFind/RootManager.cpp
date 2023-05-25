@@ -68,7 +68,6 @@ bool RootManager::isRoot(uint32_t root)
 
 void RootManager::merge(uint32_t r1, uint32_t r2)
 {
-#pragma HLS DATAFLOW
 	uint32_t newParity = parity.find(r1) + parity.find(r2);
 
 	if((newParity % 2)== 1)
