@@ -63,7 +63,7 @@ public:
 	void erase(uint32_t pos)
 	{
 ERASING_LOOP:
-		for(int i = pos; i < (CORR_LEN*2)-1; ++i)
+		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
 		{
 #pragma HLS UNROLL
 			if(i >= pos)
