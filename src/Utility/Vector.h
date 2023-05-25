@@ -16,9 +16,11 @@ public:
 	{
 		if(array[pos])
 		{
-			for(int i = lastPos; i > pos; --i)
+			for(int i = (CORR_LEN * 2) - 1; i >= 0; --i)
 			{
-#pragma HLS PIPELINE
+#pragma HLS UNROLL
+				if(i <= pos)
+					break;
 				array[i] = array[i-1];
 			}
 		}
@@ -61,10 +63,11 @@ public:
 	void erase(uint32_t pos)
 	{
 ERASING_LOOP:
-		for(int i = pos; i < lastPos; ++i)
+		for(int i = pos; i < (CORR_LEN*2)-1; ++i)
 		{
-#pragma HLS PIPELINE
-			array[i] = array[i+1];
+#pragma HLS UNROLL
+			if(i >= pos)
+				array[i] = array[i+1];
 		}
 		size--;
 		lastPos--;
@@ -73,9 +76,9 @@ ERASING_LOOP:
 	void pushFront(T element)
 	{
 PUSHFRONT_LOOP:
-		for(int i = lastPos; i >0 ; --i)
+		for(int i = (CORR_LEN*2)-1; i >0 ; --i)
 		{
-#pragma HLS PIPELINE
+#pragma HLS UNROLL
 			array[i] = array[i-1];
 		}
 		array[0] = element;
@@ -86,12 +89,15 @@ PUSHFRONT_LOOP:
 	void elementErase(T element)
 	{
 ERASE_LOOP:
-		for(int i = 0; i < lastPos; ++i)
+		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
 		{
 #pragma HLS UNROLL
-			if(array[i] == element)
+			if(array[i] == element && i < lastPos)
 			{
 				erase(i);
+				break;
+			}else if(i >= lastPos)
+			{
 				break;
 			}
 		}
@@ -100,12 +106,16 @@ ERASE_LOOP:
 	void elementEmplace(T element)
 	{
 SEARCH_ELEMENT_LOOP:
-		for(int i = 0; i < lastPos; ++i)
+		for(int i = 0; i < (CORR_LEN*2)-1; ++i)
 		{
 #pragma HLS UNROLL
-			if(array[i] == element)
+			if(array[i] == element && i < lastPos)
 			{
 				return;
+			}
+			else if(i >= lastPos)
+			{
+				break;
 			}
 		}
 
@@ -116,13 +126,17 @@ SEARCH_ELEMENT_LOOP:
 		}
 		else
 		{
-			for(int i = 0; i < lastPos; i++)
+			for(int i = 0; i < (CORR_LEN*2)-1; i++)
 			{
 #pragma HLS UNROLL
-				if(element < array[i])
+				if(element < array[i] && i < lastPos)
 				{
 					insert(element, i);
 					return;
+				}
+				else if(i >= lastPos)
+				{
+					break;
 				}
 				else
 				{
