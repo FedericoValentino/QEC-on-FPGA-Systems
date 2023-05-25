@@ -3,11 +3,9 @@
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
 	Vector<uint32_t> syndrome_vertices;
-#pragma HLS ARRAY_PARTITION variable=syndrome_vertices.array type=complete
 READ_SYNDROME:
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
 	{
-#pragma HLS UNROLL factor=64
 		if(syndrome[i] % 2 != 0)
 		{
 			syndrome_vertices.emplace(i);
@@ -21,7 +19,6 @@ UNION_FIND:
 	{
 		for(int i = 0; i < mngr.oddRoots_()->getSize(); ++i)
 		{
-#pragma HLS PIPELINE
 			grow(*mngr.oddRoots_()->get(i));
 		}
 		fusion();
@@ -41,7 +38,6 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 BORDER_INIT:
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
 		Vector<uint32_t> Border;
 		uint32_t tmp = roots.at(i);
 		Border.elementEmplace(tmp);
@@ -51,7 +47,6 @@ BORDER_INIT:
 ROOT_INIT:
 	for(uint32_t i = 0; i < Code.num_vertices(); ++i)
 	{
-#pragma HLS UNROLL factor=64
 		root_of_vertex.set(i, i);
 	}
 }
@@ -80,7 +75,6 @@ GROW:
 		Vector<uint32_t> connections = Code.vertex_connections(borders.at(i));
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
-#pragma HLS PIPELINE
 			Edge e;
 
 			e.u = min(borders.at(i), connections.at(j));
@@ -118,7 +112,6 @@ uint32_t Decoder::findRoot(uint32_t vertex)
 FIND_ROOT:
 	do
 	{
-#pragma HLS PIPELINE
 		root = tmp;
 		path.emplace(root);
 		tmp = root_of_vertex.at(root);
@@ -127,7 +120,6 @@ FIND_ROOT:
 SET_ROOT:
 	for(uint32_t i = 0; i < path.getSize(); ++i)
 	{
-#pragma HLS UNROLL factor=4
 		root_of_vertex.set(root, path.at(i));
 	}
 	return root;
@@ -138,7 +130,6 @@ void Decoder::fusion()
 FUSE:
 	while(fuseList.getSize() != 0)
 	{
-#pragma HLS PIPELINE
 		Edge e = *fuseList.get(0);
 		fuseList.erase(0);
 		uint32_t root1 = findRoot(e.u);
@@ -184,13 +175,11 @@ void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 MERGE:
 	for(int i = 0; i<borderR2.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
 		borderR1.elementEmplace(borderR2.at(i));
 	}
 ERASE_LEFTOVERS:
 	for(int i = 0; i<borderR2.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
 		uint32_t vertex = borderR2.at(i);
 		if(connection_counts.at(vertex) == Code.vertex_connection_count(vertex))
 		{
@@ -212,7 +201,6 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 
 	for(int i = 0; i < peeling_edges.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
 		Edge* e = peeling_edges.get(i);
 
 		++vertex_count[e->u];
@@ -221,7 +209,6 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 
 	while(peeling_edges.getSize() != 0)
 	{
-#pragma HLS PIPELINE
 		Edge leaf_edge = peeling_edges.at(peeling_edges.getSize()-1);
 		peeling_edges.erase(peeling_edges.getSize()-1);
 		uint32_t u = 0;
@@ -264,7 +251,6 @@ ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
 CORRECTION_TRANSLATION:
 	for(int i = 0; i < correctionEdges.getSize(); ++i)
 	{
-#pragma HLS UNROLL factor=4
 		Edge e = correctionEdges.at(i);
 
 
@@ -275,7 +261,6 @@ CORRECTION_TRANSLATION:
 
 void Decoder::clear()
 {
-#pragma HLS DATAFLOW
 	connection_counts.fillnReset(0);
 	support.fillnReset(0);
 	root_of_vertex.fillnReset(0);

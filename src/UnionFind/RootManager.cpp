@@ -10,7 +10,6 @@ void RootManager::initializeRoots(Vector<uint32_t> roots)
 ROOT_INITIALIZE:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
 		uint32_t tmp = roots.at(i);
 		this->roots.elementEmplace(tmp);
 		this->oddRoots.elementEmplace(tmp);
@@ -96,7 +95,6 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 
 void RootManager::clear()
 {
-#pragma HLS DATAFLOW
 	roots.fillnReset(0);
 	oddRoots.fillnReset(0);
 
