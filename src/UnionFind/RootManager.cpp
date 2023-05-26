@@ -10,6 +10,7 @@ void RootManager::initializeRoots(Vector<uint32_t> roots)
 ROOT_INITIALIZE:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
+#pragma HLS PIPELINE
 		uint32_t tmp = roots.at(i);
 		this->roots.elementEmplace(tmp);
 		this->oddRoots.elementEmplace(tmp);

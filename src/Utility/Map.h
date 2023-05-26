@@ -95,6 +95,7 @@ ERASE_LOOP:
 RESET_LOOP:
 		while(map.getSize() != 0)
 		{
+#pragma HLS PIPELINE
 			map.erase(0);
 		}
 	}
