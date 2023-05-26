@@ -20,6 +20,7 @@ UNION_FIND:
 	{
 		for(int i = 0; i < mngr.oddRoots_()->getSize(); ++i)
 		{
+#pragma HLS PIPELINE
 			grow(*mngr.oddRoots_()->get(i));
 		}
 		fusion();
