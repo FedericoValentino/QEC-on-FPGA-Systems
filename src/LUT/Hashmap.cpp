@@ -15,17 +15,26 @@ BINARY_TO_DECIMAL_LOOP:
 int HashMap::hash(ap_uint<SYN_LEN> synDec)
 {
 	int i = 0;
-	int hash;
+	int hash = (synDec+3*i) % MAX_SIZE/2;
 HASH_LOOP:
-	do{
-		hash = (synDec+3*i) % MAX_SIZE/2;
-		++i;
-		if(this->map[hash].syndrome==synDec)
-			return hash;
-		if(i==MAX_SIZE)
-			return -1;
-	}while(this->map[hash].full);
-	return hash;
+
+	if(this->map[hash].full)
+	{
+		for(i = 0; i <= MAX_SIZE/2; i++)
+		{
+#pragma HLS UNROLL factor=16
+			hash = (synDec+3*i) % MAX_SIZE/2;
+			if(this->map[hash].syndrome == synDec || !this->map[hash].full)
+			{
+				return hash;
+			}
+		}
+		return -1;
+	}
+	else
+	{
+		return hash;
+	}
 }
 
 

@@ -19,7 +19,6 @@ typedef struct entry Entry;
 class HashMap
 {
 private:
-    Entry map[MAX_SIZE/2];
 
     unsigned int lastBlockUsed = 0;
 
@@ -28,6 +27,8 @@ private:
 	int hash(ap_uint<SYN_LEN> synDec);
 
 public:
+
+	Entry map[MAX_SIZE/2];
 
 	void insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN]);
 

@@ -17,6 +17,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderLUT.map type=cyclic factor = 16
 	if(insert)
 	{
 		decoderLUT.insert(*correction, syndrome);

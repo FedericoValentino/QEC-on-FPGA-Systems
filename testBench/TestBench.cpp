@@ -299,10 +299,10 @@ void hashTest(){
 
 int main()
 {
-	//hashTest();
+	hashTest();
 	//vectorTest();
 	//mapTest();
 	//singleCorrectionTest();
 	//simpleCorrectionTest();
-	correctionTest();
+	//correctionTest();
 }
