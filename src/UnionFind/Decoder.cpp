@@ -180,6 +180,8 @@ void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 {
 	Vector<uint32_t> borderR1 = border_vertices.find(r1);
 	Vector<uint32_t> borderR2 = border_vertices.find(r2);
+#pragma HLS ARRAY_PARTITION variable=borderR1.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=borderR2.array type=cyclic factor=16
 MERGE:
 	for(int i = 0; i<borderR2.getSize(); ++i)
 	{
