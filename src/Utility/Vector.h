@@ -122,6 +122,7 @@ ERASE_LOOP:
 		}
 		else
 		{
+ELEMENT_EMPLACE_LOOP:
 			for(int i = 0; i < CORR_LEN*2; i++)
 			{
 #pragma HLS UNROLL factor=8

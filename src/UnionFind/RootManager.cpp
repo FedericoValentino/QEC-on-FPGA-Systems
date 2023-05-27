@@ -53,6 +53,7 @@ void RootManager::growSize(uint32_t root)
 bool RootManager::isRoot(uint32_t root)
 {
 	uint32_t count = 0;
+IS_ROOT:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
 		if(root == roots.at(i))

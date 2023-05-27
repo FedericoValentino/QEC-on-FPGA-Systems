@@ -16,10 +16,10 @@ int HashMap::hash(ap_uint<SYN_LEN> synDec)
 {
 	int i = 0;
 	int hash = (synDec+3*i) % MAX_SIZE/2;
-HASH_LOOP:
 
 	if(this->map[hash].full)
 	{
+HASH_LOOP:
 		for(i = 0; i <= MAX_SIZE/2; i++)
 		{
 #pragma HLS UNROLL factor=16

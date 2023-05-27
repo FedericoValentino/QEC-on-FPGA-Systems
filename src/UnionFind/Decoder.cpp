@@ -79,6 +79,7 @@ GROW:
 	{
 		Vector<uint32_t> connections = Code.vertex_connections(borders.at(i));
 #pragma HLS ARRAY_PARTITION variable=connections.array type=complete
+INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
 #pragma HLS PIPELINE
@@ -208,7 +209,7 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 
 
 	int vertex_count[CORR_LEN] = {0};
-
+PEEL_PREPARE:
 	for(int i = 0; i < peeling_edges.getSize(); ++i)
 	{
 #pragma HLS PIPELINE
@@ -217,7 +218,7 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 		++vertex_count[e->u];
 		++vertex_count[e->v];
 	}
-
+PEELING:
 	while(peeling_edges.getSize() != 0)
 	{
 #pragma HLS PIPELINE
