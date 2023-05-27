@@ -67,16 +67,27 @@ VECTOR_INSERT_LOOP:
 	}
 	void erase(uint32_t pos)
 	{
-		T tmp;
+		T arraytmp[CORR_LEN*2] ={};
+#pragma HLS ARRAY_PARTITION variable=arraytmp type=cyclic factor=16
+		int j = 0;
+
 ERASING_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=8
-			if(i >= pos)
+			if(i != pos)
 			{
-				tmp = array[i+1];
-				array[i] = tmp;
+				arraytmp[j] = array[i];
+				j++;
 			}
+		}
+		arraytmp[CORR_LEN*2-1] = {};
+
+COPY_LOOP:
+		for(int i = 0; i < CORR_LEN*2; i++)
+		{
+#pragma HLS UNROLL factor=8
+			array[i] = arraytmp[i];
 		}
 		size--;
 		lastPos--;
