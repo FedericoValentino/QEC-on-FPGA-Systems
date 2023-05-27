@@ -19,7 +19,7 @@ public:
 		{
 			for(int i = (CORR_LEN * 2) - 1; i >= 0; --i)
 			{
-#pragma HLS UNROLL factor=16
+#pragma HLS UNROLL factor=8
 				if(i <= pos)
 				{
 					break;
@@ -70,7 +70,7 @@ public:
 ERASING_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS UNROLL factor=8
 			if(i >= pos)
 			{
 				tmp = array[i+1];
@@ -87,7 +87,7 @@ ERASING_LOOP:
 PUSHFRONT_LOOP:
 		for(int i = (CORR_LEN*2)-1; i >0 ; --i)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS UNROLL factor=8
 			tmp = array[i-1];
 			array[i] = tmp;
 		}
@@ -101,7 +101,7 @@ PUSHFRONT_LOOP:
 ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS UNROLL factor=8
 			if(array[i] == element && i < lastPos)
 			{
 				erase(i);
@@ -118,7 +118,7 @@ ERASE_LOOP:
 SEARCH_ELEMENT_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS UNROLL factor=8
 			if(array[i] == element && i < lastPos)
 			{
 				return;
@@ -138,7 +138,7 @@ SEARCH_ELEMENT_LOOP:
 		{
 			for(int i = 0; i < (CORR_LEN*2); i++)
 			{
-#pragma HLS UNROLL factor=16
+#pragma HLS UNROLL factor=8
 				if(element < array[i] && i < lastPos)
 				{
 					insert(element, i);

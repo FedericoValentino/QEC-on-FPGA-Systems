@@ -220,7 +220,7 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 
 	while(peeling_edges.getSize() != 0)
 	{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINEe
 		Edge leaf_edge = peeling_edges.at(peeling_edges.getSize()-1);
 		peeling_edges.erase(peeling_edges.getSize()-1);
 		uint32_t u = 0;
