@@ -6,7 +6,14 @@ Decoder decoderUF;
 
 void test(int syndrome[SYN_LEN])
 {
-	decoderUF.decode(syndrome);
+	Vector<uint32_t> test;
+#pragma HLS ARRAY_PARTITION variable=test.array type=cyclic factor=16
+
+	test.elementEmplace(1);
+	test.elementEmplace(2);
+	test.elementEmplace(3);
+
+	test.elementErase(2);
 }
 
 

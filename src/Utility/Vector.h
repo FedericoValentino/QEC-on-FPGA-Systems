@@ -17,15 +17,16 @@ public:
 		T tmp;
 		if(array[pos])
 		{
+VECTOR_INSERT_LOOP:
 			for(int i = (CORR_LEN * 2) - 1; i >= 0; --i)
 			{
 #pragma HLS UNROLL factor=8
-				if(i <= pos)
+				if(i > pos)
 				{
-					break;
+					tmp = array[i-1];
+					array[i] = tmp;
 				}
-				tmp = array[i-1];
-				array[i] = tmp;
+
 			}
 		}
 		array[pos] = element;
@@ -115,45 +116,26 @@ ERASE_LOOP:
 
 	void elementEmplace(T element)
 	{
-SEARCH_ELEMENT_LOOP:
-		for(int i = 0; i < (CORR_LEN*2); ++i)
-		{
-#pragma HLS UNROLL factor=8
-			if(array[i] == element && i < lastPos)
-			{
-				return;
-			}
-			else if(i >= lastPos)
-			{
-				break;
-			}
-		}
-
-		uint32_t pos = 0;
 		if(size == 0)
 		{
 			emplace(element);
 		}
 		else
 		{
-			for(int i = 0; i < (CORR_LEN*2); i++)
+			for(int i = 0; i < CORR_LEN*2; i++)
 			{
 #pragma HLS UNROLL factor=8
-				if(element < array[i] && i < lastPos)
+				if(element == array[i])
+				{
+					return;
+				}
+				if(element < array[i])
 				{
 					insert(element, i);
 					return;
 				}
-				else if(i >= lastPos)
-				{
-					break;
-				}
-				else
-				{
-					pos = i+1;
-				}
-			}
-			insert(element, pos);
+			 }
+			emplace(element);
 			return;
 		}
 	}

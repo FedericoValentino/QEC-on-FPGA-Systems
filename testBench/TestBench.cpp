@@ -210,11 +210,12 @@ void correctionTest(){
 
         if(check[0] == bitstring[0] && check[1] == bitstring[1])
         {
+        	printf("Correct!\n");
         	++accuracy;
         }
 
     }
-	printf("Decoding test concluded with accuracy %f%\nAverage running time: %f",(float)accuracy/5,(float)total.count()/500);
+	printf("\nDecoding test concluded with accuracy %f%\nAverage running time: %f",(float)accuracy/5,(float)total.count()/500);
 
 }
 
@@ -240,17 +241,20 @@ void mapTest()
 void vectorTest()
 {
 	Vector<uint32_t> test;
-
+	test.emplace(0);
+	test.emplace(1);
+	test.emplace(2);
 	test.emplace(4);
 	test.elementEmplace(5);
 	test.elementEmplace(3);
+	test.elementEmplace(7);
+	test.elementEmplace(8);
+	test.elementEmplace(6);
 
-	assert(test.getSize() == 3);
+	assert(test.getSize() == 9);
 
-	test.insert(2, 0);
-
-	assert(test.at(0) == 2);
-	assert(test.at(3) == 5);
+	assert(test.at(0) == 0);
+	assert(test.at(3) == 3);
 
 	test.set(2, 3);
 
@@ -299,10 +303,10 @@ void hashTest(){
 
 int main()
 {
-	hashTest();
+	//hashTest();
 	//vectorTest();
 	//mapTest();
 	//singleCorrectionTest();
 	//simpleCorrectionTest();
-	//correctionTest();
+	correctionTest();
 }
