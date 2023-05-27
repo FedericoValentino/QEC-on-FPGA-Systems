@@ -73,7 +73,7 @@ uint32_t max(uint32_t a, uint32_t b){
 void Decoder::grow(uint32_t root)
 {
 	Vector<uint32_t> borders = border_vertices.find(root);
-#pragma HLS ARRAY_PARTITION variable=borders.array type=cyclic
+#pragma HLS ARRAY_PARTITION variable=borders.array type=cyclic factor=16
 GROW:
 	for(int i = 0; i < borders.getSize(); i++)
 	{
