@@ -22,7 +22,7 @@ int HashMap::hash(ap_uint<SYN_LEN> synDec)
 HASH_LOOP:
 		for(i = 0; i <= MAX_SIZE/2; i++)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS PIPELINE II=1
 			hash = (synDec+3*i) % MAX_SIZE/2;
 			if(this->map[hash].syndrome == synDec || !this->map[hash].full)
 			{

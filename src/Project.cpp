@@ -6,14 +6,8 @@ Decoder decoderUF;
 
 void test(int syndrome[SYN_LEN])
 {
-	Vector<uint32_t> test;
-#pragma HLS ARRAY_PARTITION variable=test.array type=cyclic factor=16
-
-	test.elementEmplace(1);
-	test.elementEmplace(2);
-	test.elementEmplace(3);
-
-	test.elementErase(2);
+	ap_uint<CORR_LEN> corr = 0;
+	decoderLUT.insert(corr, syndrome);
 }
 
 

@@ -22,11 +22,11 @@ private:
 
     unsigned int lastBlockUsed = 0;
 
-	ap_uint<SYN_LEN> binToDec(int syndrome[SYN_LEN]);
+public:
+
+    ap_uint<SYN_LEN> binToDec(int syndrome[SYN_LEN]);
 
 	int hash(ap_uint<SYN_LEN> synDec);
-
-public:
 
 	Entry map[MAX_SIZE/2];
 
