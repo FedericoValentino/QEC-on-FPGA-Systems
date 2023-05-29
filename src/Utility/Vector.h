@@ -14,6 +14,7 @@ public:
 
 	void insert(T element, uint32_t pos)
 	{
+#pragma HLS INLINE off
 		T tmp = array[(CORR_LEN * 2) - 2];
 		if(array[pos])
 		{
@@ -67,6 +68,7 @@ VECTOR_INSERT_LOOP:
 	}
 	void erase(uint32_t pos)
 	{
+#pragma HLS INLINE off
 		T tmp = array[1];
 ERASING_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
@@ -84,6 +86,7 @@ ERASING_LOOP:
 
 	void pushFront(T element)
 	{
+#pragma HLS INLINE off
 		T tmp;
 PUSHFRONT_LOOP:
 		for(int i = (CORR_LEN*2)-1; i >0 ; --i)
@@ -99,6 +102,7 @@ PUSHFRONT_LOOP:
 
 	void elementErase(T element)
 	{
+#pragma HLS INLINE off
 ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
@@ -112,6 +116,7 @@ ERASE_LOOP:
 
 	void elementEmplace(T element)
 	{
+#pragma HLS INLINE off
 		bool found = false;
 		if(size == 0)
 		{
