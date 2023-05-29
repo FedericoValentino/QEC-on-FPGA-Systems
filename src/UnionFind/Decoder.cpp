@@ -6,7 +6,7 @@ ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 READ_SYNDROME:
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
 	{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 		if(syndrome[i] % 2 != 0)
 		{
 			syndrome_vertices.emplace(i);
@@ -20,7 +20,7 @@ UNION_FIND:
 	{
 		for(int i = 0; i < mngr.oddRoots_()->getSize(); ++i)
 		{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 			grow(*mngr.oddRoots_()->get(i));
 		}
 		fusion();
@@ -40,7 +40,7 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 BORDER_INIT:
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 		Vector<uint32_t> Border;
 #pragma HLS ARRAY_PARTITION variable=Border.array type=cyclic factor=16
 		uint32_t tmp = roots.at(i);
@@ -83,7 +83,7 @@ GROW:
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 			Edge e;
 
 			e.u = min(borders.at(i), connections.at(j));
@@ -121,7 +121,7 @@ uint32_t Decoder::findRoot(uint32_t vertex)
 FIND_ROOT:
 	do
 	{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 		root = tmp;
 		path.emplace(root);
 		tmp = root_of_vertex.at(root);
@@ -213,7 +213,7 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 PEEL_PREPARE:
 	for(int i = 0; i < peeling_edges.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 		Edge* e = peeling_edges.get(i);
 
 		++vertex_count[e->u];
@@ -222,7 +222,7 @@ PEEL_PREPARE:
 PEELING:
 	while(peeling_edges.getSize() != 0)
 	{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 		Edge leaf_edge = peeling_edges.at(peeling_edges.getSize()-1);
 		peeling_edges.erase(peeling_edges.getSize()-1);
 		uint32_t u = 0;

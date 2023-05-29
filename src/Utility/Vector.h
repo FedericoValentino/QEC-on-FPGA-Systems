@@ -68,20 +68,19 @@ VECTOR_INSERT_LOOP:
 	void erase(uint32_t pos)
 	{
 		T arraytmp[CORR_LEN*2] ={};
-#pragma HLS ARRAY_PARTITION variable=arraytmp type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=arraytmp type=cyclic factor=4
 		int j = 0;
 
 ERASING_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=8
+#pragma HLS UNROLL factor=2
 			if(i != pos)
 			{
 				arraytmp[j] = array[i];
 				j++;
 			}
 		}
-		arraytmp[CORR_LEN*2-1] = {};
 
 COPY_LOOP:
 		for(int i = 0; i < CORR_LEN*2; i++)
@@ -110,11 +109,12 @@ PUSHFRONT_LOOP:
 
 	void elementErase(T element)
 	{
-ERASE_LOOP:
+ELEMENT_ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=8
-			if(array[i] == element && i < lastPos)
+			T tmp =array[i];
+			if(tmp == element && i < lastPos)
 			{
 				erase(i);
 				break;
@@ -137,11 +137,12 @@ ELEMENT_EMPLACE_LOOP:
 			for(int i = 0; i < CORR_LEN*2; i++)
 			{
 #pragma HLS UNROLL factor=8
-				if(element == array[i])
+				T tmp = array[i];
+				if(element == tmp)
 				{
 					return;
 				}
-				if(element < array[i])
+				if(element < tmp)
 				{
 					insert(element, i);
 					return;
