@@ -17,7 +17,7 @@ void test(int syndrome[SYN_LEN])
 	test.emplace(6);
 	test.emplace(7);
 
-	test.elementErase(6);
+	test.erase(4);
 
 }
 

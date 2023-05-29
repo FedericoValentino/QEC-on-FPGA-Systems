@@ -67,26 +67,16 @@ VECTOR_INSERT_LOOP:
 	}
 	void erase(uint32_t pos)
 	{
-		T arraytmp[CORR_LEN*2] ={};
-#pragma HLS ARRAY_PARTITION variable=arraytmp type=cyclic factor=4
-		int j = 0;
-
+		T tmp = array[1];
 ERASING_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=2
-			if(i != pos)
-			{
-				arraytmp[j] = array[i];
-				j++;
-			}
-		}
-
-COPY_LOOP:
-		for(int i = 0; i < CORR_LEN*2; i++)
-		{
 #pragma HLS UNROLL factor=8
-			array[i] = arraytmp[i];
+			if(i >= pos)
+			{
+				array[i] = tmp;
+			}
+			tmp = array[i+2];
 		}
 		size--;
 		lastPos--;
@@ -109,24 +99,20 @@ PUSHFRONT_LOOP:
 
 	void elementErase(T element)
 	{
-ELEMENT_ERASE_LOOP:
+ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=8
-			T tmp =array[i];
-			if(tmp == element && i < lastPos)
+			if(array[i] == element && i < lastPos)
 			{
 				erase(i);
-				break;
-			}else if(i >= lastPos)
-			{
-				break;
 			}
 		}
 	}
 
 	void elementEmplace(T element)
 	{
+		bool found = false;
 		if(size == 0)
 		{
 			emplace(element);
@@ -137,19 +123,19 @@ ELEMENT_EMPLACE_LOOP:
 			for(int i = 0; i < CORR_LEN*2; i++)
 			{
 #pragma HLS UNROLL factor=8
-				T tmp = array[i];
-				if(element == tmp)
+				if(element == array[i] && !found)
 				{
-					return;
+					found = true;
 				}
-				if(element < tmp)
+				if(element < array[i] && !found)
 				{
 					insert(element, i);
-					return;
+					found = true;
 				}
 			 }
-			emplace(element);
-			return;
+			if(!found)
+				emplace(element);
+
 		}
 	}
 

@@ -304,9 +304,9 @@ void hashTest(){
 int main()
 {
 	//hashTest();
-	vectorTest();
+	//vectorTest();
 	//mapTest();
 	//singleCorrectionTest();
 	//simpleCorrectionTest();
-	//correctionTest();
+	correctionTest();
 }
