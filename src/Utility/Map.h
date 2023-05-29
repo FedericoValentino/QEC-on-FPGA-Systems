@@ -25,17 +25,15 @@ public:
 
 	U find(T v1)
 	{
+#pragma HLS INLINE off
+		U toRet = defaultValue;
 FIND_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
 #pragma HLS UNROLL factor=16
 			if(map.at(i).v1 == v1 && i < map.getSize())
 			{
-				return map.get(i)->v2;
-			}
-			else if(i >= map.getSize())
-			{
-				break;
+				toRet = map.get(i)->v2;
 			}
 		}
 		return defaultValue;
@@ -43,6 +41,7 @@ FIND_LOOP:
 
 	void update(T v1, U v2)
 	{
+#pragma HLS INLINE off
 UPDATE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
@@ -50,11 +49,6 @@ UPDATE_LOOP:
 			if(map.at(i).v1 == v1 && i < map.getSize())
 			{
 				map.get(i)->v2 = v2;
-				return;
-			}
-			else if(i >= map.getSize())
-			{
-				break;
 			}
 		}
 	}
@@ -71,6 +65,7 @@ UPDATE_LOOP:
 
 	void erase(uint32_t key)
 	{
+#pragma HLS INLINE off
 		uint32_t pos;
 ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
@@ -79,11 +74,6 @@ ERASE_LOOP:
 			if(map.at(i).v1 == key && i < map.getSize())
 			{
 				pos = i;
-				break;
-			}
-			else if(i >= map.getSize())
-			{
-				break;
 			}
 
 		}
