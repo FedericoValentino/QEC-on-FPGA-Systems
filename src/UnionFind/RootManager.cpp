@@ -58,6 +58,7 @@ IS_ROOT:
 	{
 		if(root == roots.at(i))
 		{
+			//TODO spostare fuori
 			if(++count > 1)
 				return false;
 

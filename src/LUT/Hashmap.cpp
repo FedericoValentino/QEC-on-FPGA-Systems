@@ -26,6 +26,7 @@ HASH_LOOP:
 			hash = (synDec+3*i) % MAX_SIZE/2;
 			if(this->map[hash].syndrome == synDec || !this->map[hash].full)
 			{
+				//TODO spostare fuori
 				return hash;
 			}
 		}
