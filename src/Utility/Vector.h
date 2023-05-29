@@ -14,18 +14,18 @@ public:
 
 	void insert(T element, uint32_t pos)
 	{
-		T tmp;
+		T tmp = array[(CORR_LEN * 2) - 2];
 		if(array[pos])
 		{
 VECTOR_INSERT_LOOP:
 			for(int i = (CORR_LEN * 2) - 1; i >= 0; --i)
 			{
-#pragma HLS UNROLL factor=8
+#pragma HLS PIPELINE II=1
 				if(i > pos)
 				{
-					tmp = array[i-1];
 					array[i] = tmp;
 				}
+				tmp = array[i-2];
 
 			}
 		}
@@ -71,7 +71,7 @@ VECTOR_INSERT_LOOP:
 ERASING_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=8
+#pragma HLS PIPELINE II=1
 			if(i >= pos)
 			{
 				array[i] = tmp;
@@ -88,7 +88,7 @@ ERASING_LOOP:
 PUSHFRONT_LOOP:
 		for(int i = (CORR_LEN*2)-1; i >0 ; --i)
 		{
-#pragma HLS UNROLL factor=8
+#pragma HLS PIPELINE II=1
 			tmp = array[i-1];
 			array[i] = tmp;
 		}
@@ -102,7 +102,7 @@ PUSHFRONT_LOOP:
 ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=8
+#pragma HLS PIPELINE II=1
 			if(array[i] == element && i < lastPos)
 			{
 				erase(i);
@@ -122,7 +122,7 @@ ERASE_LOOP:
 ELEMENT_EMPLACE_LOOP:
 			for(int i = 0; i < CORR_LEN*2; i++)
 			{
-#pragma HLS UNROLL factor=8
+#pragma HLS PIPELINE II=1
 				if(element == array[i] && !found)
 				{
 					found = true;
