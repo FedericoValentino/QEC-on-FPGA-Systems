@@ -27,6 +27,16 @@ public:
 
 	Vector<Edge> peeling_edges;
 
+	Decoder()
+	{
+#pragma HLS ARRAY_PARTITION variable=connection_counts.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=support.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=root_of_vertex.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=fuseList.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=border_vertices.map.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=peeling_edges.array type=cyclic factor=16
+	}
+
 	void init_cluster(Vector<uint32_t> roots);
 
 
