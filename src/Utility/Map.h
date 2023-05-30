@@ -16,6 +16,10 @@ class Map
 public:
 	Vector<Touple<T, U>> map;
 	U defaultValue;
+	Map()
+	{
+#pragma HLS ARRAY_PARTITION variable=map.array type=cyclic factor=16
+	}
 
 	void add(T v1, U v2)
 	{
