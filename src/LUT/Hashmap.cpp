@@ -12,31 +12,24 @@ BINARY_TO_DECIMAL_LOOP:
 	return sum;
 }
 
-int HashMap::hash(ap_uint<SYN_LEN> synDec)
-{
+int HashMap::hash(ap_uint<SYN_LEN> synDec){
 	int i = 0;
 	int hash = (synDec+3*i) % MAX_SIZE/2;
 
-	if(this->map[hash].full)
-	{
 HASH_LOOP:
-		for(i = 0; i <= MAX_SIZE/2; i++)
-		{
+	for(i = 0; i <= MAX_SIZE/2; i++){
 #pragma HLS PIPELINE II=1
-			hash = (synDec+3*i) % MAX_SIZE/2;
-			if(this->map[hash].syndrome == synDec || !this->map[hash].full)
-			{
-				//TODO spostare fuori
-				return hash;
-			}
+		if(!this->map[hash].full){
+			return hash;
 		}
-		return -1;
+		if(this->map[hash].syndrome == synDec){
+			return hash;
+		}
+		hash = (synDec+3*i) % MAX_SIZE/2;
 	}
-	else
-	{
-		return hash;
-	}
+	return -1;
 }
+
 
 
 void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])

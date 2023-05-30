@@ -21,6 +21,9 @@ class HashMap
 private:
 
     unsigned int lastBlockUsed = 0;
+    ap_uint<SYN_LEN> syndromes[MAX_SIZE/2];
+    ap_uint<CORR_LEN> corrections[MAX_SIZE/2];
+
 
 public:
 

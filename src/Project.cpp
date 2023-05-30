@@ -47,3 +47,9 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	}
 
 }
+
+void testhash(){
+	ap_uint<SYN_LEN> test=100;
+	HashMap testingMap;
+	int x=testingMap.hash(test);
+}
