@@ -72,11 +72,13 @@ uint32_t max(uint32_t a, uint32_t b){
 
 void Decoder::grow(uint32_t root)
 {
-	Vector<uint32_t> borders = border_vertices.find(root);
+	Vector<uint32_t> borders;
+	borders = border_vertices.find(root);
 GROW:
 	for(int i = 0; i < borders.getSize(); i++)
 	{
-		Vector<uint32_t> connections = Code.vertex_connections(borders.at(i));
+		Vector<uint32_t> connections;
+		connections = Code.vertex_connections(borders.at(i));
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
@@ -161,7 +163,8 @@ FUSE:
 		if(!mngr.isRoot(root2))
 		{
 			mngr.growSize(root1);
-			Vector<uint32_t> border = border_vertices.find(root1);
+			Vector<uint32_t> border;
+			border = border_vertices.find(root1);
 			border.elementEmplace(root2);
 			border_vertices.update(root1, border);
 		}
