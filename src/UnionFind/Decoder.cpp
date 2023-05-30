@@ -42,7 +42,6 @@ BORDER_INIT:
 	{
 #pragma HLS PIPELINE II=1
 		Vector<uint32_t> Border;
-#pragma HLS ARRAY_PARTITION variable=Border.array type=cyclic factor=16
 		uint32_t tmp = roots.at(i);
 		Border.elementEmplace(tmp);
 		border_vertices.add(tmp, Border);
@@ -74,12 +73,10 @@ uint32_t max(uint32_t a, uint32_t b){
 void Decoder::grow(uint32_t root)
 {
 	Vector<uint32_t> borders = border_vertices.find(root);
-#pragma HLS ARRAY_PARTITION variable=borders.array type=cyclic factor=16
 GROW:
 	for(int i = 0; i < borders.getSize(); i++)
 	{
 		Vector<uint32_t> connections = Code.vertex_connections(borders.at(i));
-#pragma HLS ARRAY_PARTITION variable=connections.array type=complete
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
@@ -180,10 +177,11 @@ FUSE:
 
 void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 {
-	Vector<uint32_t> borderR1 = border_vertices.find(r1);
-	Vector<uint32_t> borderR2 = border_vertices.find(r2);
-#pragma HLS ARRAY_PARTITION variable=borderR1.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=borderR2.array type=cyclic factor=16
+	Vector<uint32_t> borderR1;
+	Vector<uint32_t> borderR2;
+	borderR1 = border_vertices.find(r1);
+	borderR2 = border_vertices.find(r2);
+
 MERGE:
 	for(int i = 0; i<borderR2.getSize(); ++i)
 	{

@@ -11,6 +11,10 @@ public:
 	T array[CORR_LEN * 2] = {};
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
+	Vector()
+	{
+#pragma HLS ARRAY_PARTITION variable=array type=cyclic factor=16
+	}
 
 	void insert(T element, uint32_t pos)
 	{
@@ -83,7 +87,6 @@ ERASING_LOOP:
 		size--;
 		lastPos--;
 	}
-
 	void pushFront(T element)
 	{
 #pragma HLS INLINE off

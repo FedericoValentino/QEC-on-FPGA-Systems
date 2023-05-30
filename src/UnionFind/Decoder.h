@@ -8,12 +8,6 @@
 #include "RootManager.h"
 #include "SurfaceCode.h"
 
-struct VertexNeighbors
-{
-	uint32_t vertex;
-	Vector<uint32_t> borders;
-};
-
 class Decoder
 {
 public:
