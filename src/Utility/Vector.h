@@ -77,6 +77,7 @@ VECTOR_INSERT_LOOP:
 ERASING_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
+#pragma HLS UNROLL factor=1
 #pragma HLS PIPELINE II=1
 			if(i >= pos)
 			{

@@ -18,7 +18,7 @@ public:
 	U defaultValue;
 	Map()
 	{
-#pragma HLS ARRAY_PARTITION variable=map.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=map.array type=cyclic factor=256
 	}
 
 	void add(T v1, U v2)
@@ -34,7 +34,7 @@ public:
 FIND_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS PIPELINE II=1
 			if(map.at(i).v1 == v1 && i < map.getSize())
 			{
 				toRet = map.get(i)->v2;
@@ -49,7 +49,7 @@ FIND_LOOP:
 UPDATE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS PIPELINE II=1
 			if(map.at(i).v1 == v1 && i < map.getSize())
 			{
 				map.get(i)->v2 = v2;
@@ -71,14 +71,18 @@ UPDATE_LOOP:
 	{
 #pragma HLS INLINE off
 		uint32_t pos;
+		T tmp = map.at(0).v1;
+		uint32_t size = map.getSize();
+
 ERASE_LOOP:
 		for(int i = 0; i < (CORR_LEN*2); ++i)
 		{
-#pragma HLS UNROLL factor=16
-			if(map.at(i).v1 == key && i < map.getSize())
+#pragma HLS PIPELINE II=1
+			if(tmp == key && i < size)
 			{
 				pos = i;
 			}
+			tmp = map.at(i+1).v1;
 
 		}
 		map.erase(pos);
@@ -89,7 +93,7 @@ ERASE_LOOP:
 RESET_LOOP:
 		while(map.getSize() != 0)
 		{
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE II=1
 			map.erase(0);
 		}
 	}
