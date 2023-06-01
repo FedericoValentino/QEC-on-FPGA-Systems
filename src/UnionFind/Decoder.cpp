@@ -172,6 +172,7 @@ FUSE:
 			{
 				mngr.merge(root1, root2);
 				mergeBoundary(root1, root2);
+				border_vertices.erase(root2);
 			}
 		}
 
@@ -183,6 +184,7 @@ FUSE:
 
 void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 {
+#pragma HLS INLINE off
 	Vector<uint32_t> borderR1;
 	Vector<uint32_t> borderR2;
 	borderR1 = border_vertices.find(r1);
@@ -210,7 +212,6 @@ ERASE_LEFTOVERS:
 	}
 
 	border_vertices.update(r1, borderR1);
-	border_vertices.erase(r2);
 }
 
 

@@ -26,6 +26,7 @@ VECTOR_INSERT_LOOP:
 			for(int i = (MAPLEN) - 1; i >= 0; --i)
 			{
 #pragma HLS PIPELINE II=1
+#pragma HLS DEPENDENCE variable=tmp type=inter false
 				if(i > pos)
 				{
 					array[i] = tmp;
@@ -77,9 +78,11 @@ VECTOR_INSERT_LOOP:
 #pragma HLS INLINE off
 		T tmp = array[1];
 ERASING_LOOP:
-		for(int i = 0; i < (MAPLEN); ++i)
+		for(int i = 0; i < (size); ++i)
 		{
+#pragma HLS loop_tripcount min=0 max=64
 #pragma HLS PIPELINE II=1
+#pragma HLS DEPENDENCE variable=tmp type=inter false
 			if(i >= pos)
 			{
 				array[i] = tmp;
@@ -111,7 +114,7 @@ PUSHFRONT_LOOP:
 ERASE_LOOP:
 		for(int i = 0; i < size; ++i)
 		{
-#pragma HLS loop_tripcount min=4 max=64
+#pragma HLS loop_tripcount min=0 max=64
 #pragma HLS PIPELINE II=1
 			if(array[i] == element && i < lastPos)
 			{
@@ -133,7 +136,7 @@ ERASE_LOOP:
 ELEMENT_EMPLACE_LOOP:
 			for(int i = 0; i < size; i++)
 			{
-#pragma HLS loop_tripcount min=4 max=64
+#pragma HLS loop_tripcount min=0 max=64
 #pragma HLS PIPELINE II=1
 				if(element == array[i] && !found)
 				{

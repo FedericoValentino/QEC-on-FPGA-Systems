@@ -31,9 +31,11 @@ public:
 	{
 #pragma HLS INLINE off
 		U toRet = defaultValue;
+		uint32_t size = map.getSize();
 FIND_LOOP:
-		for(int i = 0; i < (MAPLEN); ++i)
+		for(int i = 0; i < size; ++i)
 		{
+#pragma HLS loop_tripcount min=0 max=64
 #pragma HLS PIPELINE II=1
 			Touple<T, U> value = map.at(i);
 			if(value.v1 == v1 && i < map.getSize())
