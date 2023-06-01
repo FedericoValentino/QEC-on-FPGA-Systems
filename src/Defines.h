@@ -17,6 +17,8 @@
 #define CORR_LEN 128
 #define SYN_LEN 64
 
+#define MAPLEN 128
+
 
 typedef long long unsigned int Lint;
 

@@ -9,8 +9,8 @@ void test(int root1, int root2)
 	//rootManager
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map.array type=cyclic factor=256
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map.array type=cyclic factor=256
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map.array type=cyclic factor=128
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map.array type=cyclic factor=128
 	//Decoder
 #pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.support.array type=cyclic factor=16
@@ -20,8 +20,10 @@ void test(int root1, int root2)
 #pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 
 
-	Vector<uint32_t> borderR1 = decoderUF.border_vertices.find(root1);
-	Vector<uint32_t> borderR2 = decoderUF.border_vertices.find(root2);
+	Vector<uint32_t> borderR1;
+	borderR1 = decoderUF.border_vertices.find(root1);
+	Vector<uint32_t> borderR2;
+	borderR2 = decoderUF.border_vertices.find(root2);
 	uint32_t size2 = borderR2.getSize();
 
 }

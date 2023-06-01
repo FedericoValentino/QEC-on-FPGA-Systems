@@ -8,7 +8,7 @@ template <class T>
 class Vector
 {
 public:
-	T array[CORR_LEN * 2] = {};
+	T array[MAPLEN] = {};
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
 	Vector()
@@ -19,11 +19,11 @@ public:
 	void insert(T element, uint32_t pos)
 	{
 #pragma HLS INLINE off
-		T tmp = array[(CORR_LEN * 2) - 2];
+		T tmp = array[(MAPLEN) - 2];
 		if(array[pos])
 		{
 VECTOR_INSERT_LOOP:
-			for(int i = (CORR_LEN * 2) - 1; i >= 0; --i)
+			for(int i = (MAPLEN) - 1; i >= 0; --i)
 			{
 #pragma HLS PIPELINE II=1
 				if(i > pos)
@@ -78,7 +78,7 @@ VECTOR_INSERT_LOOP:
 #pragma HLS INLINE off
 		T tmp = array[1];
 ERASING_LOOP:
-		for(int i = 0; i < (CORR_LEN*2); ++i)
+		for(int i = 0; i < (MAPLEN); ++i)
 		{
 #pragma HLS UNROLL factor=1
 #pragma HLS PIPELINE II=1
@@ -96,7 +96,7 @@ ERASING_LOOP:
 #pragma HLS INLINE off
 		T tmp;
 PUSHFRONT_LOOP:
-		for(int i = (CORR_LEN*2)-1; i >0 ; --i)
+		for(int i = (MAPLEN)-1; i >0 ; --i)
 		{
 #pragma HLS PIPELINE II=1
 			tmp = array[i-1];
@@ -111,7 +111,7 @@ PUSHFRONT_LOOP:
 	{
 #pragma HLS INLINE off
 ERASE_LOOP:
-		for(int i = 0; i < (CORR_LEN*2); ++i)
+		for(int i = 0; i < (MAPLEN); ++i)
 		{
 #pragma HLS PIPELINE II=1
 			if(array[i] == element && i < lastPos)
@@ -132,7 +132,7 @@ ERASE_LOOP:
 		else
 		{
 ELEMENT_EMPLACE_LOOP:
-			for(int i = 0; i < CORR_LEN*2; i++)
+			for(int i = 0; i < MAPLEN; i++)
 			{
 #pragma HLS PIPELINE II=1
 				if(element == array[i] && !found)
@@ -155,7 +155,7 @@ ELEMENT_EMPLACE_LOOP:
 	{
 #pragma HLS INLINE off
 RESET_LOOP:
-		for(int i = 0; i < CORR_LEN*2; ++i)
+		for(int i = 0; i < MAPLEN; ++i)
 		{
 #pragma HLS PIPELINE II=1
 			array[i] = element;
