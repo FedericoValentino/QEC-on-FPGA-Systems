@@ -40,7 +40,7 @@ FIND_LOOP:
 				toRet = map.get(i)->v2;
 			}
 		}
-		return defaultValue;
+		return toRet;
 	}
 
 	void update(T v1, U v2)

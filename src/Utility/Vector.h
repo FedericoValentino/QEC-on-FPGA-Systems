@@ -41,6 +41,7 @@ VECTOR_INSERT_LOOP:
 
 	void emplace(T element)
 	{
+#pragma HLS INLINE off
 		array[lastPos] = element;
 		++lastPos;
 		++size;
@@ -51,6 +52,7 @@ VECTOR_INSERT_LOOP:
 	}
 	T at(uint32_t i)
 	{
+#pragma HLS INLINE off
 		return array[i];
 	}
 	T* get(uint32_t i)
@@ -59,6 +61,7 @@ VECTOR_INSERT_LOOP:
 	}
 	void set(T element, uint32_t pos)
 	{
+#pragma HLS INLINE off
 		array[pos] = element;
 	}
 	T back()
@@ -150,10 +153,11 @@ ELEMENT_EMPLACE_LOOP:
 
 	void fillnReset(T element)
 	{
+#pragma HLS INLINE off
 RESET_LOOP:
 		for(int i = 0; i < CORR_LEN*2; ++i)
 		{
-#pragma HLS UNROLL factor=16
+#pragma HLS PIPELINE II=1
 			array[i] = element;
 		}
 		size = 0;
@@ -162,7 +166,10 @@ RESET_LOOP:
 
 	void plusOne(uint32_t pos)
 	{
-		++array[pos];
+#pragma HLS INLINE off
+		uint32_t tmp = array[pos];
+		tmp += 1;
+		array[pos] = tmp;
 	}
 };
 

@@ -4,19 +4,25 @@
 HashMap decoderLUT;
 Decoder decoderUF;
 
-void test(int syndrome[SYN_LEN])
+void test(int root1, int root2)
 {
-	Map<uint32_t, uint32_t> TestMap;
+	//rootManager
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map.array type=cyclic factor=256
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map.array type=cyclic factor=256
+	//Decoder
+#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.support.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.fuseList.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map.array type=complete
+#pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 
-	TestMap.add(0, 1);
-	TestMap.add(1, 2);
-	TestMap.add(2, 3);
 
-	uint32_t v1 = TestMap.find(0);
-
-	TestMap.erase(v1);
-
-	TestMap.reset();
+	Vector<uint32_t> borderR1 = decoderUF.border_vertices.find(root1);
+	Vector<uint32_t> borderR2 = decoderUF.border_vertices.find(root2);
+	uint32_t size2 = borderR2.getSize();
 
 }
 

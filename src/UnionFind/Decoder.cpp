@@ -90,18 +90,18 @@ INNER_GROW:
 
 			uint32_t edgeIdx = Code.edge_idx(e);
 			uint32_t elt = support.at(edgeIdx);
-			if(elt == 2)
+			if(elt != 2)
 			{
-				continue;
+				support.plusOne(edgeIdx);
+				elt = support.at(edgeIdx);
+				if(elt == 2)
+				{
+					connection_counts.plusOne(e.u);
+					connection_counts.plusOne(e.v);
+					fuseList.emplace(e);
+				}
 			}
-			support.plusOne(edgeIdx);
-			elt = support.at(edgeIdx);
-			if(elt == 2)
-			{
-				connection_counts.plusOne(e.u);
-				connection_counts.plusOne(e.v);
-				fuseList.emplace(e);
-			}
+
 		}
 	}
 }
@@ -129,7 +129,9 @@ FIND_ROOT:
 SET_ROOT:
 	for(uint32_t i = 0; i < path.getSize(); ++i)
 	{
-		root_of_vertex.set(root, path.at(i));
+#pragma HLS PIPELINE II=1
+		uint32_t tmp2 = path.at(i);
+		root_of_vertex.set(root, tmp2);
 	}
 	return root;
 }
@@ -139,40 +141,41 @@ void Decoder::fusion()
 FUSE:
 	while(fuseList.getSize() != 0)
 	{
+#pragma HLS PIPELINE II=1
 		Edge e = *fuseList.get(0);
 		fuseList.erase(0);
 		uint32_t root1 = findRoot(e.u);
 		uint32_t root2 = findRoot(e.v);
 
-		if(root1 == root2)
+		if(root1 != root2)
 		{
-			continue;
+			peeling_edges.emplace(e);
+
+			if(mngr.size(root1) < mngr.size(root2))
+			{
+				uint32_t tmp = root1;
+				root1 = root2;
+				root2 = tmp;
+			}
+
+			root_of_vertex.set(root1, root2);
+
+			if(!mngr.isRoot(root2))
+			{
+				mngr.growSize(root1);
+				Vector<uint32_t> border;
+				border = border_vertices.find(root1);
+				border.elementEmplace(root2);
+				border_vertices.update(root1, border);
+			}
+			else
+			{
+				mngr.merge(root1, root2);
+				mergeBoundary(root1, root2);
+			}
 		}
 
-		peeling_edges.emplace(e);
 
-		if(mngr.size(root1) < mngr.size(root2))
-		{
-			uint32_t tmp = root1;
-			root1 = root2;
-			root2 = tmp;
-		}
-
-		root_of_vertex.set(root1, root2);
-
-		if(!mngr.isRoot(root2))
-		{
-			mngr.growSize(root1);
-			Vector<uint32_t> border;
-			border = border_vertices.find(root1);
-			border.elementEmplace(root2);
-			border_vertices.update(root1, border);
-		}
-		else
-		{
-			mngr.merge(root1, root2);
-			mergeBoundary(root1, root2);
-		}
 	}
 }
 
@@ -184,17 +187,21 @@ void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 	Vector<uint32_t> borderR2;
 	borderR1 = border_vertices.find(r1);
 	borderR2 = border_vertices.find(r2);
+	uint32_t size2 = borderR2.getSize();
 
 MERGE:
-	for(int i = 0; i<borderR2.getSize(); ++i)
+	for(int i = 0; i<size2; ++i)
 	{
-		borderR1.elementEmplace(borderR2.at(i));
+#pragma HLS PIPELINE II=1
+		uint32_t vertex = borderR2.at(i);
+		borderR1.elementEmplace(vertex);
 	}
 ERASE_LEFTOVERS:
-	for(int i = 0; i<borderR2.getSize(); ++i)
+	for(int i = 0; i<size2; ++i)
 	{
+#pragma HLS PIPELINE II=1
 		uint32_t vertex = borderR2.at(i);
-		if(connection_counts.at(vertex) == Code.vertex_connection_count(vertex))
+		if(connection_counts.at(vertex) == 4)
 		{
 			borderR1.elementErase(vertex);
 		}
