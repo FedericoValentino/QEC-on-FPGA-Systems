@@ -52,7 +52,6 @@ VECTOR_INSERT_LOOP:
 	}
 	T at(uint32_t i)
 	{
-#pragma HLS INLINE off
 		return array[i];
 	}
 	T* get(uint32_t i)
@@ -80,7 +79,6 @@ VECTOR_INSERT_LOOP:
 ERASING_LOOP:
 		for(int i = 0; i < (MAPLEN); ++i)
 		{
-#pragma HLS UNROLL factor=1
 #pragma HLS PIPELINE II=1
 			if(i >= pos)
 			{
@@ -111,8 +109,9 @@ PUSHFRONT_LOOP:
 	{
 #pragma HLS INLINE off
 ERASE_LOOP:
-		for(int i = 0; i < (MAPLEN); ++i)
+		for(int i = 0; i < size; ++i)
 		{
+#pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
 			if(array[i] == element && i < lastPos)
 			{
@@ -132,8 +131,9 @@ ERASE_LOOP:
 		else
 		{
 ELEMENT_EMPLACE_LOOP:
-			for(int i = 0; i < MAPLEN; i++)
+			for(int i = 0; i < size; i++)
 			{
+#pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
 				if(element == array[i] && !found)
 				{

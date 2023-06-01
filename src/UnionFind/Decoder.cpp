@@ -192,6 +192,7 @@ void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 MERGE:
 	for(int i = 0; i<size2; ++i)
 	{
+#pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
 		uint32_t vertex = borderR2.at(i);
 		borderR1.elementEmplace(vertex);
@@ -199,6 +200,7 @@ MERGE:
 ERASE_LEFTOVERS:
 	for(int i = 0; i<size2; ++i)
 	{
+#pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
 		uint32_t vertex = borderR2.at(i);
 		if(connection_counts.at(vertex) == 4)

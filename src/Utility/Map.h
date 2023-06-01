@@ -35,9 +35,10 @@ FIND_LOOP:
 		for(int i = 0; i < (MAPLEN); ++i)
 		{
 #pragma HLS PIPELINE II=1
-			if(map.at(i).v1 == v1 && i < map.getSize())
+			Touple<T, U> value = map.at(i);
+			if(value.v1 == v1 && i < map.getSize())
 			{
-				toRet = map.get(i)->v2;
+				toRet = value.v2;
 			}
 		}
 		return toRet;
