@@ -19,8 +19,6 @@ void test(int root1, int root2)
 #pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map.array type=cyclic factor=128
 #pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 
-
-
 	decoderUF.mergeBoundary(root1, root2);
 
 }

@@ -47,11 +47,13 @@ FIND_LOOP:
 	void update(T v1, U v2)
 	{
 #pragma HLS INLINE off
+		uint32_t size = map.getSize();
 UPDATE_LOOP:
-		for(int i = 0; i < (MAPLEN); ++i)
+		for(int i = 0; i < size; ++i)
 		{
+#pragma HLS loop_tripcount min=0 max=64
 #pragma HLS PIPELINE II=1
-			if(map.at(i).v1 == v1 && i < map.getSize())
+			if(map.at(i).v1 == v1 && i < size)
 			{
 				map.get(i)->v2 = v2;
 			}
@@ -76,8 +78,9 @@ UPDATE_LOOP:
 		uint32_t size = map.getSize();
 
 ERASE_LOOP:
-		for(int i = 0; i < (MAPLEN); ++i)
+		for(int i = 0; i < size; ++i)
 		{
+#pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
 			if(tmp == key && i < size)
 			{
