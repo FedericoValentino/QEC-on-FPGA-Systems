@@ -237,7 +237,6 @@ void mapTest()
 
 }
 
-
 void vectorTest()
 {
 	Vector<uint32_t> test;
@@ -263,8 +262,6 @@ void vectorTest()
 	printf("ALL VECTOR TESTs WERE SUCCESSFUL\n");
 
 }
-
-
 
 void hashTest(){
 
@@ -302,13 +299,106 @@ void hashTest(){
 }
 
 
+void COSIM()
+{
+		FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+
+
+		int syndrome[SYN_LEN] = {0};
+		int logicals[K][N] = {0};
+		ap_uint<CORR_LEN> correction = 0;
+		int check[K] = {0};
+		int bitstring[K]= {0};
+		int accuracy=0;
+
+		std::chrono::nanoseconds total=static_cast<std::chrono::nanoseconds>(0);
+
+		while(!feof(f))
+		{
+			fgetc(f); //square bracket
+			for(int i=0;i<SYN_LEN;i++)
+			{
+				syndrome[i]=fgetc(f)-48;
+				fgetc(f); //space
+			}
+			fgetc(f); //end of line
+			fgetc(f); //square bracket
+			for(int i=0;i<CORR_LEN;i++)
+			{
+				correction[i]=fgetc(f)-48;
+				fgetc(f);
+			}
+			fgetc(f);
+			decoderTop(syndrome,&correction,true);
+		}
+		printf("LUT is loaded");
+
+		f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+
+
+	    fgetc(f); //first bracket
+	    fgetc(f); //second bracket
+	    for(int i=0; i<K && !feof(f); i++){
+
+	    	for(int j=0; j<N && !feof(f); j++){
+	    		logicals[i][j]=fgetc(f)-48;
+	            fgetc(f);//space or bracket
+	    	}
+
+	        fgetc(f);//end of line
+	        fgetc(f);//space
+	        fgetc(f);//bracket
+	    }
+
+	    while(!feof(f)){
+
+	        for(int i=0; i<SYN_LEN && !feof(f); i++){
+	            syndrome[i]=fgetc(f)-48;
+	            fgetc(f);//space
+	        }
+
+	        fgetc(f);//end of line
+	        fgetc(f);//first square bracket
+
+	        for(int i=0; i<K && !feof(f); i++){
+	        	check[i]=fgetc(f)-48;
+	        	fgetc(f); //space or bracket
+	        }
+
+	        fgetc(f);//end of line
+	        fgetc(f); //next square bracket
+	        correction = 0;
+	        auto start=std::chrono::high_resolution_clock::now();
+	        decoderTop(syndrome, &correction, false);
+	        auto stop=std::chrono::high_resolution_clock::now();
+	        auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+	        total=total+duration;
+
+
+	        for(int i=0; i<K; i++){
+	        	bitstring[i]=0;
+
+	        	for(int j=0; j<CORR_LEN; j++)
+	        		bitstring[i]+=logicals[i][j]*correction[j];
+
+	        	bitstring[i]=bitstring[i]%2;
+	        }
+
+
+	        if(check[0] == bitstring[0] && check[1] == bitstring[1])
+	        {
+	        	++accuracy;
+	        }
+
+	    }
+
+	    printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy/5,(float)total.count()/500);
+
+}
+
+
 
 int main()
 {
-	//hashTest();
-	//vectorTest();
-	//mapTest();
-	//singleCorrectionTest();
-	//simpleCorrectionTest();
-	//correctionTest();
+	COSIM();
 }
