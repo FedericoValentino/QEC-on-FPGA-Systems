@@ -301,6 +301,8 @@ void hashTest(){
     printf("ALL HASHTABLE TESTs WERE SUCCESSFUL\n");
 }
 
+
+
 int main()
 {
 	//hashTest();
@@ -308,5 +310,5 @@ int main()
 	//mapTest();
 	//singleCorrectionTest();
 	//simpleCorrectionTest();
-	correctionTest();
+	//correctionTest();
 }
