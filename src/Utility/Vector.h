@@ -80,7 +80,7 @@ VECTOR_INSERT_LOOP:
 ERASING_LOOP:
 		for(int i = 0; i < (size); ++i)
 		{
-#pragma HLS loop_tripcount min=0 max=64
+#pragma HLS loop_tripcount min=0 max=128
 #pragma HLS PIPELINE II=1
 #pragma HLS DEPENDENCE variable=tmp type=inter false
 			if(i >= pos)
@@ -114,7 +114,7 @@ PUSHFRONT_LOOP:
 ERASE_LOOP:
 		for(int i = 0; i < size; ++i)
 		{
-#pragma HLS loop_tripcount min=0 max=64
+#pragma HLS loop_tripcount min=0 max=128
 #pragma HLS PIPELINE II=1
 			if(array[i] == element && i < lastPos)
 			{
@@ -136,7 +136,7 @@ ERASE_LOOP:
 ELEMENT_EMPLACE_LOOP:
 			for(int i = 0; i < size; i++)
 			{
-#pragma HLS loop_tripcount min=0 max=64
+#pragma HLS loop_tripcount min=0 max=128
 #pragma HLS PIPELINE II=1
 				if(element == array[i] && !found)
 				{

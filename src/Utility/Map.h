@@ -35,7 +35,7 @@ public:
 FIND_LOOP:
 		for(int i = 0; i < size; ++i)
 		{
-#pragma HLS loop_tripcount min=0 max=64
+#pragma HLS loop_tripcount min=0 max=128
 #pragma HLS PIPELINE II=1
 			Touple<T, U> value = map.at(i);
 			if(value.v1 == v1 && i < map.getSize())
@@ -53,7 +53,7 @@ FIND_LOOP:
 UPDATE_LOOP:
 		for(int i = 0; i < size; ++i)
 		{
-#pragma HLS loop_tripcount min=0 max=64
+#pragma HLS loop_tripcount min=0 max=128
 #pragma HLS PIPELINE II=1
 			if(map.at(i).v1 == v1 && i < size)
 			{
@@ -82,7 +82,7 @@ UPDATE_LOOP:
 ERASE_LOOP:
 		for(int i = 0; i < size; ++i)
 		{
-#pragma HLS loop_tripcount min=4 max=64
+#pragma HLS loop_tripcount min=0 max=128
 #pragma HLS PIPELINE II=1
 			if(tmp == key && i < size)
 			{
