@@ -2,11 +2,6 @@
 
 void RootManager::initializeRoots(Vector<uint32_t> roots)
 {
-	this->roots.fillnReset(0);
-	oddRoots.fillnReset(0);
-	sizes.reset();
-	parity.reset();
-
 ROOT_INITIALIZE:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{

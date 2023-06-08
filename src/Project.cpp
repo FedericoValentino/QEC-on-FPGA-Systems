@@ -1,9 +1,6 @@
 #include "Project.h"
 
 
-static HashMap decoderLUT;
-static Decoder decoderUF;
-
 void test(int root1, int root2)
 {
 #pragma HLS ARRAY_PARTITION variable=decoderLUT.map type=complete
@@ -58,10 +55,10 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	else
 	{
 		tmp = decoderLUT.retrieve(syndrome);
-		if(*correction == 0)
+		if(tmp == 0)
 		{
-			tmp = decoderUF.decode(syndrome);
 			decoderUF.clear();
+			tmp = decoderUF.decode(syndrome);
 		}
 		*correction = tmp;
 	}

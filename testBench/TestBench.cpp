@@ -267,14 +267,14 @@ void hashTest(){
 
 	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
 	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
-	//FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
-	FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
+	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
 
 	int syndrome[SYN_LEN] = {0};
     ap_uint<CORR_LEN> correction = 0;
     ap_uint<CORR_LEN> correctionTest = 0;
     int perc=0;
-    while(!feof(f)){
+    while(!feof(f) && perc < 50){
         fgetc(f); //square bracket
         for(int i=0;i<SYN_LEN;i++){
             syndrome[i]=fgetc(f)-48;
@@ -289,7 +289,7 @@ void hashTest(){
         fgetc(f);
         decoderTop(syndrome,&correction,true);
 
-        correctionTest = decoderLUT.retrieve(syndrome);
+        decoderTop(syndrome,&correctionTest,false);
         assert(correctionTest == correction);
         ++perc;
         //printf("Execution n: %d \n",perc);
@@ -400,5 +400,5 @@ void COSIM()
 
 int main()
 {
-	COSIM();
+	hashTest();
 }
