@@ -8,24 +8,26 @@
 #include "RootManager.h"
 #include "SurfaceCode.h"
 
+#include "hls_stream.h"
+
 class Decoder
 {
 public:
 
 	SurfaceCode Code;
 
-	Vector<uint32_t> connection_counts;
-	Vector<uint32_t> support;
-	Vector<uint32_t> root_of_vertex;
+	uint32_t connection_counts[MAPLEN] = {0};
+	uint32_t support[MAPLEN] = {0};
+	uint32_t root_of_vertex[MAPLEN] = {0};
 
-	Vector<Edge> fuseList;
+	hls::stream<Edge> fuseList;
 
 
 	RootManager mngr;
 
 	Map<uint32_t, Vector<uint32_t>> border_vertices;
 
-	Vector<Edge> peeling_edges;
+	hls::stream<Edge> peeling_edges;
 
 	Decoder()
 	{

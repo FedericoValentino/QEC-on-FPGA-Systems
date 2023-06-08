@@ -59,7 +59,7 @@ ROOT_INIT:
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
 	{
 #pragma HLS UNROLL
-		root_of_vertex.set(i, i);
+		root_of_vertex[i] = i;
 	}
 }
 
@@ -87,7 +87,8 @@ GROW:
 	{
 #pragma HLS loop_tripcount min=1 max=128
 		Vector<uint32_t> connections;
-		connections = Code.vertex_connections(borders.at(i));
+		uint32_t idk = borders.at(i);
+		connections = Code.vertex_connections(idk);
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
@@ -99,16 +100,16 @@ INNER_GROW:
 			e.v = max(borders.at(i), connections.at(j));
 
 			uint32_t edgeIdx = Code.edge_idx(e);
-			uint32_t elt = support.at(edgeIdx);
+			uint32_t elt = support[edgeIdx];
 			if(elt != 2)
 			{
-				support.plusOne(edgeIdx);
-				elt = support.at(edgeIdx);
+				support[edgeIdx]++;
+				elt = support[edgeIdx];
 				if(elt == 2)
 				{
-					connection_counts.plusOne(e.u);
-					connection_counts.plusOne(e.v);
-					fuseList.emplace(e);
+					connection_counts[e.u]++;
+					connection_counts[e.v]++;
+					fuseList.write(e);
 				}
 			}
 
@@ -118,30 +119,30 @@ INNER_GROW:
 
 uint32_t Decoder::findRoot(uint32_t vertex)
 {
-	uint32_t tmp = root_of_vertex.at(vertex);
+	uint32_t tmp = root_of_vertex[vertex];
 
 	if(tmp == vertex)
 	{
 		return vertex;
 	}
 
-	Vector<uint32_t> path;
+	hls::stream<uint32_t> path;
 	uint32_t root;
 FIND_ROOT:
 	do
 	{
 #pragma HLS PIPELINE II=1
 		root = tmp;
-		path.emplace(root);
-		tmp = root_of_vertex.at(root);
+		path.write(root);
+		tmp = root_of_vertex[root];
 	}while(tmp != root);
 
 SET_ROOT:
-	for(uint32_t i = 0; i < path.getSize(); ++i)
+	while(!path.empty())
 	{
 #pragma HLS PIPELINE II=1
-		uint32_t tmp2 = path.at(i);
-		root_of_vertex.set(root, tmp2);
+		uint32_t tmp2 = path.read();
+		root_of_vertex[tmp2] = root;
 	}
 	return root;
 }
@@ -149,17 +150,16 @@ SET_ROOT:
 void Decoder::fusion()
 {
 FUSE:
-	while(fuseList.getSize() != 0)
+	while(!fuseList.empty())
 	{
 #pragma HLS PIPELINE II=1
-		Edge e = *fuseList.get(0);
-		fuseList.erase(0);
+		Edge e = fuseList.read();
 		uint32_t root1 = findRoot(e.u);
 		uint32_t root2 = findRoot(e.v);
 
 		if(root1 != root2)
 		{
-			peeling_edges.emplace(e);
+			peeling_edges.write(e);
 
 			if(mngr.size(root1) < mngr.size(root2))
 			{
@@ -168,7 +168,7 @@ FUSE:
 				root2 = tmp;
 			}
 
-			root_of_vertex.set(root1, root2);
+			root_of_vertex[root2] = root1;
 
 			if(!mngr.isRoot(root2))
 			{
@@ -215,7 +215,7 @@ ERASE_LEFTOVERS:
 #pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
 		uint32_t vertex = borderR2.at(i);
-		if(connection_counts.at(vertex) == 4)
+		if(connection_counts[vertex] == 4)
 		{
 			borderR1.elementErase(vertex);
 		}
@@ -231,21 +231,22 @@ Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 
 
 	int vertex_count[CORR_LEN] = {0};
+	uint32_t size = peeling_edges.size();
 PEEL_PREPARE:
-	for(int i = 0; i < peeling_edges.getSize(); ++i)
+	for(int i = 0; i < size; ++i)
 	{
 #pragma HLS PIPELINE II=1
-		Edge* e = peeling_edges.get(i);
+		Edge e = peeling_edges.read();
 
-		++vertex_count[e->u];
-		++vertex_count[e->v];
+		++vertex_count[e.u];
+		++vertex_count[e.v];
+		peeling_edges.write(e);
 	}
 PEELING:
-	while(peeling_edges.getSize() != 0)
+	while(!peeling_edges.empty())
 	{
 #pragma HLS PIPELINE II=1
-		Edge leaf_edge = peeling_edges.at(peeling_edges.getSize()-1);
-		peeling_edges.erase(peeling_edges.getSize()-1);
+		Edge leaf_edge = peeling_edges.read();
 		uint32_t u = 0;
 		uint32_t v = 0;
 
@@ -261,7 +262,7 @@ PEELING:
 		}
 		else
 		{
-			peeling_edges.pushFront(leaf_edge);
+			peeling_edges.write(leaf_edge);
 			continue;
 		}
 
@@ -296,15 +297,15 @@ CORRECTION_TRANSLATION:
 
 void Decoder::clear()
 {
-	connection_counts.fillnReset(0);
-	support.fillnReset(0);
-	root_of_vertex.fillnReset(0);
+
+
+	for(int i = 0; i < MAPLEN; i++)
+	{
+		connection_counts[i] = 0;
+		support[i] = 0;
+		root_of_vertex[i] = 0;
+	}
 	border_vertices.reset();
-
-	Edge e = {0,0};
-	fuseList.fillnReset(e);
-	peeling_edges.fillnReset(e);
-
 	mngr.clear();
 }
 
