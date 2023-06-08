@@ -41,11 +41,10 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map.array type=cyclic factor=128
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map.array type=cyclic factor=128
 	//Decoder
-#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.support.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex.array type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
+#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map.array->v2.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 	ap_uint<CORR_LEN> tmp;
 	decoderUF.clear();
 	tmp = decoderUF.decode(syndrome);
