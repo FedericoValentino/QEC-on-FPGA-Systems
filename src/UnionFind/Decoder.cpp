@@ -2,7 +2,6 @@
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
-#pragma HLS DATAFLOW
 	initialization(syndrome);
 	UF();
 	Vector<Edge> correction = peel(syndrome);
@@ -127,6 +126,7 @@ uint32_t Decoder::findRoot(uint32_t vertex)
 	}
 
 	hls::stream<uint32_t> path;
+#pragma HLS STREAM variable=path depth=64
 	uint32_t root;
 FIND_ROOT:
 	do

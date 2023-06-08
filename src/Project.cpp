@@ -1,6 +1,25 @@
 #include "Project.h"
 
 
+void test(int syndrome[SYN_LEN])
+{
+	//rootManager
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map type=cyclic factor=128
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map type=cyclic factor=128
+		//Decoder
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map->array type=cyclic factor=16
+	#pragma HLS STREAM variable=decoderUF.fuseList depth=64
+	#pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
+
+	decoderUF.fusion();
+}
+
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {
 	//axi
@@ -13,17 +32,17 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	//hashmap
 //#pragma HLS ARRAY_PARTITION variable=decoderLUT.map type=complete
 	//rootManager
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map type=cyclic factor=128
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map type=cyclic factor=128
-	//Decoder
-#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map->array type=cyclic factor=16
-#pragma HLS STREAM variable=decoderUF.fuseList depth=64
-#pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map type=cyclic factor=128
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map type=cyclic factor=128
+		//Decoder
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=cyclic factor=16
+	#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map->array type=cyclic factor=16
+	#pragma HLS STREAM variable=decoderUF.fuseList depth=64
+	#pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
 	ap_uint<CORR_LEN> tmp;
 	decoderUF.clear();
 	tmp = decoderUF.decode(syndrome);
@@ -49,10 +68,4 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	}*/
 
 
-}
-
-void testhash(){
-	ap_uint<SYN_LEN> test=100;
-	HashMap testingMap;
-	int x=testingMap.hash(test);
 }

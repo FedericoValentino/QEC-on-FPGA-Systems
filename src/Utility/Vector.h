@@ -174,6 +174,18 @@ RESET_LOOP:
 		tmp += 1;
 		array[pos] = tmp;
 	}
+
+	void operator=(const Vector<T>& vec)
+	{
+		for(int i = 0; i < vec.size; i++)
+		{
+#pragma HLS LOOP_TRIPCOUNT min=0 max=64
+#pragma HLS PIPELINE II=1
+			this->array[i] = vec.array[i];
+		}
+		this->lastPos = vec.lastPos;
+		this->size = vec.size;
+	}
 };
 
 
