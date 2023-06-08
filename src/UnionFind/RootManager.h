@@ -39,6 +39,8 @@ public:
 
 	void merge(uint32_t r1, uint32_t r2);
 
+	void EraseFromAll(uint32_t root);
+
 	void clear();
 };
 

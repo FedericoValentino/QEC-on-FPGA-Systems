@@ -142,11 +142,6 @@ ELEMENT_EMPLACE_LOOP:
 				{
 					found = true;
 				}
-				if(element < array[i] && !found)
-				{
-					insert(element, i);
-					found = true;
-				}
 			 }
 			if(!found)
 				emplace(element);

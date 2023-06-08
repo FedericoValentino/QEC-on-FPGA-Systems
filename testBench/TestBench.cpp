@@ -146,7 +146,7 @@ void simpleCorrectionTest()
 void correctionTest(){
 
 	//FILE* f = fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
-	FILE* f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 	Decoder decoder;
 	int logicals[K][N] = {0};

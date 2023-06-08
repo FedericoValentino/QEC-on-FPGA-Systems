@@ -1,7 +1,7 @@
 #include "Project.h"
 
 
-void test(int syndrome[SYN_LEN])
+void test(int root1, int root2)
 {
 	//rootManager
 	#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
@@ -12,12 +12,11 @@ void test(int syndrome[SYN_LEN])
 	#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=cyclic factor=16
 	#pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
 	#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=cyclic factor=16
-	#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map type=cyclic factor=16
 	#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map->array type=cyclic factor=16
 	#pragma HLS STREAM variable=decoderUF.fuseList depth=64
 	#pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
 
-	decoderUF.fusion();
+	decoderUF.mngr.merge(root1,root2);
 }
 
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)

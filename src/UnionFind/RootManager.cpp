@@ -48,16 +48,15 @@ void RootManager::growSize(uint32_t root)
 bool RootManager::isRoot(uint32_t root)
 {
 	uint32_t count = 0;
+	uint32_t tmp = roots.at(0);
 IS_ROOT:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
-		if(root == roots.at(i))
+		if(root == tmp)
 		{
-			//TODO spostare fuori
-			if(++count > 1)
-				return false;
-
+			++count;
 		}
+		tmp = roots.at(i+1);
 	}
 	return count==1;
 }
@@ -65,7 +64,9 @@ IS_ROOT:
 
 void RootManager::merge(uint32_t r1, uint32_t r2)
 {
-	uint32_t newParity = parity.find(r1) + parity.find(r2);
+	uint32_t p1 = parity.find(r1);
+	uint32_t p2 = parity.find(r2);
+	uint32_t newParity = p1 + p2;
 
 	if((newParity % 2)== 1)
 	{
@@ -79,16 +80,23 @@ void RootManager::merge(uint32_t r1, uint32_t r2)
 
 	if(isRoot(r2))
 	{
-		sizes.update(r1, sizes.find(r1) + sizes.find(r2));
+		uint32_t s1 = sizes.find(r1);
+		uint32_t s2 = sizes.find(r2);
+		sizes.update(r1, s1+s2);
 	}
 	parity.update(r1, newParity);
 
-	oddRoots.elementErase(r2);
+	EraseFromAll(r2);
 
-	sizes.erase(r2);
-	parity.erase(r2);
-	roots.elementErase(r2);
+}
 
+void RootManager::EraseFromAll(uint32_t root)
+{
+#pragma HLS DATAFLOW
+	oddRoots.elementErase(root);
+	sizes.erase(root);
+	parity.erase(root);
+	roots.elementErase(root);
 }
 
 void RootManager::clear()
