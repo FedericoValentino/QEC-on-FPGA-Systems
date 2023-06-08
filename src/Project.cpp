@@ -53,6 +53,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	hls::print("Cleared all buffers");
 	tmp = decoderUF.decode(syndrome);
 	hls::print("Decoded!");
+	*correction = tmp;
 
 	/*if(insert)
 	{

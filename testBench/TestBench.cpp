@@ -191,8 +191,7 @@ void correctionTest(){
         fgetc(f);//end of line
         fgetc(f); //next square bracket
         auto start=std::chrono::high_resolution_clock::now();
-        correction = decoder.decode(syndrome);
-        decoder.clear();
+        decoderTop(syndrome, &correction, false);
         auto stop=std::chrono::high_resolution_clock::now();
         auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         total=total+duration;
@@ -400,5 +399,5 @@ void COSIM()
 
 int main()
 {
-	hashTest();
+	correctionTest();
 }
