@@ -1,4 +1,5 @@
 #include "Project.h"
+#include "hls_print.h"
 
 
 void test(int root1, int root2)
@@ -51,14 +52,18 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	if(insert)
 	{
 		decoderLUT.insert(*correction, syndrome);
+		hls::print("Inserted in LUT");
 	}
 	else
 	{
 		tmp = decoderLUT.retrieve(syndrome);
 		if(tmp == 0)
 		{
+			hls::print("Syndrome not found, starting decode");
 			decoderUF.clear();
+			hls::print("Cleared all buffers");
 			tmp = decoderUF.decode(syndrome);
+			hls::print("Decoded!");
 		}
 		*correction = tmp;
 	}
