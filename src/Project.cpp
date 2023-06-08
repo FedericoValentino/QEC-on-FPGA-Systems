@@ -35,7 +35,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS INTERFACE s_axilite port=correction bundle=control
 #pragma HLS INTERFACE s_axilite port=insert bundle=control
 	//hashmap
-#pragma HLS ARRAY_PARTITION variable=decoderLUT.map type=complete
+//#pragma HLS ARRAY_PARTITION variable=decoderLUT.map type=complete
 	//rootManager
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
@@ -49,7 +49,12 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map.array->v2.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 	ap_uint<CORR_LEN> tmp;
-	if(insert)
+	decoderUF.clear();
+	hls::print("Cleared all buffers");
+	tmp = decoderUF.decode(syndrome);
+	hls::print("Decoded!");
+
+	/*if(insert)
 	{
 		decoderLUT.insert(*correction, syndrome);
 		hls::print("Inserted in LUT");
@@ -66,7 +71,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 			hls::print("Decoded!");
 		}
 		*correction = tmp;
-	}
+	}*/
 
 
 }
