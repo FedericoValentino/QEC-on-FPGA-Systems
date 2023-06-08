@@ -7,7 +7,8 @@ READ_SYNDROME:
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
 	{
 #pragma HLS PIPELINE II=1
-		if(syndrome[i] % 2 != 0)
+		uint32_t tmp = syndrome[i];
+		if(tmp % 2 != 0)
 		{
 			syndrome_vertices.emplace(i);
 		}
@@ -77,11 +78,13 @@ void Decoder::grow(uint32_t root)
 GROW:
 	for(int i = 0; i < borders.getSize(); i++)
 	{
+#pragma HLS loop_tripcount min=1 max=128
 		Vector<uint32_t> connections;
 		connections = Code.vertex_connections(borders.at(i));
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
+#pragma HLS loop_tripcount min=1 max=4
 #pragma HLS PIPELINE II=1
 			Edge e;
 
@@ -286,7 +289,6 @@ CORRECTION_TRANSLATION:
 
 void Decoder::clear()
 {
-#pragma HLS DATAFLOW
 	connection_counts.fillnReset(0);
 	support.fillnReset(0);
 	root_of_vertex.fillnReset(0);

@@ -1,8 +1,8 @@
 #include "Project.h"
 
 
-HashMap decoderLUT;
-Decoder decoderUF;
+static HashMap decoderLUT;
+static Decoder decoderUF;
 
 void test(int root1, int root2)
 {
@@ -50,19 +50,22 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.fuseList.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map.array->v2.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
+	ap_uint<CORR_LEN> tmp;
 	if(insert)
 	{
 		decoderLUT.insert(*correction, syndrome);
 	}
 	else
 	{
-		*correction = decoderLUT.retrieve(syndrome);
+		tmp = decoderLUT.retrieve(syndrome);
 		if(*correction == 0)
 		{
-			*correction = decoderUF.decode(syndrome);
+			tmp = decoderUF.decode(syndrome);
 			decoderUF.clear();
 		}
+		*correction = tmp;
 	}
+
 
 }
 
