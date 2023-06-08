@@ -21,16 +21,9 @@ public:
 	Vector<uint32_t> roots;
 	Vector<uint32_t> oddRoots;
 
-	Map<uint32_t, uint32_t> sizes;
-	Map<uint32_t, uint32_t> parity;
+	Map<uint32_t> sizes;
+	Map<uint32_t> parity;
 
-	RootManager()
-	{
-#pragma HLS ARRAY_PARTITION variable=roots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=oddRoots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=sizes.map.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=parity.map.array type=cyclic factor=16
-	}
 
 	void initializeRoots(Vector<uint32_t> roots);
 

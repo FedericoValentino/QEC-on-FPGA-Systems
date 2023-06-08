@@ -3,104 +3,40 @@
 
 #include "Vector.h"
 
-template <typename T1, typename T2>
-struct Touple
-{
-	T1 v1;
-	T2 v2;
-};
 
-template <class T, class U>
+template <class U>
 class Map
 {
 public:
-	Vector<Touple<T, U>> map;
+	U map[MAPLEN] = {};
 	U defaultValue;
-	Map()
+
+
+	void add(uint32_t pos, U v2)
 	{
-#pragma HLS ARRAY_PARTITION variable=map.array type=cyclic factor=128
+		map[pos] = v2;
 	}
 
-	void add(T v1, U v2)
+	U find(uint32_t pos)
 	{
-		Touple<T, U> tmp = {v1, v2};
-		map.emplace(tmp);
+		return map[pos];
 	}
 
-	U find(T v1)
+	void update(uint32_t v1, U v2)
 	{
-#pragma HLS INLINE off
-		U toRet = defaultValue;
-		uint32_t size = map.getSize();
-FIND_LOOP:
-		for(int i = 0; i < size; ++i)
-		{
-#pragma HLS loop_tripcount min=0 max=128
-#pragma HLS PIPELINE II=1
-			Touple<T, U> value = map.at(i);
-			if(value.v1 == v1 && i < map.getSize())
-			{
-				toRet = value.v2;
-			}
-		}
-		return toRet;
-	}
-
-	void update(T v1, U v2)
-	{
-#pragma HLS INLINE off
-		uint32_t size = map.getSize();
-UPDATE_LOOP:
-		for(int i = 0; i < size; ++i)
-		{
-#pragma HLS loop_tripcount min=0 max=128
-#pragma HLS PIPELINE II=1
-			if(map.at(i).v1 == v1 && i < size)
-			{
-				map.get(i)->v2 = v2;
-			}
-		}
-	}
-
-	Touple<T, U>* get(uint32_t pos)
-	{
-		return map.get(pos);
-	}
-
-	uint32_t size()
-	{
-		return map.getSize();
+		map[v1] = v2;
 	}
 
 	void erase(uint32_t key)
 	{
-#pragma HLS INLINE off
-		uint32_t pos;
-		T tmp = map.at(0).v1;
-		uint32_t size = map.getSize();
-
-ERASE_LOOP:
-		for(int i = 0; i < size; ++i)
-		{
-#pragma HLS loop_tripcount min=0 max=128
-#pragma HLS PIPELINE II=1
-			if(tmp == key && i < size)
-			{
-				pos = i;
-			}
-			tmp = map.at(i+1).v1;
-
-		}
-		map.erase(pos);
+		map[key] = defaultValue;
 	}
 
 	void reset()
 	{
-RESET_LOOP:
-		while(map.getSize() != 0)
+		for(int i = 0; i < MAPLEN; i++)
 		{
-#pragma HLS PIPELINE II=1
-			map.erase(0);
+			map[i] = defaultValue;
 		}
 	}
 };

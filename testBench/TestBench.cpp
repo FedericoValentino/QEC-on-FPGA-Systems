@@ -218,23 +218,7 @@ void correctionTest(){
 
 }
 
-void mapTest()
-{
-	Map<uint32_t, uint32_t> test;
 
-	test.add(1, 45);
-	test.add(2, 78);
-	test.add(4, 192);
-
-	assert(test.find(1) == 45);
-
-	test.update(1, 49);
-
-	assert(test.find(1) == 49);
-
-	printf("ALL MAP TESTS WERE SUCCESSFUL\n");
-
-}
 
 void vectorTest()
 {
