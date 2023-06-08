@@ -2,6 +2,17 @@
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
+#pragma HLS DATAFLOW
+	initialization(syndrome);
+	UF();
+	Vector<Edge> correction = peel(syndrome);
+	ap_uint<CORR_LEN> FinalCorrection = translate(correction);
+	return FinalCorrection;
+}
+
+
+void Decoder::initialization(int syndrome[SYN_LEN])
+{
 	Vector<uint32_t> syndrome_vertices;
 READ_SYNDROME:
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
@@ -15,7 +26,10 @@ READ_SYNDROME:
 	}
 
 	init_cluster(syndrome_vertices);
+}
 
+void Decoder::UF()
+{
 UNION_FIND:
 	while(mngr.hasOddRoots())
 	{
@@ -26,13 +40,6 @@ UNION_FIND:
 		}
 		fusion();
 	}
-
-	Vector<Edge> correction = peel(syndrome);
-
-
-	ap_uint<CORR_LEN> FinalCorrection = translate(correction);
-
-	return FinalCorrection;
 }
 
 void Decoder::init_cluster(Vector<uint32_t> roots)

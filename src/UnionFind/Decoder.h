@@ -45,6 +45,9 @@ public:
 
 	uint32_t findRoot(uint32_t vertex);
 
+	void initialization(int syndrome[SYN_LEN]);
+
+	void UF();
 
 	Vector<Edge> peel(int syndrome[SYN_LEN]);
 

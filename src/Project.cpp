@@ -1,5 +1,4 @@
 #include "Project.h"
-#include "hls_print.h"
 
 
 void test(int root1, int root2)
@@ -50,9 +49,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=cyclic factor=16
 	ap_uint<CORR_LEN> tmp;
 	decoderUF.clear();
-	hls::print("Cleared all buffers");
 	tmp = decoderUF.decode(syndrome);
-	hls::print("Decoded!");
 	*correction = tmp;
 
 	/*if(insert)
