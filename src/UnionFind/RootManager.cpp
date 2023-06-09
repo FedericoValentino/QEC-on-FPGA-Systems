@@ -101,6 +101,7 @@ void RootManager::EraseFromAll(uint32_t root)
 
 void RootManager::clear()
 {
+#pragma HLS DATAFLOW
 	roots.fillnReset(0);
 	oddRoots.fillnReset(0);
 

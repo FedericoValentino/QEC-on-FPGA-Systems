@@ -297,10 +297,10 @@ CORRECTION_TRANSLATION:
 
 void Decoder::clear()
 {
-
-
+CLEAR_LOOP:
 	for(int i = 0; i < MAPLEN; i++)
 	{
+#pragma HLS PIPELINE II=1
 		connection_counts[i] = 0;
 		support[i] = 0;
 		root_of_vertex[i] = 0;

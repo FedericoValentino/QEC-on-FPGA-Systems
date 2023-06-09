@@ -66,10 +66,15 @@ public:
 
 		Vector<uint32_t> vector;
 
-		vector.emplace(to_vertex_index(row - 1, col));
-		vector.emplace(to_vertex_index(row + 1, col));
-		vector.emplace(to_vertex_index(row, col - 1));
-		vector.emplace(to_vertex_index(row, col + 1));
+		uint32_t idx1 = to_vertex_index(row - 1, col);
+		uint32_t idx2 = to_vertex_index(row + 1, col);
+		uint32_t idx3 = to_vertex_index(row, col - 1);
+		uint32_t idx4 = to_vertex_index(row, col + 1);
+
+		vector.emplace(idx1);
+		vector.emplace(idx2);
+		vector.emplace(idx3);
+		vector.emplace(idx4);
 
 		return vector;
 	}

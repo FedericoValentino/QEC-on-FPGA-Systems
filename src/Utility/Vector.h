@@ -76,18 +76,18 @@ VECTOR_INSERT_LOOP:
 	void erase(uint32_t pos)
 	{
 #pragma HLS INLINE off
-		T tmp = array[1];
+		T tmp = array[pos+1];
+		int i = pos;
+		int old_i;
 ERASING_LOOP:
-		for(int i = 0; i < (size); ++i)
+		while(i < size)
 		{
-#pragma HLS loop_tripcount min=0 max=128
-#pragma HLS PIPELINE II=1
 #pragma HLS DEPENDENCE variable=tmp type=inter false
-			if(i >= pos)
-			{
-				array[i] = tmp;
-			}
-			tmp = array[i+2];
+#pragma HLS PIPELINE II=1
+			array[i] = tmp;
+			old_i = i;
+			i++;
+			tmp = array[old_i+2];
 		}
 		size--;
 		lastPos--;
