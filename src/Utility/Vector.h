@@ -75,7 +75,6 @@ VECTOR_INSERT_LOOP:
 	}
 	void erase(uint32_t pos)
 	{
-#pragma HLS INLINE off
 		T tmp = array[pos+1];
 		int i = pos;
 		int old_i;
@@ -111,42 +110,40 @@ PUSHFRONT_LOOP:
 	void elementErase(T element)
 	{
 #pragma HLS INLINE off
-ERASE_LOOP:
-		for(int i = 0; i < size; ++i)
+		bool found = false;
+		int pos;
+		T tmp = array[0];
+		for(int i = 0; i < size; i++)
 		{
-#pragma HLS loop_tripcount min=0 max=128
-#pragma HLS PIPELINE II=1
-			if(array[i] == element && i < lastPos)
+#pragma HLS PIPELINE II = 1
+			if(tmp == element)
 			{
-				erase(i);
+				found = true;
+				pos = i;
 			}
+			tmp = array[i+1];
 		}
+		if(found)
+			erase(pos);
 	}
 
 	void elementEmplace(T element)
 	{
 #pragma HLS INLINE off
 		bool found = false;
-		if(size == 0)
+		T tmp = array[0];
+		for(int i = 0; i < size; i++)
 		{
-			emplace(element);
-		}
-		else
-		{
-ELEMENT_EMPLACE_LOOP:
-			for(int i = 0; i < size; i++)
+#pragma HLS PIPELINE II = 1
+			if(tmp == element)
 			{
-#pragma HLS loop_tripcount min=0 max=128
-#pragma HLS PIPELINE II=1
-				if(element == array[i] && !found)
-				{
-					found = true;
-				}
-			 }
-			if(!found)
-				emplace(element);
-
+				found = true;
+			}
+			tmp = array[i+1];
 		}
+
+		if(!found)
+			emplace(element);
 	}
 
 	void fillnReset(T element)

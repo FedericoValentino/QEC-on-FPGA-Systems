@@ -228,20 +228,30 @@ ERASE_LEFTOVERS:
 Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
 {
 	Vector<Edge> corrections;
-
+	int syndrome_cpy[SYN_LEN];
+#pragma HLS ARRAY_PARTITION variable=syndrome_cpy type=complete
+SYNDROME_COPY:
+	for(int i = 0; i < SYN_LEN; i++)
+	{
+#pragma HLS PIPELINE II=1
+		syndrome_cpy[i] = syndrome[i];
+	}
 
 	int vertex_count[CORR_LEN] = {0};
 	uint32_t size = peeling_edges.size();
+	Edge e = peeling_edges.read();
+	Edge old_e;
 PEEL_PREPARE:
 	for(int i = 0; i < size; ++i)
 	{
 #pragma HLS PIPELINE II=1
-		Edge e = peeling_edges.read();
-
-		++vertex_count[e.u];
-		++vertex_count[e.v];
-		peeling_edges.write(e);
+		vertex_count[e.u]++;
+		vertex_count[e.v]++;
+		old_e = e;
+		e = peeling_edges.read();
+		peeling_edges.write(old_e);
 	}
+	peeling_edges.write(e);
 PEELING:
 	while(!peeling_edges.empty())
 	{
@@ -269,11 +279,11 @@ PEELING:
 		--vertex_count[u];
 		--vertex_count[v];
 
-		if(syndrome[u] == 1)
+		if(syndrome_cpy[u] == 1)
 		{
 			corrections.emplace(leaf_edge);
-			syndrome[u] = 0;
-			syndrome[v] ^= 1U;
+			syndrome_cpy[u] = 0;
+			syndrome_cpy[v] ^= 1U;
 		}
 	}
 
