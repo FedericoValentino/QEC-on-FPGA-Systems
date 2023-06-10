@@ -31,19 +31,9 @@ public:
 
 	void init_cluster(Vector<uint32_t> roots);
 
-
-
 	void fusion();
 
 	uint32_t findRoot(uint32_t vertex);
-
-	void initialization(int syndrome[SYN_LEN]);
-
-	void UF();
-
-	Vector<Edge> peel(int syndrome[SYN_LEN]);
-
-	ap_uint<CORR_LEN> translate(Vector<Edge> correctionEdges);
 
 	void grow(uint32_t root);
 
@@ -52,6 +42,14 @@ public:
 	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
 
 	void clear();
+
+	void initialization(int syndrome[SYN_LEN]);
+
+	void UF();
+
+	Vector<Edge> peel(int syndrome[SYN_LEN]);
+
+	ap_uint<CORR_LEN> translate(Vector<Edge> correctionEdges);
 
 	//void buildCode();
 

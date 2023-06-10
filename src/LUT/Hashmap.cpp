@@ -1,4 +1,5 @@
 #include "Hashmap.h"
+#include <hls_math.h>
 
 ap_uint<SYN_LEN> HashMap::binToDec(int syndrome[SYN_LEN])
 {
@@ -12,22 +13,36 @@ BINARY_TO_DECIMAL_LOOP:
 	return sum;
 }
 
-int HashMap::hash(ap_uint<SYN_LEN> synDec){
+int HashMap::hash(ap_uint<SYN_LEN> synDec)
+{
 	int i = 0;
-	int hash = (synDec+3*i) % MAX_SIZE/2;
+	int hash = (synDec+3*i) % MAX_SIZE;
+	int finalHash;
+	bool found = false;
 
+	if(this->map[hash].full)
+	{
 HASH_LOOP:
-	for(i = 0; i <= MAX_SIZE/2; i++){
+		for(i = 0; i <= MAX_SIZE; i++)
+		{
 #pragma HLS PIPELINE II=1
-		if(!this->map[hash].full){
-			return hash;
+			hash = (synDec+3*i) % MAX_SIZE;
+			if((this->map[hash].syndrome == synDec || !this->map[hash].full) && !found)
+			{
+				found = true;
+				finalHash = hash;
+			}
 		}
-		if(this->map[hash].syndrome == synDec){
-			return hash;
-		}
-		hash = (synDec+3*i) % MAX_SIZE/2;
+
+		if(!found)
+			return -1;
+		else
+			return finalHash;
 	}
-	return -1;
+	else
+	{
+		return hash;
+	}
 }
 
 
