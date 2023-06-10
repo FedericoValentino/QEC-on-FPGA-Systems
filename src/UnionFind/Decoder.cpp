@@ -91,6 +91,8 @@ GROW:
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
+#pragma HLS DEPENDENCE variable=connection_counts type=inter false
+#pragma HLS DEPENDENCE variable=support type=inter false
 #pragma HLS loop_tripcount min=1 max=4
 #pragma HLS PIPELINE II=1
 			Edge e;
@@ -100,16 +102,23 @@ INNER_GROW:
 
 			uint32_t edgeIdx = Code.edge_idx(e);
 			uint32_t elt = support[edgeIdx];
+
+			uint32_t count_u = connection_counts[e.u];
+			count_u++;
+			uint32_t count_v = connection_counts[e.v];
+			count_v++;
+
+
 			if(elt != 2)
 			{
-				support[edgeIdx]++;
-				elt = support[edgeIdx];
+				elt++;
 				if(elt == 2)
 				{
-					connection_counts[e.u]++;
-					connection_counts[e.v]++;
+					connection_counts[e.u]=count_u;
+					connection_counts[e.v]=count_v;
 					fuseList.write(e);
 				}
+				support[edgeIdx] = elt;
 			}
 
 		}
@@ -127,18 +136,21 @@ uint32_t Decoder::findRoot(uint32_t vertex)
 
 	hls::stream<uint32_t> path;
 #pragma HLS STREAM variable=path depth=64
-	uint32_t root;
+	uint32_t root=tmp;
+	tmp = root_of_vertex[root];
+	path.write(root);
 FIND_ROOT:
-	do
+	while(tmp != root)
 	{
 #pragma HLS PIPELINE II=1
 		root = tmp;
-		path.write(root);
 		tmp = root_of_vertex[root];
-	}while(tmp != root);
+		path.write(root);
+	}
 
+	uint32_t size = path.size();
 SET_ROOT:
-	while(!path.empty())
+	for(int i = 0; i < size; i++)
 	{
 #pragma HLS PIPELINE II=1
 		uint32_t tmp2 = path.read();
@@ -237,16 +249,22 @@ SYNDROME_COPY:
 		syndrome_cpy[i] = syndrome[i];
 	}
 
-	int vertex_count[CORR_LEN] = {0};
+	int vertex_count[SYN_LEN] = {0};
+#pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
 	uint32_t size = peeling_edges.size();
 	Edge e = peeling_edges.read();
 	Edge old_e;
 PEEL_PREPARE:
 	for(int i = 0; i < size; ++i)
 	{
+#pragma HLS DEPENDENCE variable=vertex_count inter false
 #pragma HLS PIPELINE II=1
-		vertex_count[e.u]++;
-		vertex_count[e.v]++;
+		uint32_t tmp1 = vertex_count[e.u];
+		uint32_t tmp2 = vertex_count[e.v];
+		tmp1++;
+		tmp2++;
+		vertex_count[e.u] = tmp1;
+		vertex_count[e.v] = tmp2;
 		old_e = e;
 		e = peeling_edges.read();
 		peeling_edges.write(old_e);
@@ -255,6 +273,7 @@ PEEL_PREPARE:
 PEELING:
 	while(!peeling_edges.empty())
 	{
+#pragma HLS DEPENDENCE variable=vertex_count inter false
 #pragma HLS PIPELINE II=1
 		Edge leaf_edge = peeling_edges.read();
 		uint32_t u = 0;

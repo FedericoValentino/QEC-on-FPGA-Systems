@@ -383,5 +383,5 @@ void COSIM()
 
 int main()
 {
-	correctionTest();
+	COSIM();
 }

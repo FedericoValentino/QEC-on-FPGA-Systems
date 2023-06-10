@@ -18,7 +18,6 @@ public:
 
 	void insert(T element, uint32_t pos)
 	{
-#pragma HLS INLINE off
 		T tmp = array[(MAPLEN) - 2];
 		if(array[pos])
 		{
@@ -42,7 +41,6 @@ VECTOR_INSERT_LOOP:
 
 	void emplace(T element)
 	{
-#pragma HLS INLINE off
 		array[lastPos] = element;
 		++lastPos;
 		++size;
@@ -93,7 +91,6 @@ ERASING_LOOP:
 	}
 	void pushFront(T element)
 	{
-#pragma HLS INLINE off
 		T tmp;
 PUSHFRONT_LOOP:
 		for(int i = (MAPLEN)-1; i >0 ; --i)
@@ -109,10 +106,10 @@ PUSHFRONT_LOOP:
 
 	void elementErase(T element)
 	{
-#pragma HLS INLINE off
 		bool found = false;
 		int pos;
 		T tmp = array[0];
+ELEMENT_ERASE_LOOP:
 		for(int i = 0; i < size; i++)
 		{
 #pragma HLS PIPELINE II = 1
@@ -129,9 +126,9 @@ PUSHFRONT_LOOP:
 
 	void elementEmplace(T element)
 	{
-#pragma HLS INLINE off
 		bool found = false;
 		T tmp = array[0];
+ELEMENT_EMPLACE_LOOP:
 		for(int i = 0; i < size; i++)
 		{
 #pragma HLS PIPELINE II = 1
