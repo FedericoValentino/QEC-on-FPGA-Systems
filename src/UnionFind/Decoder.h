@@ -25,7 +25,7 @@ public:
 
 	RootManager mngr;
 
-	Map<Vector<uint32_t>> border_vertices;
+	hls::stream<uint32_t> border_vertices[MAPLEN];
 
 	hls::stream<Edge> peeling_edges;
 

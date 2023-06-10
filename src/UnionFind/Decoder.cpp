@@ -48,10 +48,8 @@ BORDER_INIT:
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
 	{
 #pragma HLS PIPELINE II=1
-		Vector<uint32_t> Border;
 		uint32_t tmp = roots.at(i);
-		Border.elementEmplace(tmp);
-		border_vertices.add(tmp, Border);
+		border_vertices[tmp].write(tmp);
 	}
 
 ROOT_INIT:
@@ -79,14 +77,12 @@ uint32_t max(uint32_t a, uint32_t b){
 
 void Decoder::grow(uint32_t root)
 {
-	Vector<uint32_t> borders;
-	borders = border_vertices.find(root);
 GROW:
-	for(int i = 0; i < borders.getSize(); i++)
+	for(int i = 0; i < border_vertices[root].size(); i++)
 	{
 #pragma HLS loop_tripcount min=1 max=128
 		Vector<uint32_t> connections;
-		uint32_t idk = borders.at(i);
+		uint32_t idk = border_vertices[root].read();
 		connections = Code.vertex_connections(idk);
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
@@ -97,8 +93,8 @@ INNER_GROW:
 #pragma HLS PIPELINE II=1
 			Edge e;
 
-			e.u = min(borders.at(i), connections.at(j));
-			e.v = max(borders.at(i), connections.at(j));
+			e.u = min(idk, connections.at(j));
+			e.v = max(idk, connections.at(j));
 
 			uint32_t edgeIdx = Code.edge_idx(e);
 			uint32_t elt = support[edgeIdx];
@@ -122,6 +118,7 @@ INNER_GROW:
 			}
 
 		}
+		border_vertices[root].write(idk);
 	}
 }
 
@@ -185,16 +182,17 @@ FUSE:
 			if(!mngr.isRoot(root2))
 			{
 				mngr.growSize(root1);
-				Vector<uint32_t> border;
-				border = border_vertices.find(root1);
-				border.elementEmplace(root2);
-				border_vertices.update(root1, border);
+				border_vertices[root1].write(root2);
 			}
 			else
 			{
 				mngr.merge(root1, root2);
 				mergeBoundary(root1, root2);
-				border_vertices.erase(root2);
+				while(!border_vertices[root2].empty())
+				{
+					border_vertices[root2].read();
+				}
+				//border_vertices.erase(root2);
 			}
 		}
 
@@ -207,33 +205,28 @@ FUSE:
 void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 {
 #pragma HLS INLINE off
-	Vector<uint32_t> borderR1;
-	Vector<uint32_t> borderR2;
-	borderR1 = border_vertices.find(r1);
-	borderR2 = border_vertices.find(r2);
-	uint32_t size2 = borderR2.getSize();
-
 MERGE:
-	for(int i = 0; i<size2; ++i)
+	while(!border_vertices[r2].empty())
 	{
 #pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
-		uint32_t vertex = borderR2.at(i);
-		borderR1.elementEmplace(vertex);
+		uint32_t vertex = border_vertices[r2].read();
+		border_vertices[r1].write(vertex);
 	}
+
+
+	uint32_t size = border_vertices[r1].size();
 ERASE_LEFTOVERS:
-	for(int i = 0; i<size2; ++i)
+	for(int i = 0; i<size; ++i)
 	{
 #pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
-		uint32_t vertex = borderR2.at(i);
-		if(connection_counts[vertex] == 4)
+		uint32_t vertex = border_vertices[r1].read();
+		if(connection_counts[vertex] < 4)
 		{
-			borderR1.elementErase(vertex);
+			border_vertices[r1].write(vertex);
 		}
 	}
-
-	border_vertices.update(r1, borderR1);
 }
 
 
@@ -333,8 +326,10 @@ CLEAR_LOOP:
 		connection_counts[i] = 0;
 		support[i] = 0;
 		root_of_vertex[i] = 0;
+		while(!border_vertices[i].empty())
+			border_vertices[i].read();
 	}
-	border_vertices.reset();
+
 	mngr.clear();
 }
 
