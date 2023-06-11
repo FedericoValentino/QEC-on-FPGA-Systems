@@ -27,19 +27,19 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map->array type=cyclic factor=16
 #pragma HLS STREAM variable=decoderUF.fuseList depth=64
 #pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
-	bool tmp;
-	bool foundInLUT = false;
+	bool tmp = false;
 
 	hls::print("insert: %d\n", insert);
 	switch(insert)
 	{
 		case 1:
 			decoderLUT.insert(*correction, syndrome);
+			tmp = true;
 			hls::print("Inserted in LUT\n");
 			break;
 		case 0:
 			hls::print("Retrieving from LUT\n");
-			tmp = decoderLUT.retrieve(syndrome, *correction);
+			tmp = decoderLUT.retrieve(syndrome, correction);
 			break;
 	}
 
@@ -49,12 +49,12 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 			hls::print("Retrieval not successful\n");
 			decoderUF.clear();
 			hls::print("Cleared Buffers\n");
-			tmp = decoderUF.decode(syndrome);
+			hls::print("Starting decode procedure\n");
+			*correction  = decoderUF.decode(syndrome);
 			hls::print("Syndrome has been decoded\n");
-			*correction = tmp;
 			break;
 		case 1:
-			hls::print("Retrieval was successful\n");
+			hls::print("Nothing else to do\n");
 			break;
 	}
 
