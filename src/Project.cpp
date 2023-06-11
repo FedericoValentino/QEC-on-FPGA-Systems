@@ -33,44 +33,21 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	{
 	case 1:
 		decoderLUT.insert(*correction, syndrome);
-<<<<<<< Upstream, based on origin/synthesis
-		hls::print("Inserted in LUT\n");
-	}
-	else
-	{
-		hls::print("Trying to retrieve from LUT\n");
-=======
 		break;
 	case 0:
->>>>>>> 0d556ca not sure if it's a bug or not but managed to achieve more accuracy with switch cases
 		tmp = decoderLUT.retrieve(syndrome);
 		switch(tmp)
 		{
-<<<<<<< Upstream, based on origin/synthesis
-			hls::print("Retrieve was not successful, starting decode\n");
-=======
 		case 0:
->>>>>>> 0d556ca not sure if it's a bug or not but managed to achieve more accuracy with switch cases
 			decoderUF.clear();
-<<<<<<< Upstream, based on origin/synthesis
-			hls::print("Buffers have been cleared\n");
-			tmp = decoderUF.decode(syndrome);
-			hls::print("Syndrome has been decoded\n");
-=======
 			*correction = decoderUF.decode(syndrome);
 			break;
 		default:
 			*correction = tmp;
 			break;
->>>>>>> 0d556ca not sure if it's a bug or not but managed to achieve more accuracy with switch cases
 		}
-<<<<<<< Upstream, based on origin/synthesis
-		hls::print("Correction is being sent out!\n");
-		*correction = tmp;
-=======
 		break;
 
->>>>>>> 0d556ca not sure if it's a bug or not but managed to achieve more accuracy with switch cases
 	}
 
 
