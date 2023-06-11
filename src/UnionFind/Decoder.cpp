@@ -23,6 +23,10 @@ READ_SYNDROME:
 		{
 			syndrome_vertices.emplace(i);
 		}
+		else
+		{
+			continue;
+		}
 	}
 
 	init_cluster(syndrome_vertices);
@@ -110,17 +114,20 @@ INNER_GROW:
 			count_v++;
 
 
-			if(elt != 2)
+			switch(elt)
 			{
+			case 2:
+				connection_counts[e.u]=count_u;
+				connection_counts[e.v]=count_v;
+				fuseList.write(e);
+				break;
+			default:
 				elt++;
-				if(elt == 2)
-				{
-					connection_counts[e.u]=count_u;
-					connection_counts[e.v]=count_v;
-					fuseList.write(e);
-				}
-				support[edgeIdx] = elt;
+				break;
+
 			}
+
+			support[edgeIdx] = elt;
 
 		}
 	}
