@@ -8,7 +8,7 @@ template <class T>
 class Vector
 {
 public:
-	T array[MAPLEN] = {};
+	T array[SYN_LEN] = {};
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
 	Vector()

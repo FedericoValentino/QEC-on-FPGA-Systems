@@ -8,7 +8,7 @@ template <class U>
 class Map
 {
 public:
-	U map[MAPLEN] = {};
+	U map[SYN_LEN] = {};
 	U defaultValue;
 
 

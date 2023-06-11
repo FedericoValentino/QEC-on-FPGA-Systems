@@ -16,16 +16,16 @@ public:
 
 	SurfaceCode Code;
 
-	uint32_t connection_counts[MAPLEN] = {0};
+	uint32_t connection_counts[SYN_LEN] = {0};
 	uint32_t support[MAPLEN] = {0};
-	uint32_t root_of_vertex[MAPLEN] = {0};
+	uint32_t root_of_vertex[SYN_LEN] = {0};
 
 	hls::stream<Edge> fuseList;
 
 
 	RootManager mngr;
 
-	hls::stream<uint32_t> border_vertices[MAPLEN];
+	hls::stream<uint32_t> border_vertices[SYN_LEN];
 
 	hls::stream<Edge> peeling_edges;
 
