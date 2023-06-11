@@ -62,13 +62,17 @@ void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
 
 }
 
-ap_uint<CORR_LEN> HashMap::retrieve(int syndrome[SYN_LEN])
+bool HashMap::retrieve(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
 	int index = this->hash(synDec);
 
     if(index!=-1)
-    	return this->map[index].correction;
+    {
+    	*correction = this->map[index].correction;
+    	return 1;
+    }
+
     else
     	return 0;
 

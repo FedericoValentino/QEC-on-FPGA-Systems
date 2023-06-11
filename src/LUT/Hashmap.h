@@ -33,7 +33,7 @@ public:
 
 	void insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN]);
 
-	ap_uint<CORR_LEN> retrieve(int syndrome[SYN_LEN]);
+	bool retrieve(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
 
 };
 
