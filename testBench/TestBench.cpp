@@ -290,9 +290,11 @@ void COSIM()
 		int syndrome[SYN_LEN] = {0};
 		int logicals[K][N] = {0};
 		ap_uint<CORR_LEN> correction = 0;
+		ap_uint<CORR_LEN> correctionTest = 0;
 		int check[K] = {0};
 		int bitstring[K]= {0};
 		int accuracy=0;
+		int LUTaccuracy=0;
 
 		std::chrono::nanoseconds total=static_cast<std::chrono::nanoseconds>(0);
 
@@ -313,8 +315,15 @@ void COSIM()
 			}
 			fgetc(f);
 			decoderTop(syndrome,&correction,true);
+			decoderTop(syndrome,&correctionTest, false);
+			if(correction == correctionTest)
+			{
+				LUTaccuracy++;
+			}
+
+
 		}
-		printf("LUT is loaded");
+		printf("LUT is loaded. Accuracy = %d/50\n", LUTaccuracy);
 
 		f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 

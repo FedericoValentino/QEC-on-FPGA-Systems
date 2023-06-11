@@ -1,12 +1,13 @@
 #include "Project.h"
+#include "hls_print.h"
 
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {
 	static HashMap decoderLUT;
 	Decoder decoderUF;
 	//axi
-#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=128
-#pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=256
+#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=64
+#pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=128
 
 #pragma HLS INTERFACE s_axilite port=syndrome bundle=control
 #pragma HLS INTERFACE s_axilite port=correction bundle=control
@@ -30,15 +31,21 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	if(insert)
 	{
 		decoderLUT.insert(*correction, syndrome);
+		hls::print("Inserted in LUT\n");
 	}
 	else
 	{
+		hls::print("Trying to retrieve from LUT\n");
 		tmp = decoderLUT.retrieve(syndrome);
 		if(tmp == 0)
 		{
+			hls::print("Retrieve was not successful, starting decode\n");
 			decoderUF.clear();
+			hls::print("Buffers have been cleared\n");
 			tmp = decoderUF.decode(syndrome);
+			hls::print("Syndrome has been decoded\n");
 		}
+		hls::print("Correction is being sent out!\n");
 		*correction = tmp;
 	}
 
