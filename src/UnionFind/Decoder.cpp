@@ -2,15 +2,16 @@
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
-	initialization(syndrome);
+	read_syndrome(syndrome);
+	initialization();
 	UF();
-	Vector<Edge> correction = peel(syndrome);
+	Vector<Edge> correction = peel();
 	ap_uint<CORR_LEN> FinalCorrection = translate(correction);
 	return FinalCorrection;
 }
 
 
-void Decoder::initialization(int syndrome[SYN_LEN])
+void Decoder::initialization()
 {
 	Vector<uint32_t> syndrome_vertices;
 READ_SYNDROME:
@@ -237,17 +238,9 @@ ERASE_LEFTOVERS:
 }
 
 
-Vector<Edge> Decoder::peel(int syndrome[SYN_LEN])
+Vector<Edge> Decoder::peel()
 {
 	Vector<Edge> corrections;
-	int syndrome_cpy[SYN_LEN];
-#pragma HLS ARRAY_PARTITION variable=syndrome_cpy type=complete
-SYNDROME_COPY:
-	for(int i = 0; i < SYN_LEN; i++)
-	{
-#pragma HLS PIPELINE II=1
-		syndrome_cpy[i] = syndrome[i];
-	}
 
 	int vertex_count[SYN_LEN] = {0};
 #pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
@@ -298,11 +291,11 @@ PEELING:
 		--vertex_count[u];
 		--vertex_count[v];
 
-		if(syndrome_cpy[u] == 1)
+		if(syndrome[u] == 1)
 		{
 			corrections.emplace(leaf_edge);
-			syndrome_cpy[u] = 0;
-			syndrome_cpy[v] ^= 1U;
+			syndrome[u] = 0;
+			syndrome[v] ^= 1U;
 		}
 	}
 
@@ -338,6 +331,16 @@ CLEAR_LOOP:
 	mngr.clear();
 }
 
+void Decoder::read_syndrome(int syndrome[SYN_LEN])
+{
+	SYNDROME_COPY:
+		for(int i = 0; i < SYN_LEN; i++)
+		{
+	#pragma HLS PIPELINE II=1
+			this->syndrome[i] = syndrome[i];
+		}
+
+}
 
 /*
 void Decoder::buildCode()

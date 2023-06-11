@@ -14,6 +14,8 @@ class Decoder
 {
 public:
 
+	int syndrome[SYN_LEN];
+
 	SurfaceCode Code;
 
 	uint32_t connection_counts[MAPLEN] = {0};
@@ -43,11 +45,13 @@ public:
 
 	void clear();
 
-	void initialization(int syndrome[SYN_LEN]);
+	void read_syndrome(int syndrome[SYN_LEN]);
+
+	void initialization();
 
 	void UF();
 
-	Vector<Edge> peel(int syndrome[SYN_LEN]);
+	Vector<Edge> peel();
 
 	ap_uint<CORR_LEN> translate(Vector<Edge> correctionEdges);
 

@@ -3,7 +3,7 @@
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {
 	static HashMap decoderLUT;
-	static Decoder decoderUF;
+	Decoder decoderUF;
 	//axi
 #pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=128
 #pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=256
@@ -19,6 +19,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map type=cyclic factor=128
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map type=cyclic factor=128
 		//Decoder
+#pragma HLS ARRAY_PARTITION variable=decoderUF.syndrome type=complete
 #pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=complete
 #pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=complete
