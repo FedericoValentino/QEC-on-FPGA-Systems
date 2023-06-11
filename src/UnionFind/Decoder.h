@@ -18,9 +18,9 @@ public:
 
 	SurfaceCode Code;
 
-	uint32_t connection_counts[MAPLEN] = {0};
+	uint32_t connection_counts[SYN_LEN] = {0};
 	uint32_t support[MAPLEN] = {0};
-	uint32_t root_of_vertex[MAPLEN] = {0};
+	uint32_t root_of_vertex[SYN_LEN] = {0};
 
 	hls::stream<Edge> fuseList;
 

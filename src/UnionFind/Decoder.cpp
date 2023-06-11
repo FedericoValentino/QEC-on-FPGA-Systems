@@ -195,7 +195,6 @@ FUSE:
 			{
 				mngr.merge(root1, root2);
 				mergeBoundary(root1, root2);
-				border_vertices.erase(root2);
 			}
 		}
 
