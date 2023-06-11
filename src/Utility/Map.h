@@ -34,7 +34,7 @@ public:
 
 	void reset()
 	{
-		for(int i = 0; i < MAPLEN; i++)
+		for(int i = 0; i < SYN_LEN; i++)
 		{
 			map[i] = defaultValue;
 		}

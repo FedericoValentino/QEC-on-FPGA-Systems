@@ -33,10 +33,10 @@ void Decoder::UF()
 UNION_FIND:
 	while(mngr.hasOddRoots())
 	{
-		for(int i = 0; i < mngr.oddRoots_()->getSize(); ++i)
+		for(int i = 0; i < mngr.oddRoots.getSize(); ++i)
 		{
 #pragma HLS PIPELINE II=1
-			grow(*mngr.oddRoots_()->get(i));
+			grow(mngr.oddRoots.at(i));
 		}
 		fusion();
 	}
@@ -271,31 +271,34 @@ PEELING:
 		uint32_t u = 0;
 		uint32_t v = 0;
 
-		if(vertex_count[leaf_edge.u] == 1)
+		if(vertex_count[leaf_edge.u] == 1 || vertex_count[leaf_edge.v] == 1)
 		{
-			u = leaf_edge.u;
-			v = leaf_edge.v;
-		}
-		else if(vertex_count[leaf_edge.v] == 1)
-		{
-			u = leaf_edge.v;
-			v = leaf_edge.u;
+			if(vertex_count[leaf_edge.u] == 1)
+			{
+				u = leaf_edge.u;
+				v = leaf_edge.v;
+			}
+			else if(vertex_count[leaf_edge.v] == 1)
+			{
+				u = leaf_edge.v;
+				v = leaf_edge.u;
+			}
+
+			--vertex_count[u];
+			--vertex_count[v];
+
+			if(syndrome[u] == 1)
+			{
+				corrections.emplace(leaf_edge);
+				syndrome[u] = 0;
+				syndrome[v] ^= 1U;
+			}
 		}
 		else
 		{
 			peeling_edges.write(leaf_edge);
-			continue;
 		}
 
-		--vertex_count[u];
-		--vertex_count[v];
-
-		if(syndrome[u] == 1)
-		{
-			corrections.emplace(leaf_edge);
-			syndrome[u] = 0;
-			syndrome[v] ^= 1U;
-		}
 	}
 
 	return corrections;
