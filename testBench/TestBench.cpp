@@ -17,132 +17,6 @@ Lint binaryToDec(int array[CORR_LEN]){
 }
 
 
-void singleCorrectionTest()
-{
-	int syndrome[SYN_LEN] = {0, 0, 0, 1, 1, 1, 0, 0, 1};
-	//0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0
-	//0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0
-	ap_uint<CORR_LEN> correctionTest = 0;
-	int correctionArr[CORR_LEN] = {0};
-
-	Decoder decoder;
-
-	correctionTest = decoder.decode(syndrome);
-	decoder.clear();
-
-	for(int i = 0; i < CORR_LEN; ++i)
-	{
-		correctionArr[i] = correctionTest[i];
-	}
-
-
-	printf("\nOur decoding: \n");
-	for(int i = 0; i < CORR_LEN; ++i)
-	{
-		printf("%d ", correctionArr[i]);
-	}
-
-
-}
-
-
-void simpleCorrectionTest()
-{
-	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
-	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\test.txt","r");
-	//FILE* f=fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
-
-	Decoder decoder;
-	ap_uint<CORR_LEN> correctionTest = 0;
-	int syndrome[SYN_LEN]={0};
-	int syndromeOriginal[SYN_LEN] = {0};
-	int correctionTestArr[CORR_LEN] = {0};
-	int correctionArr[CORR_LEN] = {0};
-	int correctedCount = 0;
-
-	while(!feof(f))
-	{
-		bool ok = true;
-
-		int i = 0;
-
-		int count = 0;
-
-		while(count != 2 && !feof(f))
-		{
-			char c = fgetc(f);
-			if(c == 49 || c == 48)
-			{
-				if(count == 0)
-				{
-					syndrome[i] = c-48;
-					syndromeOriginal[i] = c-48;
-					++i;
-				}
-				if(count == 1)
-				{
-					correctionArr[i] = c-48;
-					++i;
-				}
-			}
-			else if(c == 93)
-			{
-				i = 0;
-				++count;
-			}
-		}
-
-
-		correctionTest = decoder.decode(syndrome);
-		decoder.clear();
-
-		for(i = 0; i < CORR_LEN; ++i)
-		{
-			correctionTestArr[i] = correctionTest[i];
-		}
-
-		for(i = 0; i < CORR_LEN; ++i)
-		{
-			if(correctionTestArr[i] != correctionArr[i])
-			{
-				ok = false;
-				break;
-			}
-		}
-
-
-		if(ok)
-		{
-			printf("good\n");
-			correctedCount++;
-		}
-		else
-		{
-			printf("incorrectly decoded syndrome: \n");
-			for(i = 0; i < SYN_LEN; ++i)
-			{
-				printf("%d ", syndromeOriginal[i]);
-			}
-			printf("\nOur decoding: \n");
-			for(i = 0; i < CORR_LEN; ++i)
-			{
-				printf("%d ", correctionTestArr[i]);
-			}
-			printf("\nCorrect Decoding: \n");
-			for(i = 0; i < CORR_LEN; ++i)
-			{
-				printf("%d ", correctionArr[i]);
-			}
-			printf("\n");
-		}
-
-	}
-
-	printf("\nSimple Test Completed\nCorrectly Decoded %f", (float)correctedCount/100.0f);
-
-}
-
-
 void correctionTest(){
 
 	//FILE* f = fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
@@ -218,34 +92,6 @@ void correctionTest(){
 
 }
 
-
-
-void vectorTest()
-{
-	Vector<uint32_t> test;
-	test.emplace(0);
-	test.emplace(1);
-	test.emplace(2);
-	test.emplace(4);
-	test.elementEmplace(5);
-	test.elementEmplace(3);
-	test.elementEmplace(7);
-	test.elementEmplace(8);
-	test.elementEmplace(6);
-
-	assert(test.getSize() == 9);
-
-	assert(test.at(0) == 0);
-	assert(test.at(3) == 3);
-
-	test.set(2, 3);
-
-	assert(test.at(3) == 2);
-
-	printf("ALL VECTOR TESTs WERE SUCCESSFUL\n");
-
-}
-
 void hashTest(){
 
 	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
@@ -284,7 +130,7 @@ void hashTest(){
 
 void COSIM()
 {
-		FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+		FILE* f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
 
 
 		int syndrome[SYN_LEN] = {0};
@@ -325,7 +171,7 @@ void COSIM()
 		}
 		printf("LUT is loaded. Accuracy = %d/50\n", LUTaccuracy);
 
-		f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+		f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 
 	    fgetc(f); //first bracket

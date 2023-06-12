@@ -25,6 +25,7 @@ void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
     int index = this->hash(synDec);
     int counter = 0;
+HASHMAP_INSERT_LOOP:
     while(map[index].full && counter < MAX_SIZE)
     {
     	index++;
@@ -44,7 +45,7 @@ bool HashMap::retrieve(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
 	int index = this->hash(synDec);
 	int counter = 0;
-
+HASHMAP_RETRIEVE_LOOP:
 	while(synDec != map[index].syndrome && counter < MAX_SIZE)
 	{
 		index++;
