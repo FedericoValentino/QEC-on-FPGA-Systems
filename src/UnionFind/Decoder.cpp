@@ -174,39 +174,53 @@ FUSE:
 	{
 #pragma HLS PIPELINE II=1
 		Edge e = fuseList.read();
-		uint32_t root1 = findRoot(e.u);
-		uint32_t root2 = findRoot(e.v);
+		uint32_t tmp1 = findRoot(e.u);
+		uint32_t tmp2 = findRoot(e.v);
+		uint32_t root1=tmp1;
+		uint32_t root2=tmp2;
 
-		if(root1 != root2)
-		{
-			peeling_edges.write(e);
-
-			if(mngr.size(root1) < mngr.size(root2))
-			{
-				uint32_t tmp = root1;
-				root1 = root2;
-				root2 = tmp;
-			}
-
-			root_of_vertex[root2] = root1;
-
-			if(!mngr.isRoot(root2))
-			{
-				mngr.growSize(root1);
-				Vector<uint32_t> border;
-				border = border_vertices.find(root1);
-				border.elementEmplace(root2);
-				border_vertices.update(root1, border);
-			}
-			else
-			{
-				mngr.merge(root1, root2);
-				mergeBoundary(root1, root2);
-			}
+		if(tmp1==tmp2){
+			return;
 		}
 
+		if(mngr.size(tmp1)<mngr.size(tmp2)){
+			root1=tmp2;
+			root2=tmp1;
+		}
+
+		fuse(root1,root2,e);
 
 	}
+}
+
+void Decoder::fuse(uint32_t root1, uint32_t root2, Edge e){
+#pragma HLS INLINE
+	peeling_edges.write(e);
+	root_of_vertex[root2] = root1;
+
+	if(!mngr.isRoot(root2))
+	{
+		whenroot(root1,root2);
+	}
+	else
+	{
+		elseroot(root1,root2);
+	}
+}
+
+void Decoder::whenroot(uint32_t root1, uint32_t root2){
+#pragma HLS INLINE
+	mngr.growSize(root1);
+	Vector<uint32_t> border;
+	border = border_vertices.find(root1);
+	border.elementEmplace(root2);
+	border_vertices.update(root1, border);
+}
+
+void Decoder::elseroot(uint32_t root1, uint32_t root2){
+#pragma HLS DATAFLOW
+	mngr.merge(root1, root2);
+	mergeBoundary(root1, root2);
 }
 
 

@@ -57,6 +57,12 @@ public:
 
 	//void buildCode();
 
+
+	//functions to speed up synthesis
+	void fuse(uint32_t root1, uint32_t root2, Edge e);
+	void whenroot(uint32_t root1, uint32_t root2);
+	void elseroot(uint32_t root1, uint32_t root2);
+
 };
 
 #endif
