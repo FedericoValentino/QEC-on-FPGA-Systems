@@ -14,6 +14,7 @@ ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 	correction.fillnReset({0,0});
 	correction = peel();
 	ap_uint<CORR_LEN> FinalCorrection = translate(correction);
+	hls::print("finished decoding\n");
 	return FinalCorrection;
 }
 
@@ -96,6 +97,7 @@ void Decoder::grow(uint32_t root)
 {
 	static Vector<uint32_t> borders;
 	borders = border_vertices.find(root);
+	hls::print("entering GROW loop\n");
 GROW:
 	for(int i = 0; i < borders.getSize(); i++)
 	{
@@ -103,6 +105,7 @@ GROW:
 		static Vector<uint32_t> connections;
 		uint32_t idk = borders.at(i);
 		connections = Code.vertex_connections(idk);
+		hls::print("entering INNERGROW loop\n");
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
@@ -131,6 +134,7 @@ INNER_GROW:
 				fuseList.write(e);
 				break;
 			default:
+				hls::print("increasing elt\n");
 				elt++;
 				break;
 
@@ -144,6 +148,7 @@ INNER_GROW:
 
 uint32_t Decoder::findRoot(uint32_t vertex)
 {
+	hls::print("Finding root for vertex %d\n", vertex);
 	uint32_t tmp = root_of_vertex[vertex];
 
 	if(tmp == vertex)
@@ -196,6 +201,7 @@ FUSE:
 
 		if(root1!= root2)
 		{
+			hls::print("entering Fuse\n");
 			fuse(root1,root2,e);
 		}
 
@@ -216,12 +222,14 @@ void Decoder::fuse(uint32_t root1, uint32_t root2, Edge e){
 	}
 	else
 	{
+		hls::print("elseroot\n");
 		elseroot(root1,root2);
 	}
 }
 
 void Decoder::whenroot(uint32_t root1, uint32_t root2){
 #pragma HLS INLINE
+	hls::print("whenroot\n");
 	mngr.growSize(root1);
 	static Vector<uint32_t> border;
 	border = border_vertices.find(root1);
@@ -239,6 +247,7 @@ void Decoder::elseroot(uint32_t root1, uint32_t root2){
 
 void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 {
+	hls::print("Merging\n");
 #pragma HLS INLINE off
 	static Vector<uint32_t> borderR1;
 	static Vector<uint32_t> borderR2;
@@ -270,6 +279,7 @@ ERASE_LEFTOVERS:
 
 Vector<Edge> Decoder::peel()
 {
+	hls::print("starting peeling process\n");
 	static Vector<Edge> corrections;
 	corrections.fillnReset({0,0});
 
@@ -296,6 +306,7 @@ PEEL_PREPARE:
 		peeling_edges.write(old_e);
 	}
 	peeling_edges.write(e);
+	hls::print("read peelng_edges\n");
 PEELING:
 	while(!peeling_edges.empty())
 	{
@@ -335,6 +346,7 @@ PEELING:
 		}
 
 	}
+	hls::print("corrections done\n");
 
 	return corrections;
 }
@@ -343,6 +355,7 @@ PEELING:
 ap_uint<CORR_LEN> Decoder::translate(Vector<Edge> correctionEdges)
 {
 	ap_uint<CORR_LEN> correction = 0;
+	hls::print("translating\n");
 CORRECTION_TRANSLATION:
 	for(int i = 0; i < correctionEdges.getSize(); ++i)
 	{
