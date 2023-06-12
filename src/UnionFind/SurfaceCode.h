@@ -98,7 +98,7 @@ public:
 	{
 		if(is_horizontal(L, e))
 				{
-					Coord tmp=vertex_to_coord(L,left(L,e));
+					Coord tmp=vertex_to_coord(L,left(e));
 					return L*(L+tmp.x)+tmp.y;
 				}
 				else
@@ -112,7 +112,7 @@ public:
 		return ((e.v - e.u) == 1) || ((e.v - e.u) == (L - 1));
 	}
 
-	uint32_t left(uint32_t L, Edge e)
+	uint32_t left(Edge e)
 	{
 		if((e.v - e.u) == 1)
 		{
