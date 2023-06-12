@@ -147,7 +147,7 @@ ELEMENT_EMPLACE_LOOP:
 	{
 #pragma HLS INLINE off
 RESET_LOOP:
-		for(int i = 0; i < MAPLEN; ++i)
+		for(int i = 0; i < SYN_LEN; ++i)
 		{
 #pragma HLS PIPELINE II=1
 			array[i] = element;

@@ -1,10 +1,9 @@
 #include "Project.h"
-#include "hls_print.h"
 
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {
 	static HashMap decoderLUT;
-	Decoder decoderUF;
+	static Decoder decoderUF;
 	//axi
 #pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=64
 #pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=128
@@ -29,6 +28,10 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
 	bool tmp = false;
 
+
+	*correction = decoderUF.decode(syndrome);
+
+	/*
 	hls::print("insert: %d\n", insert);
 	switch(insert)
 	{
@@ -57,6 +60,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 			hls::print("Nothing else to do\n");
 			break;
 	}
+	*/
 
 
 

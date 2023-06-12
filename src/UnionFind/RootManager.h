@@ -29,8 +29,6 @@ public:
 
 	bool hasOddRoots();
 
-	Vector<uint32_t>* oddRoots_();
-
 	uint32_t size(uint32_t root);
 
 	void growSize(uint32_t root);
@@ -40,6 +38,8 @@ public:
 	void merge(uint32_t r1, uint32_t r2);
 
 	void EraseFromAll(uint32_t root);
+
+	void fillNFO(uint32_t NFO);
 
 	void clear();
 };

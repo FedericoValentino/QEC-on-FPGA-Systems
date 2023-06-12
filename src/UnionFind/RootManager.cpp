@@ -5,23 +5,23 @@ void RootManager::initializeRoots(Vector<uint32_t> roots)
 ROOT_INITIALIZE:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
 		uint32_t tmp = roots.at(i);
-		this->roots.elementEmplace(tmp);
-		this->oddRoots.elementEmplace(tmp);
-		this->sizes.add(tmp, 1);
-		this->parity.add(tmp, 1);
+		fillNFO(tmp);
 	}
+}
+
+void RootManager::fillNFO(uint32_t tmp)
+{
+#pragma HLS DATAFLOW
+	this->roots.elementEmplace(tmp);
+	this->oddRoots.elementEmplace(tmp);
+	this->sizes.add(tmp, 1);
+	this->parity.add(tmp, 1);
 }
 
 bool RootManager::hasOddRoots()
 {
 	return oddRoots.getSize() > 0;
-}
-
-Vector<uint32_t>* RootManager::oddRoots_()
-{
-	return &oddRoots;
 }
 
 uint32_t RootManager::size(uint32_t root)

@@ -1,11 +1,17 @@
 #include "Decoder.h"
+#include "hls_print.h"
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 {
+	clear();
 	read_syndrome(syndrome);
+	hls::print("read syndrome\n");
 	initialization();
+	hls::print("initialized roots\n");
 	UF();
-	Vector<Edge> correction = peel();
+	static Vector<Edge> correction;
+	correction.fillnReset({0,0});
+	correction = peel();
 	ap_uint<CORR_LEN> FinalCorrection = translate(correction);
 	return FinalCorrection;
 }
@@ -13,11 +19,11 @@ ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
 
 void Decoder::initialization()
 {
-	Vector<uint32_t> syndrome_vertices;
+	static Vector<uint32_t> syndrome_vertices;
+	syndrome_vertices.fillnReset(0);
 READ_SYNDROME:
 	for(uint32_t i = 0; i < SYN_LEN; ++i)
 	{
-#pragma HLS PIPELINE II=1
 		uint32_t tmp = syndrome[i];
 		if(tmp % 2 != 0)
 		{
@@ -37,9 +43,9 @@ void Decoder::UF()
 UNION_FIND:
 	while(mngr.hasOddRoots())
 	{
+		hls::print("growing");
 		for(int i = 0; i < mngr.oddRoots.getSize(); ++i)
 		{
-#pragma HLS PIPELINE II=1
 			grow(mngr.oddRoots.at(i));
 		}
 		fusion();
@@ -52,8 +58,8 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 BORDER_INIT:
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
 	{
-#pragma HLS PIPELINE II=1
-		Vector<uint32_t> Border;
+		static Vector<uint32_t> Border;
+		Border.fillnReset(0);
 		uint32_t tmp = roots.at(i);
 		Border.elementEmplace(tmp);
 		border_vertices.add(tmp, Border);
@@ -84,20 +90,19 @@ uint32_t max(uint32_t a, uint32_t b){
 
 void Decoder::grow(uint32_t root)
 {
-	Vector<uint32_t> borders;
+	static Vector<uint32_t> borders;
 	borders = border_vertices.find(root);
 GROW:
 	for(int i = 0; i < borders.getSize(); i++)
 	{
 #pragma HLS loop_tripcount min=1 max=128
-		Vector<uint32_t> connections;
+		static Vector<uint32_t> connections;
 		uint32_t idk = borders.at(i);
 		connections = Code.vertex_connections(idk);
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
 #pragma HLS DEPENDENCE variable=connection_counts type=inter false
-#pragma HLS DEPENDENCE variable=support type=inter false
 #pragma HLS loop_tripcount min=1 max=4
 #pragma HLS PIPELINE II=1
 			Edge e;
@@ -161,7 +166,8 @@ SET_ROOT:
 	for(int i = 0; i < size; i++)
 	{
 #pragma HLS PIPELINE II=1
-		uint32_t tmp2 = path.read();
+		uint32_t tmp2;
+		path.read(tmp2);
 		root_of_vertex[tmp2] = root;
 	}
 	return root;
@@ -172,23 +178,25 @@ void Decoder::fusion()
 FUSE:
 	while(!fuseList.empty())
 	{
-#pragma HLS PIPELINE II=1
-		Edge e = fuseList.read();
+		Edge e;
+		fuseList.read(e);
 		uint32_t tmp1 = findRoot(e.u);
 		uint32_t tmp2 = findRoot(e.v);
 		uint32_t root1=tmp1;
 		uint32_t root2=tmp2;
-
-		if(tmp1==tmp2){
-			return;
-		}
-
-		if(mngr.size(tmp1)<mngr.size(tmp2)){
+		if(mngr.size(root1)<mngr.size(root2))
+		{
 			root1=tmp2;
 			root2=tmp1;
 		}
 
-		fuse(root1,root2,e);
+		if(root1!= root2)
+		{
+			fuse(root1,root2,e);
+		}
+
+
+
 
 	}
 }
@@ -211,7 +219,7 @@ void Decoder::fuse(uint32_t root1, uint32_t root2, Edge e){
 void Decoder::whenroot(uint32_t root1, uint32_t root2){
 #pragma HLS INLINE
 	mngr.growSize(root1);
-	Vector<uint32_t> border;
+	static Vector<uint32_t> border;
 	border = border_vertices.find(root1);
 	border.elementEmplace(root2);
 	border_vertices.update(root1, border);
@@ -228,8 +236,8 @@ void Decoder::elseroot(uint32_t root1, uint32_t root2){
 void Decoder::mergeBoundary(uint32_t r1, uint32_t r2)
 {
 #pragma HLS INLINE off
-	Vector<uint32_t> borderR1;
-	Vector<uint32_t> borderR2;
+	static Vector<uint32_t> borderR1;
+	static Vector<uint32_t> borderR2;
 	borderR1 = border_vertices.find(r1);
 	borderR2 = border_vertices.find(r2);
 	uint32_t size2 = borderR2.getSize();
@@ -238,7 +246,6 @@ MERGE:
 	for(int i = 0; i<size2; ++i)
 	{
 #pragma HLS loop_tripcount min=4 max=64
-#pragma HLS PIPELINE II=1
 		uint32_t vertex = borderR2.at(i);
 		borderR1.elementEmplace(vertex);
 	}
@@ -246,7 +253,6 @@ ERASE_LEFTOVERS:
 	for(int i = 0; i<size2; ++i)
 	{
 #pragma HLS loop_tripcount min=4 max=64
-#pragma HLS PIPELINE II=1
 		uint32_t vertex = borderR2.at(i);
 		if(connection_counts[vertex] == 4)
 		{
@@ -260,12 +266,15 @@ ERASE_LEFTOVERS:
 
 Vector<Edge> Decoder::peel()
 {
-	Vector<Edge> corrections;
+	static Vector<Edge> corrections;
+	corrections.fillnReset({0,0});
 
 	int vertex_count[SYN_LEN] = {0};
 #pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
 	uint32_t size = peeling_edges.size();
-	Edge e = peeling_edges.read();
+	Edge e;
+	if(size > 0)
+		peeling_edges.read(e);
 	Edge old_e;
 PEEL_PREPARE:
 	for(int i = 0; i < size; ++i)
@@ -279,7 +288,7 @@ PEEL_PREPARE:
 		vertex_count[e.u] = tmp1;
 		vertex_count[e.v] = tmp2;
 		old_e = e;
-		e = peeling_edges.read();
+		peeling_edges.read(e);
 		peeling_edges.write(old_e);
 	}
 	peeling_edges.write(e);
@@ -288,7 +297,8 @@ PEELING:
 	{
 #pragma HLS DEPENDENCE variable=vertex_count inter false
 #pragma HLS PIPELINE II=1
-		Edge leaf_edge = peeling_edges.read();
+		Edge leaf_edge;
+		peeling_edges.read(leaf_edge);
 		uint32_t u = 0;
 		uint32_t v = 0;
 
@@ -350,8 +360,11 @@ CLEAR_LOOP:
 		support[i] = 0;
 		root_of_vertex[i] = 0;
 	}
+	hls::print("cleared arrays\n");
 	border_vertices.reset();
+	hls::print("borderVertices cleared\n");
 	mngr.clear();
+	hls::print("RootManager cleared\n");
 }
 
 void Decoder::read_syndrome(int syndrome[SYN_LEN])
