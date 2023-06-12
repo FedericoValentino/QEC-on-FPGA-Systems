@@ -242,6 +242,5 @@ void COSIM()
 
 int main()
 {
-	//COSIM();
-	hashTest();
+	correctionTest();
 }

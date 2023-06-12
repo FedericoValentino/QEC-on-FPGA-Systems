@@ -1,4 +1,5 @@
 #include "Decoder.h"
+
 #include "hls_print.h"
 
 ap_uint<CORR_LEN> Decoder::decode(int syndrome[SYN_LEN])
@@ -43,7 +44,7 @@ void Decoder::UF()
 UNION_FIND:
 	while(mngr.hasOddRoots())
 	{
-		hls::print("growing");
+		hls::print("growing\n");
 		for(int i = 0; i < mngr.oddRoots.getSize(); ++i)
 		{
 			grow(mngr.oddRoots.at(i));
@@ -54,6 +55,7 @@ UNION_FIND:
 
 void Decoder::init_cluster(Vector<uint32_t> roots)
 {
+	hls::print("starting init cluster\n");
 	mngr.initializeRoots(roots);
 BORDER_INIT:
 	for(uint32_t i = 0; i < roots.getSize(); ++i)
@@ -63,6 +65,7 @@ BORDER_INIT:
 		uint32_t tmp = roots.at(i);
 		Border.elementEmplace(tmp);
 		border_vertices.add(tmp, Border);
+		hls::print("initialized borders for vertex %d\n", tmp);
 	}
 
 ROOT_INIT:
@@ -71,6 +74,7 @@ ROOT_INIT:
 #pragma HLS UNROLL
 		root_of_vertex[i] = i;
 	}
+	hls::print("ending init cluster\n");
 }
 
 uint32_t min(uint32_t a, uint32_t b){
