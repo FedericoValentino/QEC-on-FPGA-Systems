@@ -15,6 +15,7 @@ BINARY_TO_DECIMAL_LOOP:
 
 int HashMap::hash(ap_uint<SYN_LEN> synDec)
 {
+#pragma HLS INLINE
 	return synDec % MAX_SIZE;
 }
 
@@ -25,17 +26,26 @@ void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
     int index = this->hash(synDec);
     int counter = 0;
-HASHMAP_INSERT_LOOP:
-    while(map[index].full && counter < MAX_SIZE)
-    {
-    	index++;
-    	index %= MAX_SIZE;
-    	counter++;
-    }
+    int finalidx = 0;
+    bool found = 0;
 
-    map[index].correction = correction;
-    map[index].syndrome = synDec;
-    map[index].full = true;
+HASHMAP_INSERT_LOOP:
+	while(counter < MAX_SIZE){
+#pragma HLS PIPELINE II=1
+		counter++;
+		if (!map[index].full && !found){
+			finalidx = index;
+			found=1;
+		}
+		index++;
+		if(index==MAX_SIZE){
+			index=0;
+		}
+	}
+
+    map[finalidx].correction = correction;
+    map[finalidx].syndrome = synDec;
+    map[finalidx].full = true;
 
 
 }
@@ -45,20 +55,29 @@ bool HashMap::retrieve(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
 	int index = this->hash(synDec);
 	int counter = 0;
-HASHMAP_RETRIEVE_LOOP:
-	while(synDec != map[index].syndrome && counter < MAX_SIZE)
-	{
-		index++;
-	  	index %= MAX_SIZE;
-	   	counter++;
-    }
+	int finalidx = 0;
+	bool found = 0;
 
-	if(counter == MAX_SIZE)
-	{
+
+
+HASHMAP_RETRIEVE_LOOP:
+	while(counter < MAX_SIZE){
+#pragma HLS PIPELINE II=1
+		counter++;
+		if (synDec == map[index].syndrome){
+			finalidx = index;
+			found = 1;
+		}
+		index++;
+		if(index==MAX_SIZE){
+			index=0;
+		}
+	}
+
+	if(!found){
 		return 0;
 	}
-	else
-	{
+	else{
 		*correction = map[index].correction;
 		return 1;
 	}
