@@ -8,7 +8,7 @@ template <class T>
 class Vector
 {
 public:
-	T array[SYN_LEN] = {};
+	T array[SYN_LEN];
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
 	Vector()
@@ -75,16 +75,14 @@ VECTOR_INSERT_LOOP:
 	{
 		T tmp = array[pos+1];
 		int i = pos;
-		int old_i;
 ERASING_LOOP:
 		while(i < size)
 		{
 #pragma HLS DEPENDENCE variable=tmp type=inter false
 #pragma HLS PIPELINE II=1
 			array[i] = tmp;
-			old_i = i;
+			tmp = array[i+2];
 			i++;
-			tmp = array[old_i+2];
 		}
 		size--;
 		lastPos--;

@@ -108,7 +108,6 @@ GROW:
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
-#pragma HLS DEPENDENCE variable=support inter false
 #pragma HLS loop_tripcount min=1 max=4
 #pragma HLS PIPELINE II=1
 			Edge e;
@@ -144,27 +143,26 @@ uint32_t Decoder::findRoot(uint32_t vertex)
 		return vertex;
 	}
 
-	hls::stream<uint32_t> path;
-#pragma HLS STREAM variable=path depth=64
+	static Vector<uint32_t> path;
+	path.fillnReset(0);
 	uint32_t root=tmp;
 	tmp = root_of_vertex[root];
-	path.write(root);
+	path.emplace(root);
 FIND_ROOT:
 	while(tmp != root)
 	{
 #pragma HLS PIPELINE II=1
 		root = tmp;
 		tmp = root_of_vertex[root];
-		path.write(root);
+		path.emplace(root);
 	}
 
-	uint32_t size = path.size();
 SET_ROOT:
-	for(int i = 0; i < size; i++)
+	while(path.getSize() > 0)
 	{
 #pragma HLS PIPELINE II=1
-		uint32_t tmp2;
-		path.read(tmp2);
+		uint32_t tmp2= path.at(0);
+		path.erase(0);
 		root_of_vertex[tmp2] = root;
 	}
 	return root;
@@ -257,7 +255,6 @@ void Decoder::peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& correcti
 
 	int vertex_count[SYN_LEN] = {0};
 #pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
-	uint32_t size = peeling_edges.size();
 
 PEEL_PREPARE:
 	while(!peeling_edges.empty())

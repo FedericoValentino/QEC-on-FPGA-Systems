@@ -230,7 +230,7 @@ void COSIM()
 	        fgetc(f);//bracket
 	    }
 
-	    while(!feof(f)){
+	    while(!feof(f) && accuracy < 50){
 
 	        for(int i=0; i<SYN_LEN && !feof(f); i++){
 	            syndrome[i]=fgetc(f)-48;
@@ -272,7 +272,7 @@ void COSIM()
 
 	    }
 
-	    printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy/5,(float)total.count()/500);
+	    printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy*100.0/50.0,(float)total.count()/500);
 
 }
 
