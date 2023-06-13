@@ -16,16 +16,14 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	//rootManager
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map type=cyclic factor=64
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map type=cyclic factor=64
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes type=cyclic factor=64
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.paritytype=cyclic factor=64
 		//Decoder
 #pragma HLS ARRAY_PARTITION variable=decoderUF.syndrome type=complete
 #pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=complete
 #pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map->array type=cyclic factor=16
-#pragma HLS STREAM variable=decoderUF.fuseList depth=64
-#pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
+#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices->array type=cyclic factor=16
 	bool tmp = false;
 
 	//hls::print("insert: %d\n", insert);
