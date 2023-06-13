@@ -17,7 +17,7 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes type=cyclic factor=64
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.paritytype=cyclic factor=64
+#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity type=cyclic factor=64
 		//Decoder
 #pragma HLS ARRAY_PARTITION variable=decoderUF.syndrome type=complete
 #pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=complete
@@ -43,10 +43,6 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 	switch(tmp)
 	{
 		case 0:
-			//hls::print("Retrieval not successful\n");
-			decoderUF.clear();
-			//hls::print("Cleared Buffers\n");
-			//hls::print("Starting decode procedure\n");
 			decoderUF.decode(syndrome, correction);
 			//hls::print("Syndrome has been decoded\n");
 			break;

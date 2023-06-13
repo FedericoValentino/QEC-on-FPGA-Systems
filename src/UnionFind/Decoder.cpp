@@ -15,6 +15,8 @@ void Decoder::decode(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 #pragma HLS STREAM variable= correction_edges depth=64
 
 
+	//phase 0: clear ds
+	clear();
 	//phase 1: read syndrome and populate data structs
 	initialization(syndrome, syn_stream);
 	populate(syn_stream);
@@ -117,27 +119,16 @@ INNER_GROW:
 			uint32_t edgeIdx = Code.edge_idx(e);
 			uint32_t elt = support[edgeIdx];
 
-			uint32_t count_u = connection_counts[e.u];
-			count_u++;
-			uint32_t count_v = connection_counts[e.v];
-			count_v++;
 
-
-			switch(elt)
+			if(elt != 2)
 			{
-			case 2:
-				connection_counts[e.u]=count_u;
-				connection_counts[e.v]=count_v;
-				fuseList.write(e);
-				break;
-			default:
-				//hls::print("increasing elt\n");
 				elt++;
-				break;
-
+				if(elt == 2)
+				{
+					fuseList.write(e);
+				}
+				support[edgeIdx] = elt;
 			}
-
-			support[edgeIdx] = elt;
 
 		}
 	}
@@ -256,16 +247,6 @@ MERGE:
 		uint32_t vertex = borderR2.at(i);
 		borderR1.elementEmplace(vertex);
 	}
-ERASE_LEFTOVERS:
-	for(int i = 0; i<size2; ++i)
-	{
-#pragma HLS loop_tripcount min=4 max=64
-		uint32_t vertex = borderR2.at(i);
-		if(connection_counts[vertex] == 4)
-		{
-			borderR1.elementErase(vertex);
-		}
-	}
 
 	border_vertices[r1] = borderR1;
 }
@@ -364,7 +345,6 @@ CLEAR_LOOP:
 	for(int i = 0; i < SYN_LEN; i++)
 	{
 #pragma HLS PIPELINE II=1
-		connection_counts[i] = 0;
 		root_of_vertex[i] = 0;
 		border_vertices[i].fillnReset(0);
 	}
