@@ -252,7 +252,8 @@ void Decoder::peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& correcti
 {
 	//hls::print("starting peeling process\n");
 
-	Vector<Edge> peelingVec;
+	static Vector<Edge> peelingVec;
+	peelingVec.fillnReset({0,0});
 
 	int vertex_count[SYN_LEN] = {0};
 #pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
@@ -261,7 +262,6 @@ void Decoder::peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& correcti
 PEEL_PREPARE:
 	while(!peeling_edges.empty())
 	{
-#pragma HLS DEPENDENCE variable=vertex_count inter false
 #pragma HLS PIPELINE II=1
 		Edge e = peeling_edges.read();
 		uint32_t tmp1 = vertex_count[e.u];
