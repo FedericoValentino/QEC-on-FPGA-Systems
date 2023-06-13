@@ -14,44 +14,42 @@ class Decoder
 {
 public:
 
+	int syndrome[SYN_LEN];
+
 	SurfaceCode Code;
 
 	uint32_t connection_counts[SYN_LEN] = {0};
-	uint32_t support[MAPLEN] = {0};
+	uint32_t support[CORR_LEN] = {0};
 	uint32_t root_of_vertex[SYN_LEN] = {0};
-
-	hls::stream<Edge> fuseList;
+	Vector<uint32_t> border_vertices[SYN_LEN];
 
 
 	RootManager mngr;
 
-	hls::stream<uint32_t> border_vertices[SYN_LEN];
+	void decode(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
 
-	hls::stream<Edge> peeling_edges;
+	void initialization(int syndrome[SYN_LEN], hls::stream<uint32_t>& syn_stream);
+	void populate(hls::stream<uint32_t>& syn_stream);
 
-	void init_cluster(Vector<uint32_t> roots);
-
-	void fusion();
-
+	void UF(hls::stream<Edge>& fuseList, hls::stream<Edge>& peeling_edges);
+	void grow(uint32_t root, hls::stream<Edge>& fuseList);
 	uint32_t findRoot(uint32_t vertex);
 
-	void grow(uint32_t root);
+	void fusion(hls::stream<Edge>& fuseList, hls::stream<Edge>& peeling_edges);
+	void fuse(uint32_t root1, uint32_t root2, Edge e);
+	void whenroot(uint32_t root1, uint32_t root2);
+	void elseroot(uint32_t root1, uint32_t root2);
 
 	void mergeBoundary(uint32_t r1, uint32_t r2);
 
-	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
+	void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections);
+
+	void translate(hls::stream<Edge>& correctionEdges, ap_uint<CORR_LEN>* correction);
 
 	void clear();
 
-	void initialization(int syndrome[SYN_LEN]);
 
-	void UF();
 
-	Vector<Edge> peel(int syndrome[SYN_LEN]);
-
-	ap_uint<CORR_LEN> translate(Vector<Edge> correctionEdges);
-
-	//void buildCode();
 
 };
 

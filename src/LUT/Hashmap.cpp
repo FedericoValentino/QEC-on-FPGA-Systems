@@ -15,34 +15,8 @@ BINARY_TO_DECIMAL_LOOP:
 
 int HashMap::hash(ap_uint<SYN_LEN> synDec)
 {
-	int i = 0;
-	int hash = (synDec+3*i) % MAX_SIZE;
-	int finalHash;
-	bool found = false;
-
-	if(this->map[hash].full)
-	{
-HASH_LOOP:
-		for(i = 0; i <= MAX_SIZE; i++)
-		{
-#pragma HLS PIPELINE II=1
-			hash = (synDec+3*i) % MAX_SIZE;
-			if((this->map[hash].syndrome == synDec || !this->map[hash].full) && !found)
-			{
-				found = true;
-				finalHash = hash;
-			}
-		}
-
-		if(!found)
-			return -1;
-		else
-			return finalHash;
-	}
-	else
-	{
-		return hash;
-	}
+#pragma HLS INLINE
+	return synDec % MAX_SIZE;
 }
 
 
@@ -51,25 +25,62 @@ void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
     int index = this->hash(synDec);
+    int counter = 0;
+    int finalidx = 0;
+    bool found = 0;
 
-    if(index!=-1){
-    	this->map[index].syndrome = synDec;
-    	this->map[index].correction = correction;
-    	this->map[index].full = true;
-    	++this->lastBlockUsed;
-    }
+HASHMAP_INSERT_LOOP:
+	while(counter < MAX_SIZE){
+#pragma HLS PIPELINE II=1
+		counter++;
+		if (!map[index].full && !found){
+			finalidx = index;
+			found=1;
+		}
+		index++;
+		if(index==MAX_SIZE){
+			index=0;
+		}
+	}
+
+    map[finalidx].correction = correction;
+    map[finalidx].syndrome = synDec;
+    map[finalidx].full = true;
 
 
 }
 
-ap_uint<CORR_LEN> HashMap::retrieve(int syndrome[SYN_LEN])
+bool HashMap::retrieve(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
 	int index = this->hash(synDec);
+	int counter = 0;
+	int finalidx = 0;
+	bool found = 0;
 
-    if(index!=-1)
-    	return this->map[index].correction;
-    else
-    	return 0;
+
+
+HASHMAP_RETRIEVE_LOOP:
+	while(counter < MAX_SIZE){
+#pragma HLS PIPELINE II=1
+		counter++;
+		if (synDec == map[index].syndrome){
+			finalidx = index;
+			found = 1;
+		}
+		index++;
+		if(index==MAX_SIZE){
+			index=0;
+		}
+	}
+
+	if(!found){
+		return 0;
+	}
+	else{
+		*correction = map[index].correction;
+		return 1;
+	}
+
 
 }

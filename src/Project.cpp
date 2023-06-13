@@ -3,10 +3,10 @@
 void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {
 	static HashMap decoderLUT;
-	static Decoder decoderUF;
+	Decoder decoderUF;
 	//axi
-#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=128
-#pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=256
+#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=64
+#pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=128
 
 #pragma HLS INTERFACE s_axilite port=syndrome bundle=control
 #pragma HLS INTERFACE s_axilite port=correction bundle=control
@@ -19,27 +19,42 @@ void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool inser
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map type=cyclic factor=64
 #pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map type=cyclic factor=64
 		//Decoder
-#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=cyclic factor=64
+#pragma HLS ARRAY_PARTITION variable=decoderUF.syndrome type=complete
+#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts type=complete
 #pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices type=cyclic factor=16
-#pragma HLS STREAM variable=decoderUF.border_vertices depth=40
+#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map->array type=cyclic factor=16
 #pragma HLS STREAM variable=decoderUF.fuseList depth=64
 #pragma HLS STREAM variable=decoderUF.peeling_edges depth=64
-	ap_uint<CORR_LEN> tmp;
-	if(insert)
+	bool tmp = false;
+
+	//hls::print("insert: %d\n", insert);
+	switch(insert)
 	{
-		decoderLUT.insert(*correction, syndrome);
+		case 1:
+			decoderLUT.insert(*correction, syndrome);
+			tmp = true;
+			//hls::print("Inserted in LUT\n");
+			break;
+		case 0:
+			//hls::print("Retrieving from LUT\n");
+			tmp = decoderLUT.retrieve(syndrome, correction);
+			break;
 	}
-	else
+
+	switch(tmp)
 	{
-		tmp = decoderLUT.retrieve(syndrome);
-		if(tmp == 0)
-		{
+		case 0:
+			//hls::print("Retrieval not successful\n");
 			decoderUF.clear();
-			tmp = decoderUF.decode(syndrome);
-		}
-		*correction = tmp;
+			//hls::print("Cleared Buffers\n");
+			//hls::print("Starting decode procedure\n");
+			decoderUF.decode(syndrome, correction);
+			//hls::print("Syndrome has been decoded\n");
+			break;
+		case 1:
+			//hls::print("Nothing else to do\n");
+			break;
 	}
 
 
