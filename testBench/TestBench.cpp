@@ -181,7 +181,7 @@ void hashTest(){
 
 void COSIM()
 {
-		FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+		FILE* f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
 
 
 		int syndrome[SYN_LEN] = {0};
@@ -213,7 +213,7 @@ void COSIM()
 		}
 		printf("LUT is loaded");
 
-		f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+		f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 
 	    fgetc(f); //first bracket

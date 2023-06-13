@@ -108,7 +108,7 @@ GROW:
 INNER_GROW:
 		for(int j = 0; j < connections.getSize(); ++j)
 		{
-#pragma HLS DEPENDENCE variable=connection_counts type=inter false
+#pragma HLS DEPENDENCE variable=support inter false
 #pragma HLS loop_tripcount min=1 max=4
 #pragma HLS PIPELINE II=1
 			Edge e;
@@ -277,7 +277,6 @@ PEELING:
 	while(peelingVec.getSize() > 0)
 	{
 #pragma HLS DEPENDENCE variable=vertex_count inter false
-#pragma HLS PIPELINE II=1
 		Edge leaf_edge = peelingVec.at(0);
 		peelingVec.erase(0);
 		uint32_t u = 0;
