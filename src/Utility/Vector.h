@@ -28,7 +28,10 @@ public:
 	}
 	T at(uint32_t i)
 	{
-		return array[i];
+		if(i >= 0 && i < SYN_LEN)
+			return array[i];
+		else
+			return array[0];
 	}
 	void set(T element, uint32_t pos)
 	{
@@ -46,16 +49,19 @@ public:
 	}
 	void erase(uint32_t pos)
 	{
-		T tmp = array[pos+1];
-		int i = pos;
-ERASING_LOOP:
-		while(i < size)
+		if(pos < SYN_LEN - 1)
 		{
-#pragma HLS DEPENDENCE variable=tmp type=inter false
-#pragma HLS PIPELINE II=1
-			array[i] = tmp;
-			tmp = array[i+2];
-			i++;
+			T tmp = array[pos+1];
+			int i = pos;
+	ERASING_LOOP:
+			while(i < size)
+			{
+	#pragma HLS DEPENDENCE variable=tmp type=inter false
+	#pragma HLS PIPELINE II=1
+				array[i] = tmp;
+				tmp = array[i+2];
+				i++;
+			}
 		}
 		size--;
 		lastPos--;

@@ -19,7 +19,7 @@ Lint binaryToDec(int array[CORR_LEN]){
 
 void debugd8()
 {
-	int syndrome[SYN_LEN] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	int syndrome[SYN_LEN] = {0,0,1,0,0,0,1,0,0};
 	ap_uint<CORR_LEN> correction = 0;
 	int correctionArr[CORR_LEN] = {0};
 	decoderTop(syndrome, &correction, false);
