@@ -1,18 +1,18 @@
 #include "Decoder.h"
-#include "hls_print.h"
+//#include "hls_print.h"
 void Decoder::decode(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 {
 	ap_uint<CORR_LEN> tmp;
 	hls::stream<uint32_t> syn_stream("syn_stream");
-#pragma HLS STREAM variable= syn_stream depth=64
+#pragma HLS STREAM variable=syn_stream depth=64
 	hls::stream<uint32_t> syn_vert_stream("syn_vert_stream");
-#pragma HLS STREAM variable= syn_vert_stream depth=64
+#pragma HLS STREAM variable=syn_vert_stream depth=64
 	hls::stream<Edge> fuseList("fuseList");
-#pragma HLS STREAM variable= fuseList depth=64
+#pragma HLS STREAM variable=fuseList depth=64
 	hls::stream<Edge> peeling_edges("peeling_edges");
-#pragma HLS STREAM variable= peeling_edges depth=64
+#pragma HLS STREAM variable=peeling_edges depth=64
 	hls::stream<Edge> correction_edges("correction_edges");
-#pragma HLS STREAM variable= correction_edges depth=64
+#pragma HLS STREAM variable=correction_edges depth=64
 
 
 	//phase 0: clear ds
