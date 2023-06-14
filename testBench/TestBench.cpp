@@ -17,13 +17,13 @@ Lint binaryToDec(int array[CORR_LEN]){
 }
 
 
-void debugd3()
+void debugd8()
 {
-	int syndrome[SYN_LEN] = {0, 0, 1, 0, 0, 0, 1, 0, 0};
+	int syndrome[SYN_LEN] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	ap_uint<CORR_LEN> correction = 0;
 	int correctionArr[CORR_LEN] = {0};
 	decoderTop(syndrome, &correction, false);
-	for(int i = 0; i < CORR_LEN; ++i)
+	/*for(int i = 0; i < CORR_LEN; ++i)
 	{
 		correctionArr[i] = correction[i];
 	}
@@ -31,7 +31,7 @@ void debugd3()
 	for(int i = 0; i < CORR_LEN; ++i)
 	{
 		printf("%d ", correctionArr[i]);
-	}
+	}*/
 }
 
 
@@ -116,33 +116,6 @@ void correctionTest(){
 }
 
 
-
-void vectorTest()
-{
-	Vector<uint32_t> test;
-	test.emplace(0);
-	test.emplace(1);
-	test.emplace(2);
-	test.emplace(4);
-	test.elementEmplace(5);
-	test.elementEmplace(3);
-	test.elementEmplace(7);
-	test.elementEmplace(8);
-	test.elementEmplace(6);
-
-	assert(test.getSize() == 9);
-
-	assert(test.at(0) == 0);
-	assert(test.at(3) == 3);
-
-	test.set(2, 3);
-
-	assert(test.at(3) == 2);
-
-	printf("ALL VECTOR TESTs WERE SUCCESSFUL\n");
-
-}
-
 void hashTest(){
 
 	//FILE* f=fopen("C:\\Users\\valef\\git\\QEC-on-FPGA-Systems\\testBench\\2000samples.txt","r");
@@ -211,7 +184,7 @@ void COSIM()
 			fgetc(f);
 			decoderTop(syndrome,&correction,true);
 		}
-		printf("LUT is loaded");
+		//printf("LUT is loaded");
 
 		f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
@@ -272,7 +245,7 @@ void COSIM()
 
 	    }
 
-	    printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy*100.0/50.0,(float)total.count()/500);
+	    //printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy*100.0/50.0,(float)total.count()/500);
 
 }
 
@@ -280,5 +253,6 @@ void COSIM()
 
 int main()
 {
-	COSIM();
+	debugd8();
+	return 0;
 }

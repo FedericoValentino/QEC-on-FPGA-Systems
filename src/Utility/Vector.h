@@ -16,29 +16,6 @@ public:
 #pragma HLS ARRAY_PARTITION variable=array type=cyclic factor=16
 	}
 
-	void insert(T element, uint32_t pos)
-	{
-		T tmp = array[(MAPLEN) - 2];
-		if(array[pos])
-		{
-VECTOR_INSERT_LOOP:
-			for(int i = (MAPLEN) - 1; i >= 0; --i)
-			{
-#pragma HLS PIPELINE II=1
-#pragma HLS DEPENDENCE variable=tmp type=inter false
-				if(i > pos)
-				{
-					array[i] = tmp;
-				}
-				tmp = array[i-2];
-
-			}
-		}
-		array[pos] = element;
-		++lastPos;
-		++size;
-	}
-
 	void emplace(T element)
 	{
 		array[lastPos] = element;
@@ -52,10 +29,6 @@ VECTOR_INSERT_LOOP:
 	T at(uint32_t i)
 	{
 		return array[i];
-	}
-	T* get(uint32_t i)
-	{
-		return &array[i];
 	}
 	void set(T element, uint32_t pos)
 	{
@@ -87,20 +60,6 @@ ERASING_LOOP:
 		size--;
 		lastPos--;
 	}
-	void pushFront(T element)
-	{
-		T tmp;
-PUSHFRONT_LOOP:
-		for(int i = (MAPLEN)-1; i >0 ; --i)
-		{
-#pragma HLS PIPELINE II=1
-			tmp = array[i-1];
-			array[i] = tmp;
-		}
-		array[0] = element;
-		size++;
-		lastPos++;
-	}
 
 	void elementErase(T element)
 	{
@@ -110,7 +69,7 @@ PUSHFRONT_LOOP:
 ELEMENT_ERASE_LOOP:
 		for(int i = 0; i < size; i++)
 		{
-#pragma HLS PIPELINE II = 1
+#pragma HLS PIPELINE II=1
 			if(tmp == element)
 			{
 				found = true;
@@ -129,7 +88,7 @@ ELEMENT_ERASE_LOOP:
 ELEMENT_EMPLACE_LOOP:
 		for(int i = 0; i < size; i++)
 		{
-#pragma HLS PIPELINE II = 1
+#pragma HLS PIPELINE II=1
 			if(tmp == element)
 			{
 				found = true;
