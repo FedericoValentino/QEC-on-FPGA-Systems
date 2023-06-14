@@ -45,11 +45,15 @@ void Decoder::UF()
 UNION_FIND:
 	while(mngr.hasOddRoots())
 	{
-		hls::print("growing\n");
-		for(int i = 0; i < mngr.oddRoots.getSize(); ++i)
+		hls::print("I have to grow %d clusters\n",mngr.oddRoots.getSize());
+		int size=mngr.oddRoots.getSize();
+		for(int i = 0; i <size; ++i)
 		{
 			grow(mngr.oddRoots.at(i));
+			hls::print("i'm growing asf the ith cluster: %d\n",i);
+
 		}
+		hls::print("I'm about to fuse\n");
 		fusion();
 	}
 }
@@ -59,7 +63,8 @@ void Decoder::init_cluster(Vector<uint32_t> roots)
 	hls::print("starting init cluster\n");
 	mngr.initializeRoots(roots);
 BORDER_INIT:
-	for(uint32_t i = 0; i < roots.getSize(); ++i)
+	int size=roots.getSize();
+	for(uint32_t i = 0; i < size; ++i)
 	{
 		static Vector<uint32_t> Border;
 		Border.fillnReset(0);
@@ -96,22 +101,23 @@ uint32_t max(uint32_t a, uint32_t b){
 void Decoder::grow(uint32_t root)
 {
 	static Vector<uint32_t> borders;
+	static Vector<uint32_t> connections;
+
 	borders = border_vertices.find(root);
-	hls::print("entering GROW loop\n");
+	uint32_t bordersize=borders.getSize();
+	hls::print("entering GROW loop of border size: %d\n",bordersize);
 GROW:
-	for(int i = 0; i < borders.getSize(); i++)
-	{
-#pragma HLS loop_tripcount min=1 max=128
-		static Vector<uint32_t> connections;
+	for(int i = 0; i < bordersize; i++)	{
+
 		uint32_t idk = borders.at(i);
 		connections = Code.vertex_connections(idk);
+		uint32_t connectionsize=connections.getSize();
 		hls::print("entering INNERGROW loop\n");
 INNER_GROW:
-		for(int j = 0; j < connections.getSize(); ++j)
-		{
-#pragma HLS DEPENDENCE variable=connection_counts type=inter false
-#pragma HLS loop_tripcount min=1 max=4
-#pragma HLS PIPELINE II=1
+		for(int j = 0; j < connectionsize; ++j){
+
+			//hls::print("size of connections: %d\n",connectionsize);
+
 			Edge e;
 
 			e.u = min(borders.at(i), connections.at(j));
@@ -126,23 +132,19 @@ INNER_GROW:
 			count_v++;
 
 
-			switch(elt)
-			{
-			case 2:
+			if(elt==2){
 				connection_counts[e.u]=count_u;
 				connection_counts[e.v]=count_v;
 				fuseList.write(e);
-				break;
-			default:
-				hls::print("increasing elt\n");
+			}
+			else{
 				elt++;
-				break;
-
 			}
 
 			support[edgeIdx] = elt;
 
 		}
+		hls::print("end of growth iteration no: %d\n",i);
 	}
 }
 
