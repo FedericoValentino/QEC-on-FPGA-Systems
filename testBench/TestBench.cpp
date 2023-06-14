@@ -19,7 +19,7 @@ Lint binaryToDec(int array[CORR_LEN]){
 
 void debugd8()
 {
-	int syndrome[SYN_LEN] = {0,0,1,0,0,0,1,0,0};
+	bool syndrome[SYN_LEN] = {0,0,1,0,0,0,1,0,0};
 	ap_uint<CORR_LEN> correction = 0;
 	int correctionArr[CORR_LEN] = {0};
 	decoderTop(syndrome, &correction, false);
@@ -42,7 +42,7 @@ void correctionTest(){
 
 	Decoder decoder;
 	int logicals[K][N] = {0};
-	int syndrome[SYN_LEN] = {0};
+	bool syndrome[SYN_LEN] = {0};
 	ap_uint<CORR_LEN> correction = 0;
 	int correctionArr[CORR_LEN] = {0};
 	int check[K];
@@ -123,7 +123,7 @@ void hashTest(){
 	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
 	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
 
-	int syndrome[SYN_LEN] = {0};
+	bool syndrome[SYN_LEN] = {0};
     ap_uint<CORR_LEN> correction = 0;
     ap_uint<CORR_LEN> correctionTest = 0;
     int perc=0;
@@ -157,7 +157,7 @@ void COSIM()
 		FILE* f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
 
 
-		int syndrome[SYN_LEN] = {0};
+		bool syndrome[SYN_LEN] = {0};
 		int logicals[K][N] = {0};
 		ap_uint<CORR_LEN> correction = 0;
 		int check[K] = {0};
@@ -184,7 +184,7 @@ void COSIM()
 			fgetc(f);
 			decoderTop(syndrome,&correction,true);
 		}
-		//printf("LUT is loaded");
+		printf("LUT is loaded");
 
 		f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
@@ -245,7 +245,7 @@ void COSIM()
 
 	    }
 
-	    //printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy*100.0/50.0,(float)total.count()/500);
+	    printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy*100.0/50.0,(float)total.count()/500);
 
 }
 

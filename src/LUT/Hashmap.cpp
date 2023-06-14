@@ -1,7 +1,6 @@
 #include "Hashmap.h"
-#include <hls_math.h>
 
-ap_uint<SYN_LEN> HashMap::binToDec(int syndrome[SYN_LEN])
+ap_uint<SYN_LEN> HashMap::binToDec(bool syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> sum = 0;
 BINARY_TO_DECIMAL_LOOP:
@@ -21,7 +20,7 @@ int HashMap::hash(ap_uint<SYN_LEN> synDec)
 
 
 
-void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
+void HashMap::insert(ap_uint<CORR_LEN> correction, bool syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
     int index = this->hash(synDec);
@@ -50,7 +49,7 @@ HASHMAP_INSERT_LOOP:
 
 }
 
-bool HashMap::retrieve(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
+bool HashMap::retrieve(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
 	int index = this->hash(synDec);

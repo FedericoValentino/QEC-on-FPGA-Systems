@@ -25,9 +25,9 @@ public:
 
 	RootManager mngr;
 
-	void decode(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
+	void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
 
-	void initialization(int syndrome[SYN_LEN], hls::stream<uint32_t>& syn_stream);
+	void initialization(bool syndrome[SYN_LEN], hls::stream<uint32_t>& syn_stream);
 	void populate(hls::stream<uint32_t>& syn_stream);
 
 	void UF(hls::stream<Edge>& fuseList, hls::stream<Edge>& peeling_edges);

@@ -1,12 +1,12 @@
 #include "Project.h"
 
-void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
+void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
 {
 	static HashMap decoderLUT;
 	static Decoder decoderUF;
 	//axi
-#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=64
-#pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=128
+#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=9
+#pragma HLS INTERFACE m_axi port=correction offset=slave bundle=gmem1 depth=18
 
 #pragma HLS INTERFACE s_axilite port=syndrome bundle=control
 #pragma HLS INTERFACE s_axilite port=correction bundle=control
