@@ -11,13 +11,13 @@
 //code definition
 
 #define K 2
-#define D 8
-#define N 128
+#define D 3
+#define N 18
 
-#define CORR_LEN 128
-#define SYN_LEN 64
+#define CORR_LEN 18
+#define SYN_LEN 9
 
-#define MAPLEN 128
+#define MAPLEN 18
 
 
 typedef long long unsigned int Lint;

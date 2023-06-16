@@ -5,9 +5,9 @@ void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction_in, ap_uin
 	static HashMap decoderLUT;
 	static Decoder decoderUF;
 	//axi
-#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=64
-#pragma HLS INTERFACE m_axi port=correction_in offset=slave bundle=gmem1 depth=128
-#pragma HLS INTERFACE m_axi port=correction_out offset=slave bundle=gmem2 depth=128
+#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=9
+#pragma HLS INTERFACE m_axi port=correction_in offset=slave bundle=gmem1 depth=18
+#pragma HLS INTERFACE m_axi port=correction_out offset=slave bundle=gmem2 depth=18
 
 #pragma HLS INTERFACE s_axilite port=syndrome bundle=control
 #pragma HLS INTERFACE s_axilite port=correction_in bundle=control
