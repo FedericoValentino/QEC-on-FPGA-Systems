@@ -6,8 +6,7 @@
 #include "UnionFind/Decoder.h"
 
 
-extern "C" {
-void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert);
-}
+
+void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction_in, ap_uint<CORR_LEN>* correction_out, bool insert);
 
 #endif
