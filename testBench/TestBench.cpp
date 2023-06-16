@@ -22,7 +22,7 @@ void debugd8()
 	bool syndrome[SYN_LEN] = {0,0,1,0,0,0,1,0,0};
 	ap_uint<CORR_LEN> correction = 0;
 	int correctionArr[CORR_LEN] = {0};
-	decoderTop(syndrome, &correction, false);
+	decoderTop(syndrome, nullptr, &correction, false);
 	/*for(int i = 0; i < CORR_LEN; ++i)
 	{
 		correctionArr[i] = correction[i];
@@ -84,7 +84,7 @@ void correctionTest(){
         fgetc(f);//end of line
         fgetc(f); //next square bracket
         auto start=std::chrono::high_resolution_clock::now();
-        decoderTop(syndrome, &correction, false);
+        decoderTop(syndrome, nullptr, &correction, false);
         auto stop=std::chrono::high_resolution_clock::now();
         auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         total=total+duration;
@@ -140,9 +140,9 @@ void hashTest(){
             fgetc(f);
         }
         fgetc(f);
-        decoderTop(syndrome,&correction,true);
+        decoderTop(syndrome, &correction, nullptr, true);
 
-        decoderTop(syndrome,&correctionTest,false);
+        decoderTop(syndrome, nullptr, &correctionTest,false);
         assert(correctionTest == correction);
         ++perc;
         //printf("Execution n: %d \n",perc);
@@ -182,7 +182,7 @@ void COSIM()
 				fgetc(f);
 			}
 			fgetc(f);
-			decoderTop(syndrome,&correction,true);
+			decoderTop(syndrome,&correction, nullptr, true);
 		}
 		printf("LUT is loaded");
 
@@ -203,7 +203,7 @@ void COSIM()
 	        fgetc(f);//bracket
 	    }
 
-	    while(!feof(f) && accuracy < 50){
+	    while(!feof(f) && accuracy < 3){
 
 	        for(int i=0; i<SYN_LEN && !feof(f); i++){
 	            syndrome[i]=fgetc(f)-48;
@@ -222,7 +222,7 @@ void COSIM()
 	        fgetc(f); //next square bracket
 	        correction = 0;
 	        auto start=std::chrono::high_resolution_clock::now();
-	        decoderTop(syndrome, &correction, false);
+	        decoderTop(syndrome, nullptr, &correction, false);
 	        auto stop=std::chrono::high_resolution_clock::now();
 	        auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
 	        total=total+duration;
@@ -253,6 +253,6 @@ void COSIM()
 
 int main()
 {
-	debugd8();
+	COSIM();
 	return 0;
 }
