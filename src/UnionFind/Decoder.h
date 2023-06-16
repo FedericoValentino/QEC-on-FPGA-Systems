@@ -9,7 +9,8 @@
 #include "SurfaceCode.h"
 
 #include "hls_stream.h"
-
+extern "C"
+{
 class Decoder
 {
 public:
@@ -24,7 +25,7 @@ public:
 
 
 	RootManager mngr;
-
+	
 	void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
 
 	void initialization(bool syndrome[SYN_LEN], hls::stream<uint32_t>& syn_stream);
@@ -51,5 +52,5 @@ public:
 
 
 };
-
+}
 #endif

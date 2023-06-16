@@ -43,7 +43,8 @@ LDFLAGS += -L$(XILINX_XRT)/lib -pthread -lOpenCL
 PLATFORM_BLOCKLIST += nodma 
 ############################## Setting up Host Variables ##############################
 #Include Required Host Source Files
-HOST_SRCS += hostcode/host.cpp hostcode/host.h 
+CXXFLAGS += -I$(XF_PROJ_ROOT)/hostcode/common/xcl2
+HOST_SRCS += hostcode/common/xcl2.cpp hostcode/host.cpp hostcode/host.h 
 # Host compiler global settings
 CXXFLAGS += -fmessage-length=0
 LDFLAGS += -lrt -lstdc++ 

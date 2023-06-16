@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#include <CL/cl.hpp>
 #include <chrono>
 #include <random>
+
+
+#include "common/xcl2.hpp"
 
 #define SYN_LEN 64
 #define CORR_LEN 128
