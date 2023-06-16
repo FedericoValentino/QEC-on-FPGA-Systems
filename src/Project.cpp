@@ -13,6 +13,7 @@ void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction_in, ap_uin
 #pragma HLS INTERFACE s_axilite port=correction_in bundle=control
 #pragma HLS INTERFACE s_axilite port=correction_out bundle=control
 #pragma HLS INTERFACE s_axilite port=insert bundle=control
+#pragma HLS INTERFACE s_axilite port=return bundle=control
 	//hashmap
 #pragma HLS ARRAY_PARTITION variable=decoderLUT.map type=complete
 	//rootManager
