@@ -69,7 +69,8 @@ int main(int argc, char* argv[]){
     // These commands will allocate memory on the Device. The cl::Buffer objects can
     // be used to reference the memory locations on the device.
     cl::Buffer buffer_syn(context, CL_MEM_READ_ONLY, size_in_bytes);
-    cl::Buffer buffer_corr(context, CL_MEM_WRITE_ONLY, size_in_bytes);
+    cl::Buffer buffer_corr(context, CL_MEM_READ_WRITE, size_in_bytes);
+    cl::Buffer insert(context, CL_MEM_READ_ONLY, size_in_bytes);
 
     // Creates a vector of DATA_SIZE elements with an initial value of 10 and 32
     // using customized allocator for getting buffer alignment to 4k boundary
@@ -78,11 +79,14 @@ int main(int argc, char* argv[]){
 	int narg=0;
 	krnl_decoder.setArg(narg++,buffer_syn);
 	krnl_decoder.setArg(narg++,buffer_corr);
+	krnl_decoder.setArg(narg++,insert);
 	krnl_decoder.setArg(narg++,DATA_SIZE); //what is this needed for?
 
 	//We then need to map our OpenCL buffers to get the pointers
-	int *ptr_input = (int *) q.enqueueMapBuffer (buffer_syn , CL_TRUE , CL_MAP_WRITE , 0, size_in_bytes);
-	int *ptr_result = (int *) q.enqueueMapBuffer (buffer_corr , CL_TRUE , CL_MAP_READ , 0, size_in_bytes);
+	bool *ptr_input = (bool *) q.enqueueMapBuffer (buffer_syn , CL_TRUE , CL_MAP_WRITE , 0, size_in_bytes);
+	int *ptr_retrieve = (int *) q.enqueueMapBuffer (buffer_corr , CL_TRUE , CL_MAP_READ , 0, size_in_bytes);
+	int *ptr_insertion = (int *) q.enqueueMapBuffer (buffer_corr, CL_TRUE, CL_MAP_WRITE, 0, size_in_bytes);
+	bool *ptr_insert = (bool *) q.enqueueMapBuffer(insert, CL_TRUE, CL_MAP_READ, 0, size_in_bytes);
 
 	//setting the input data
 	printf("Measured syndrome:\n");
@@ -115,16 +119,17 @@ int main(int argc, char* argv[]){
 	//verify result:
 	printf("Correction to apply:\n");
 	for(int i=0;i<CORR_LEN;i++){
-		correction[i]=ptr_result[i];
+		correction[i]=ptr_retrieve[i];
 		printf("%d,",correction[i]);
 	}
 	printf("\n");
 
 	//close the connection
     q.enqueueUnmapMemObject(buffer_syn , ptr_input);
-    q.enqueueUnmapMemObject(buffer_corr , ptr_result);
+    q.enqueueUnmapMemObject(buffer_corr , ptr_retrieve);
     q.finish();
 
 
 	return 0;
 }
+
