@@ -2,28 +2,16 @@
 #include <stdio.h>
 #include <chrono>
 
-#include "../src/Utility/Map.h"
-#include "../src/Utility/Vector.h"
-#include "../src/Project.h"
-#include "../src/UnionFind/Decoder.h"
-
-
-Lint binaryToDec(int array[CORR_LEN]){
-    Lint sum = 0;
-    for(int i = 0; i < CORR_LEN; i++){
-        sum += array[i] * (1 << i);
-    }
-    return sum;
-}
+#include "../src/ProjectC/FRATC.h"
 
 
 void debugd8()
 {
 	bool syndrome[SYN_LEN] = {0,0,1,0,0,0,1,0,0};
-	ap_uint<CORR_LEN> correction = 0;
+	bool correction[CORR_LEN] = {0};
 	int correctionArr[CORR_LEN] = {0};
-	decoderTop(syndrome, nullptr, &correction, false);
-	/*for(int i = 0; i < CORR_LEN; ++i)
+	decoderTop(syndrome, nullptr, correction, false);
+	for(int i = 0; i < CORR_LEN; ++i)
 	{
 		correctionArr[i] = correction[i];
 	}
@@ -31,7 +19,7 @@ void debugd8()
 	for(int i = 0; i < CORR_LEN; ++i)
 	{
 		printf("%d ", correctionArr[i]);
-	}*/
+	}
 }
 
 
@@ -40,10 +28,9 @@ void correctionTest(){
 	//FILE* f = fopen("C:\\Users\\mikim\\git\\QEC-on-FPGA-Systems\\testBench\\Decoder_dataset.txt","r");
 	FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
-	Decoder decoder;
 	int logicals[K][N] = {0};
 	bool syndrome[SYN_LEN] = {0};
-	ap_uint<CORR_LEN> correction = 0;
+	bool correction[CORR_LEN] = {0};
 	int correctionArr[CORR_LEN] = {0};
 	int check[K];
 	int bitstring[K];
@@ -84,7 +71,7 @@ void correctionTest(){
         fgetc(f);//end of line
         fgetc(f); //next square bracket
         auto start=std::chrono::high_resolution_clock::now();
-        decoderTop(syndrome, nullptr, &correction, false);
+        decoderTop(syndrome, nullptr, correction, false);
         auto stop=std::chrono::high_resolution_clock::now();
         auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         total=total+duration;
@@ -124,8 +111,15 @@ void hashTest(){
 	//FILE* f=fopen("C:\\Users\\franc\\git\\QEC-on-FPGA-Systems\\testBench\\LUT.txt","r");
 
 	bool syndrome[SYN_LEN] = {0};
-    ap_uint<CORR_LEN> correction = 0;
-    ap_uint<CORR_LEN> correctionTest = 0;
+    bool correction[CORR_LEN] = {0};
+    bool correctionTest[CORR_LEN] = {0};
+
+    for(int i=0;i<CORR_LEN;i++)
+	{
+	   printf("%ld ", correction[i]);
+	}
+    printf("\n");
+
     int perc=0;
     while(!feof(f) && perc < 50){
         fgetc(f); //square bracket
@@ -140,10 +134,24 @@ void hashTest(){
             fgetc(f);
         }
         fgetc(f);
-        decoderTop(syndrome, &correction, nullptr, true);
+        decoderTop(syndrome, correction, nullptr, true);
 
-        decoderTop(syndrome, nullptr, &correctionTest,false);
-        assert(correctionTest == correction);
+        decoderTop(syndrome, nullptr, correctionTest,false);
+        for(int i=0;i<CORR_LEN;i++)
+        {
+		   printf("%ld ", correction[i]);
+        }
+        printf("\n");
+        for(int i=0;i<CORR_LEN;i++)
+		{
+		   printf("%ld ", correctionTest[i]);
+		}
+        printf("\n");
+
+        for(int i=0;i<CORR_LEN;i++)
+		{
+		   assert(correction[i] == correctionTest[i]);
+		}
         ++perc;
         //printf("Execution n: %d \n",perc);
 
@@ -154,12 +162,12 @@ void hashTest(){
 
 void COSIM()
 {
-		FILE* f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+		FILE* f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
 
 
 		bool syndrome[SYN_LEN] = {0};
 		int logicals[K][N] = {0};
-		ap_uint<CORR_LEN> correction = 0;
+		bool correction[CORR_LEN] = {0};
 		int check[K] = {0};
 		int bitstring[K]= {0};
 		int accuracy=0;
@@ -182,11 +190,11 @@ void COSIM()
 				fgetc(f);
 			}
 			fgetc(f);
-			decoderTop(syndrome,&correction, nullptr, true);
+			decoderTop(syndrome,correction, nullptr, true);
 		}
 		printf("LUT is loaded");
 
-		f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
+		f=fopen("/home/feder34/git/QEC-on-FPGA-Systems/testBench/Decoder_dataset.txt","r");
 
 
 	    fgetc(f); //first bracket
@@ -203,7 +211,7 @@ void COSIM()
 	        fgetc(f);//bracket
 	    }
 
-	    while(!feof(f) && accuracy < 3){
+	    while(!feof(f)){
 
 	        for(int i=0; i<SYN_LEN && !feof(f); i++){
 	            syndrome[i]=fgetc(f)-48;
@@ -220,9 +228,8 @@ void COSIM()
 
 	        fgetc(f);//end of line
 	        fgetc(f); //next square bracket
-	        correction = 0;
 	        auto start=std::chrono::high_resolution_clock::now();
-	        decoderTop(syndrome, nullptr, &correction, false);
+	        decoderTop(syndrome, nullptr, correction, false);
 	        auto stop=std::chrono::high_resolution_clock::now();
 	        auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
 	        total=total+duration;
@@ -245,7 +252,7 @@ void COSIM()
 
 	    }
 
-	    printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy*100.0/50.0,(float)total.count()/500);
+	    printf("\nCOSIM concluded with accuracy %f%\nAverage running time: %f",(float)accuracy*100.0/500.0,(float)total.count()/500);
 
 }
 

@@ -1,5 +1,6 @@
 #include "Hashmap.h"
 
+
 ap_uint<SYN_LEN> HashMap::binToDec(bool syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> sum = 0;
