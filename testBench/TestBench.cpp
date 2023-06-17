@@ -7,6 +7,7 @@
 
 void debugd8()
 {
+	//0001111110000010000001100010011000000000011001000110000000010111
 	bool syndrome[SYN_LEN] = {0,0,1,0,0,0,1,0,0};
 	bool correction[CORR_LEN] = {0};
 	int correctionArr[CORR_LEN] = {0};
