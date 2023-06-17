@@ -13,7 +13,7 @@ public:
 	uint32_t size = 0;
 	Vector()
 	{
-#pragma HLS ARRAY_PARTITION variable=array type=cyclic factor=16
+//#pragma HLS ARRAY_PARTITION variable=array type=cyclic factor=16
 	}
 
 	void emplace(T element)
@@ -56,7 +56,7 @@ public:
 	ERASING_LOOP:
 			while(i < size)
 			{
-	#pragma HLS DEPENDENCE variable=tmp type=inter false
+	//#pragma HLS DEPENDENCE variable=tmp type=inter false
 	#pragma HLS PIPELINE II=1
 				array[i] = tmp;
 				tmp = array[i+2];

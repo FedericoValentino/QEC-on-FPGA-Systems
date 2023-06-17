@@ -9,8 +9,7 @@
 #include "SurfaceCode.h"
 
 #include "hls_stream.h"
-extern "C"
-{
+
 class Decoder
 {
 public:
@@ -52,5 +51,4 @@ public:
 
 
 };
-}
 #endif

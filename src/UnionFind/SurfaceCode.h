@@ -65,7 +65,7 @@ public:
 		int col = v%L;
 
 		Vector<uint32_t> vector;
-#pragma HLS ARRAY_PARTITION variable=vector.array type=complete
+//#pragma HLS ARRAY_PARTITION variable=vector.array type=complete
 
 		uint32_t idx1 = to_vertex_index(row - 1, col);
 		vector.emplace(idx1);

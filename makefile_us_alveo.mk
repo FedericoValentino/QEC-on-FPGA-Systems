@@ -24,7 +24,7 @@ help:
 endif
 
 ############################## Setting up Project Variables ##############################
-TARGET := hw
+TARGET := sw_emu
 VPP_LDFLAGS :=
 include ./utils.mk
 
@@ -71,7 +71,7 @@ build: check-vitis check-device $(BUILD_DIR)/FRATC.xclbin
 xclbin: build
 
 ############################## Setting Rules for Binary Containers (Building Kernels) ##############################
-$(TEMP_DIR)/FRATC.xo: src/Project.cpp
+$(TEMP_DIR)/FRATC.xo: src/ProjectC/FRATC.cpp
 	mkdir -p $(TEMP_DIR)
 	v++ -c $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) -k decoderTop --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$<'
 

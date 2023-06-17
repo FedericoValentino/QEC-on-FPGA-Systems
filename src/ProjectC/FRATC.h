@@ -163,8 +163,9 @@ void translate(hls::stream<Edge>& correctionEdges, ap_uint<CORR_LEN>* correction
 
 void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
 
-
+extern "C"
+{
 void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool correction_out[CORR_LEN], bool insert);
-
+}
 
 #endif

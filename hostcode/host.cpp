@@ -2,10 +2,14 @@
 
 int main(int argc, char* argv[]){
 
-	std::vector<uint32_t> syndrome;
-	std::vector<uint32_t> correction_in;
-	std::vector<uint32_t> correction_out;
+	std::vector<uint8_t, aligned_allocator<uint8_t>> syndrome(SYN_LEN);
+	std::vector<uint8_t, aligned_allocator<uint8_t>> correction_in(CORR_LEN);
+	std::vector<uint8_t, aligned_allocator<uint8_t>> correction_out(CORR_LEN);
 	bool insert;
+
+	size_t syndrome_size = sizeof(bool) * SYN_LEN;
+	size_t correction_in_size = sizeof(bool) * CORR_LEN;
+	size_t correction_out_size = sizeof(bool) * CORR_LEN;
 	//TARGET_DEVICE macro needs to be passed from gcc command line
     if(argc != 2) {
 		std::cout << "Usage: " << argv[0] <<" <xclbin>" << std::endl;
@@ -14,7 +18,7 @@ int main(int argc, char* argv[]){
 
    	std::string binaryFile = argv[1];
 
-    size_t vector_size_bytes = sizeof(int) * DATA_SIZE;
+    
     cl_int err;
     cl::Context context;
     cl::Kernel decoderUF;
@@ -49,19 +53,17 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
 
-    cl::Buffer buffer_syn(context, CL_MEM_READ_ONLY, vector_size_bytes, syndrome.data());
-    cl::Buffer correction_in_buf(context, CL_MEM_READ_ONLY, vector_size_bytes, correction_in.data());
-    cl::Buffer correction_out_buf(context, CL_MEM_WRITE_ONLY, vector_size_bytes, correction_out.data());
-	cl::Buffer insert_buf(context, CL_MEM_READ_ONLY, vector_size_bytes, &insert);
+    cl::Buffer buffer_syn(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, syndrome_size, syndrome.data());
+    cl::Buffer correction_in_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, correction_in_size, correction_in.data());
+    cl::Buffer correction_out_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY, correction_out_size, correction_out.data());
+	//cl::Buffer insert_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, insert_size, &insert);
 
-	decoderUF.setArg(0, buffer_syn);
-	decoderUF.setArg(1, correction_in_buf);
-	decoderUF.setArg(2, correction_out_buf);
-	decoderUF.setArg(3, insert_buf);
+	
+	
 
 	//setting the input data
 	printf("Measured syndrome:\n");
-
+	noise=distribution(generator);
 		for(int i=0;i<SYN_LEN;i++){
 			syndrome[i]=0;
 			for(int j=0;j<CORR_LEN;j++){
@@ -73,14 +75,25 @@ int main(int argc, char* argv[]){
 		}
 	printf("\n");
 
+	
+	for(int i=0; i < CORR_LEN; i++)
+	{
+		correction_in[i] = 0;
+		correction_out[i] = 0;
+	}
 
+	insert = 0;
+
+	decoderUF.setArg(0, buffer_syn);
+	decoderUF.setArg(1, correction_in_buf);
+	decoderUF.setArg(2, correction_out_buf);
+	decoderUF.setArg(3, insert);
 	// Data will be migrated to kernel space
-	q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf, correction_out_buf, insert_buf},0); /*0 means from host*/
+	q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf, correction_out_buf}, 0); /*0 means from host*/
 
 	//Launch the Kernel
 	q.enqueueTask(decoderUF);
 	
-
 	// The result of the previous kernel execution will need to be retrieved in
 	// order to view the results. This call will transfer the data from FPGA to
 	// source_results vector
@@ -91,12 +104,11 @@ int main(int argc, char* argv[]){
 	//verify result:
 	printf("Correction to apply:\n");
 	for(int i=0;i<CORR_LEN;i++){
-		printf("%d,",correction_out[i]);
+		printf("%d",correction_out[i]);
 	}
 	printf("\n");
 
     q.finish();
-
 
 	return 0;
 }

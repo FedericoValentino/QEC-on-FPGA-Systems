@@ -254,7 +254,7 @@ void Decoder::peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& correcti
 	peelingVec.fillnReset({0,0});
 
 	int vertex_count[SYN_LEN] = {0};
-#pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
+//#pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
 
 PEEL_PREPARE:
 	while(!peeling_edges.empty())

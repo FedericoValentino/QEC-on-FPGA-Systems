@@ -14,18 +14,18 @@ void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction_in, ap_uin
 #pragma HLS INTERFACE s_axilite port=correction_out bundle=control
 #pragma HLS INTERFACE s_axilite port=insert bundle=control
 #pragma HLS INTERFACE s_axilite port=return bundle=control
-	//hashmap
-#pragma HLS ARRAY_PARTITION variable=decoderLUT.map type=complete
+/*	//hashmap
+#pragma HLS array_partition variable=decoderLUT.map type=complete
 	//rootManager
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes type=cyclic factor=64
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity type=cyclic factor=64
+#pragma HLS array_partition variable=decoderUF.mngr.roots.array type=cyclic factor=16
+#pragma HLS array_partition variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
+#pragma HLS array_partition variable=decoderUF.mngr.sizes type=cyclic factor=64
+#pragma HLS array_partition variable=decoderUF.mngr.parity type=cyclic factor=64
 		//Decoder
-#pragma HLS ARRAY_PARTITION variable=decoderUF.syndrome type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.support type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices->array type=cyclic factor=16
+#pragma HLS array_partition variable=decoderUF.syndrome type=complete
+#pragma HLS array_partition variable=decoderUF.support type=cyclic factor=16
+#pragma HLS array_partition variable=decoderUF.root_of_vertex type=complete
+#pragma HLS array_partition variable=decoderUF.border_vertices->array type=cyclic factor=16*/
 	bool tmp = false;
 
 	//hls::print("insert: %d\n", insert);
