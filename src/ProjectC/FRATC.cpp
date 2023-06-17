@@ -193,7 +193,8 @@ void clear(uint32_t syndrome_cpy[SYN_LEN],
 		   Vector<uint32_t>& roots,
 		   Vector<uint32_t>& oddRoots,
 		   uint32_t sizes[SYN_LEN],
-		   uint32_t parity[SYN_LEN])
+		   uint32_t parity[SYN_LEN],
+		   uint32_t connection_counts[SYN_LEN])
 {
 	roots.fillnReset(0);
 	oddRoots.fillnReset(0);
@@ -204,6 +205,7 @@ CLEAR_LOOP:
 		root_of_vertex[i] = 0;
 		sizes[i] = 0;
 		parity[i] = 0;
+		connection_counts[i] = 0;
 		border_vertices[i].fillnReset(0);
 	}
 
@@ -280,7 +282,8 @@ uint32_t max(uint32_t a, uint32_t b){
 void grow(uint32_t root,
 		  hls::stream<Edge>& fuseList,
 		  Vector<uint32_t> border_vertices[SYN_LEN],
-		  uint32_t support[CORR_LEN])
+		  uint32_t support[CORR_LEN],
+		  uint32_t connection_counts[SYN_LEN])
 {
 	static Vector<uint32_t> borders;
 	borders = border_vertices[root];
@@ -312,6 +315,8 @@ INNER_GROW:
 				elt++;
 				if(elt == 2)
 				{
+					connection_counts[e.u]++;
+					connection_counts[e.v]++;
 					fuseList.write(e);
 				}
 				support[edgeIdx] = elt;
@@ -428,7 +433,7 @@ void merge(uint32_t r1,
 
 }
 
-void mergeBoundary(uint32_t r1, uint32_t r2, Vector<uint32_t> border_vertices[SYN_LEN])
+void mergeBoundary(uint32_t r1, uint32_t r2, Vector<uint32_t> border_vertices[SYN_LEN], uint32_t connection_counts[SYN_LEN])
 {
 	//hls::print("Merging\n");
 #pragma HLS INLINE off
@@ -446,7 +451,19 @@ MERGE:
 		borderR1.elementEmplace(vertex);
 	}
 
+ERASE_LEFTOVERS:
+	for(int i = 0; i<borderR2.getSize(); ++i)
+	{
+#pragma HLS PIPELINE
+		uint32_t vertex = borderR2.at(i);
+		if(connection_counts[vertex] == 4)
+		{
+			borderR1.elementErase(vertex);
+		}
+	}
+
 	border_vertices[r1] = borderR1;
+	border_vertices[r2].fillnReset(0);
 }
 
 
@@ -456,11 +473,12 @@ void elseroot(uint32_t root1,
 			  Vector<uint32_t>& roots,
 			  uint32_t sizes[SYN_LEN],
 			  uint32_t parity[SYN_LEN],
-			  Vector<uint32_t> border_vertices[SYN_LEN])
+			  Vector<uint32_t> border_vertices[SYN_LEN],
+			  uint32_t connection_counts[SYN_LEN])
 {
 #pragma HLS DATAFLOW
 	merge(root1, root2, oddRoots, roots, sizes, parity);
-	mergeBoundary(root1, root2, border_vertices);
+	mergeBoundary(root1, root2, border_vertices, connection_counts);
 }
 
 void fuse(uint32_t root1,
@@ -471,7 +489,8 @@ void fuse(uint32_t root1,
 		  uint32_t sizes[SYN_LEN],
 		  uint32_t parity[SYN_LEN],
 		  Vector<uint32_t>& roots,
-		  Vector<uint32_t>& oddRoots)
+		  Vector<uint32_t>& oddRoots,
+		  uint32_t connection_counts[SYN_LEN])
 {
 #pragma HLS INLINE
 	root_of_vertex[root2] = root1;
@@ -484,7 +503,7 @@ void fuse(uint32_t root1,
 	else
 	{
 		//hls::print("elseroot\n");
-		elseroot(root1,root2, oddRoots, roots, sizes, parity, border_vertices);
+		elseroot(root1,root2, oddRoots, roots, sizes, parity, border_vertices, connection_counts);
 	}
 }
 
@@ -495,7 +514,8 @@ void fusion(hls::stream<Edge>& fuseList,
 			uint32_t sizes[SYN_LEN],
 			uint32_t parity[SYN_LEN],
 			Vector<uint32_t>& roots,
-			Vector<uint32_t>& oddRoots)
+			Vector<uint32_t>& oddRoots,
+			uint32_t connection_counts[SYN_LEN])
 {
 FUSE:
 	while(!fuseList.empty())
@@ -515,7 +535,7 @@ FUSE:
 		if(root1!= root2)
 		{
 			//hls::print("entering Fuse\n");
-			fuse(root1,root2,e, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots);
+			fuse(root1,root2,e, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
 			peeling_edges.write(e);
 		}
 	}
@@ -529,17 +549,29 @@ void UF(hls::stream<Edge>& fuseList,
 		uint32_t sizes[SYN_LEN],
 		uint32_t parity[SYN_LEN],
 		Vector<uint32_t>& roots,
-		Vector<uint32_t>& oddRoots)
+		Vector<uint32_t>& oddRoots,
+		uint32_t connection_counts[SYN_LEN],
+		bool& status)
 {
+	int iterations = 0;
 UNION_FIND:
-	while(oddRoots.getSize() > 0)
+	while(oddRoots.getSize() > 0 && iterations < MAX_ITERATIONS)
 	{
 		//hls::print("growing\n");
 		for(int i = 0; i < oddRoots.getSize(); ++i)
 		{
-			grow(oddRoots.at(i), fuseList, border_vertices, support);
+			grow(oddRoots.at(i), fuseList, border_vertices, support, connection_counts);
 		}
-		fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots);
+		fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
+		iterations++;
+	}
+	if(iterations == MAX_ITERATIONS)
+	{
+		while(!peeling_edges.empty())
+		{
+			peeling_edges.read();
+		}
+		status = false;
 	}
 }
 
@@ -630,14 +662,17 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	static uint32_t support[CORR_LEN];
 	static uint32_t root_of_vertex[SYN_LEN];
 	static Vector<uint32_t> border_vertices[SYN_LEN];
+	static uint32_t connection_counts[SYN_LEN];
 	//manager
 	static Vector<uint32_t> roots;
 	static Vector<uint32_t> oddRoots;
 	static uint32_t sizes[SYN_LEN];
 	static uint32_t parity[SYN_LEN];
 
+	bool status = true;
 
-	ap_uint<CORR_LEN> tmp;
+
+	ap_uint<CORR_LEN> tmp = 0;
 	hls::stream<uint32_t> syn_stream("syn_stream");
 #pragma HLS STREAM variable=syn_stream depth=64
 	hls::stream<uint32_t> syn_vert_stream("syn_vert_stream");
@@ -651,18 +686,22 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 
 
 	//phase 0: clear ds
-	clear(syndrome_cpy, support, root_of_vertex, border_vertices, roots, oddRoots, sizes, parity);
+	clear(syndrome_cpy, support, root_of_vertex, border_vertices, roots, oddRoots, sizes, parity, connection_counts);
 	//phase 1: read syndrome and populate data structs
 	initialization(syndrome, syn_stream, syndrome_cpy, root_of_vertex);
 	populate(syn_stream, border_vertices, roots, oddRoots, sizes, parity);
 	//phase 2: grow and fuse
-	UF(fuseList,peeling_edges, border_vertices, support, root_of_vertex, sizes, parity, roots, oddRoots);
+	UF(fuseList,peeling_edges, border_vertices, support, root_of_vertex, sizes, parity, roots, oddRoots, connection_counts, status);
 
-	//phase 3: Peeling
-	peel(peeling_edges, correction_edges, syndrome_cpy);
+	if(status)
+	{
+		//phase 3: Peeling
+		peel(peeling_edges, correction_edges, syndrome_cpy);
 
-	//phase 4: Translate
-	translate(correction_edges, &tmp);
+		//phase 4: Translate
+		translate(correction_edges, &tmp);
+	}
+
 
 	*correction = tmp;
 }

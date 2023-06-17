@@ -67,7 +67,8 @@ void clear(uint32_t syndrome_cpy[SYN_LEN],
 		   Vector<uint32_t>& roots,
 		   Vector<uint32_t>& oddRoots,
 		   uint32_t sizes[SYN_LEN],
-		   uint32_t parity[SYN_LEN]);
+		   uint32_t parity[SYN_LEN],
+		   uint32_t connection_counts[SYN_LEN]);
 
 void initialization(bool syndrome[SYN_LEN],
 					hls::stream<uint32_t>& syn_stream,
@@ -95,7 +96,8 @@ uint32_t max(uint32_t a, uint32_t b);
 void grow(uint32_t root,
 		  hls::stream<Edge>& fuseList,
 		  Vector<uint32_t> border_vertices[SYN_LEN],
-		  uint32_t support[CORR_LEN]);
+		  uint32_t support[CORR_LEN],
+		  uint32_t connection_counts[SYN_LEN]);
 
 uint32_t findRoot(uint32_t vertex,
 				  uint32_t root_of_vertex[SYN_LEN]);
@@ -117,7 +119,7 @@ void merge(uint32_t r1,
 		   uint32_t sizes[SYN_LEN],
 		   uint32_t parity[SYN_LEN]);
 
-void mergeBoundary(uint32_t r1, uint32_t r2, Vector<uint32_t> border_vertices[SYN_LEN]);
+void mergeBoundary(uint32_t r1, uint32_t r2, Vector<uint32_t> border_vertices[SYN_LEN], uint32_t connection_counts[SYN_LEN]);
 
 
 void elseroot(uint32_t root1,
@@ -126,7 +128,8 @@ void elseroot(uint32_t root1,
 			  Vector<uint32_t>& roots,
 			  uint32_t sizes[SYN_LEN],
 			  uint32_t parity[SYN_LEN],
-			  Vector<uint32_t> border_vertices[SYN_LEN]);
+			  Vector<uint32_t> border_vertices[SYN_LEN],
+			  uint32_t connection_counts[SYN_LEN]);
 
 void fuse(uint32_t root1,
 		  uint32_t root2,
@@ -136,7 +139,8 @@ void fuse(uint32_t root1,
 		  uint32_t sizes[SYN_LEN],
 		  uint32_t parity[SYN_LEN],
 		  Vector<uint32_t>& roots,
-		  Vector<uint32_t>& oddRoots);
+		  Vector<uint32_t>& oddRoots,
+		  uint32_t connection_counts[SYN_LEN]);
 
 void fusion(hls::stream<Edge>& fuseList,
 			hls::stream<Edge>& peeling_edges,
@@ -145,7 +149,8 @@ void fusion(hls::stream<Edge>& fuseList,
 			uint32_t sizes[SYN_LEN],
 			uint32_t parity[SYN_LEN],
 			Vector<uint32_t>& roots,
-			Vector<uint32_t>& oddRoots);
+			Vector<uint32_t>& oddRoots,
+			uint32_t connection_counts[SYN_LEN]);
 
 void UF(hls::stream<Edge>& fuseList,
 		hls::stream<Edge>& peeling_edges,
@@ -155,7 +160,9 @@ void UF(hls::stream<Edge>& fuseList,
 		uint32_t sizes[SYN_LEN],
 		uint32_t parity[SYN_LEN],
 		Vector<uint32_t>& roots,
-		Vector<uint32_t>& oddRoots);
+		Vector<uint32_t>& oddRoots,
+		uint32_t connection_counts[SYN_LEN],
+		bool& status);
 
 void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections, uint32_t syndrome_cpy[SYN_LEN]);
 

@@ -21,6 +21,8 @@
 
 #define MAPLEN 128
 
+#define MAX_ITERATIONS 600
+
 
 typedef long long unsigned int Lint;
 
