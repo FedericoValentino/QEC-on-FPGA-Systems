@@ -211,7 +211,7 @@ void COSIM()
 	        fgetc(f);//bracket
 	    }
 
-	    while(!feof(f) && accuracy < 6){
+	    while(!feof(f) && accuracy < 3){
 
 	        for(int i=0; i<SYN_LEN && !feof(f); i++){
 	            syndrome[i]=fgetc(f)-48;
@@ -260,6 +260,6 @@ void COSIM()
 
 int main()
 {
-	debugd8();
+	COSIM();
 	return 0;
 }

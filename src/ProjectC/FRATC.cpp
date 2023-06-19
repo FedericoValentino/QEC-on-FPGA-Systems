@@ -28,7 +28,8 @@ void hashInsert(ap_uint<CORR_LEN> correction, bool syndrome[SYN_LEN], Entry map[
     bool found = 0;
 
 HASHMAP_INSERT_LOOP:
-	while(counter < MAX_SIZE){
+	while(counter < MAX_SIZE && !found){
+#pragma HLS loop_tripcount min=1 max=100000
 #pragma HLS PIPELINE II=1
 		counter++;
 		if (!map[index].full && !found){
@@ -59,7 +60,8 @@ bool hashRetrieve(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, Entry m
 
 
 HASHMAP_RETRIEVE_LOOP:
-	while(counter < MAX_SIZE){
+	while(counter < MAX_SIZE && !found){
+#pragma HLS loop_tripcount min=1 max=100000
 #pragma HLS PIPELINE II=1
 		counter++;
 		if (synDec == map[index].syndrome){
@@ -309,14 +311,17 @@ INNER_GROW:
 			uint32_t edgeIdx = edge_idx(e);
 			uint32_t elt = support[edgeIdx];
 
+			uint32_t u = connection_counts[e.u]+1;
+			uint32_t v = connection_counts[e.v]+1;
+
 
 			if(elt != 2)
 			{
 				elt++;
 				if(elt == 2)
 				{
-					connection_counts[e.u]++;
-					connection_counts[e.v]++;
+					connection_counts[e.u]=u;
+					connection_counts[e.v]=v;
 					fuseList.write(e);
 				}
 				support[edgeIdx] = elt;
@@ -354,7 +359,6 @@ FIND_ROOT:
 SET_ROOT:
 	while(path.getSize() > 0)
 	{
-#pragma HLS PIPELINE II=1
 		uint32_t tmp2= path.at(0);
 		path.erase(0);
 		root_of_vertex[tmp2] = root;
@@ -454,7 +458,6 @@ MERGE:
 ERASE_LEFTOVERS:
 	for(int i = 0; i<borderR2.getSize(); ++i)
 	{
-#pragma HLS PIPELINE
 		uint32_t vertex = borderR2.at(i);
 		if(connection_counts[vertex] == 4)
 		{
@@ -663,6 +666,7 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	static uint32_t root_of_vertex[SYN_LEN];
 	static Vector<uint32_t> border_vertices[SYN_LEN];
 	static uint32_t connection_counts[SYN_LEN];
+#pragma ARRAY_PARTITION variable=connection_counts type=complete
 	//manager
 	static Vector<uint32_t> roots;
 	static Vector<uint32_t> oddRoots;
@@ -711,6 +715,7 @@ void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool corre
 {
 	static Entry map[MAX_SIZE];
 #pragma HLS ARRAY_PARTITION variable=map type=complete
+#pragma HLS BIND_STORAGE variable=map type=RAM_2P impl=LUTRAM
 	ap_uint<CORR_LEN> correction_input = 0;
 	ap_uint<CORR_LEN> correction_output = 0;
 

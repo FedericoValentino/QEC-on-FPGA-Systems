@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-#define MAX_SIZE 100 //1000000
+#define MAX_SIZE 100000
 
 //code definition
 
