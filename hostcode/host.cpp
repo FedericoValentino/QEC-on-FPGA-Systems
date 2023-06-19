@@ -99,8 +99,8 @@ int main(int argc, char* argv[]){
 		}
 		fgetc(f);
 
-		startExecution(q, decoderUF, bufferSyn, correction_in_buf, correction_out_buf, 1);
-		startExecution(q, decoderUF, bufferSyn, correction_in_buf, correction_out_buf, 0);
+		startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 1);
+		startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 0);
 		
 		for(int i = 0; i < CORR_LEN; i++)
 		{
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]){
 			correction_out[i] = 0;
 		}
 
-		startExecution(q, decoderUF, bufferSyn, correction_in_buf, correction_out_buf, 1);
+		startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 1);
 
 		//verify result:
 		printf("Correction to apply:\n");
