@@ -21,7 +21,7 @@ void startExecution(cl::CommandQueue& q, cl::Kernel& decoderUF, cl::Buffer& syn,
 	auto stop=std::chrono::high_resolution_clock::now();
         auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
         
-        printf("Operation concluded in %f nanoseconds", duration.count());
+        printf("Operation concluded in %f nanoseconds\n", duration.count());
 	
 	//Data from Kernel to Host
 	q.enqueueMigrateMemObjects({corrOut},CL_MIGRATE_MEM_OBJECT_HOST);
