@@ -58,55 +58,73 @@ int main(int argc, char* argv[]){
     cl::Buffer correction_out_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY, correction_out_size, correction_out.data());
 	//cl::Buffer insert_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, insert_size, &insert);
 
-	
-	
-
-	//setting the input data
-	printf("Measured syndrome:\n");
-	noise=distribution(generator);
-		for(int i=0;i<SYN_LEN;i++){
-			syndrome[i]=0;
-			for(int j=0;j<CORR_LEN;j++){
-				noise=distribution(generator);
-				syndrome[i]+=stabilizers[i][j]*noise;
-			}
-			syndrome[i]=syndrome[i]%2;
-			printf("%d",syndrome[i]);
-		}
-	printf("\n");
-
-	
-	for(int i=0; i < CORR_LEN; i++)
+	for(int it = 0; it < 100; it++)
 	{
-		correction_in[i] = 0;
-		correction_out[i] = 0;
-	}
+		int noiseVec[CORR_LEN] = {0};
 
-	insert = 0;
+		int count = 0;
+		for(int i = 0; i < CORR_LEN; i++)
+		{
+			noiseVec[i] = distribution(generator);
+		}
 
-	decoderUF.setArg(0, buffer_syn);
-	decoderUF.setArg(1, correction_in_buf);
-	decoderUF.setArg(2, correction_out_buf);
-	decoderUF.setArg(3, insert);
-	// Data will be migrated to kernel space
-	q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf, correction_out_buf}, 0); /*0 means from host*/
+		//setting the input data
+		printf("Measured syndrome:\n");
+		noise=distribution(generator);
+			for(int i=0;i<SYN_LEN;i++){
+				syndrome[i]=0;
+				for(int j=0;j<CORR_LEN;j++){
+					syndrome[i]+=stabilizers[i][j]*noiseVec[j];
+				}
+				syndrome[i]=syndrome[i]%2;
+				if(syndrome[i] == 1)
+				{
+					count++;
+				}
+				printf("%d",syndrome[i]);
+			}
+		printf("\n");
 
-	//Launch the Kernel
-	q.enqueueTask(decoderUF);
+		printf("Current Syndrome has %d errors\n", count);
+
+		
+		for(int i=0; i < CORR_LEN; i++)
+		{
+			correction_in[i] = 0;
+			correction_out[i] = 0;
+		}
+
+		insert = 0;
+
+		decoderUF.setArg(0, buffer_syn);
+		decoderUF.setArg(1, correction_in_buf);
+		decoderUF.setArg(2, correction_out_buf);
+		decoderUF.setArg(3, insert);
+		// Data will be migrated to kernel space
+		q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf}, 0); /*0 means from host*/
+
+		q.finish();
+
 	
-	// The result of the previous kernel execution will need to be retrieved in
-	// order to view the results. This call will transfer the data from FPGA to
-	// source_results vector
-	q.enqueueMigrateMemObjects({correction_out_buf},CL_MIGRATE_MEM_OBJECT_HOST);
+		//Launch the Kernel
+		q.enqueueTask(decoderUF);
 
-	q.finish();
+		q.finish();
+		
+		// The result of the previous kernel execution will need to be retrieved in
+		// order to view the results. This call will transfer the data from FPGA to
+		// source_results vector
+		q.enqueueMigrateMemObjects({correction_out_buf},CL_MIGRATE_MEM_OBJECT_HOST);
 
-	//verify result:
-	printf("Correction to apply:\n");
-	for(int i=0;i<CORR_LEN;i++){
-		printf("%d",correction_out[i]);
+		q.finish();
+
+		//verify result:
+		printf("Correction to apply:\n");
+		for(int i=0;i<CORR_LEN;i++){
+			printf("%d",correction_out[i]);
+		}
+		printf("\n");
 	}
-	printf("\n");
 
     q.finish();
 

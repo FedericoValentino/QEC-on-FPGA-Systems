@@ -4,6 +4,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <unistd.h>
 
 
 #include "common/xcl2.hpp"
