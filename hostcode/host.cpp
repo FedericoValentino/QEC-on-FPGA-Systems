@@ -58,6 +58,78 @@ int main(int argc, char* argv[]){
     cl::Buffer correction_out_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY, correction_out_size, correction_out.data());
 	//cl::Buffer insert_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, insert_size, &insert);
 
+    FILE* f=fopen("/home/users/federico.valentino/git/QEC-on-FPGA-Systems/testBench/LUT.txt","r");
+
+    bool correctionTestLUT[CORR_LEN] = {0};
+
+	while(!feof(f))
+		{
+			fgetc(f); //square bracket
+			for(int i=0;i<SYN_LEN;i++)
+			{
+				syndrome[i]=fgetc(f)-48;
+				fgetc(f); //space
+			}
+			fgetc(f); //end of line
+			fgetc(f); //square bracket
+			for(int i=0;i<CORR_LEN;i++)
+			{
+				correction[i]=fgetc(f)-48;
+				fgetc(f);
+			}
+			fgetc(f);
+
+			insert = 1;
+
+			decoderUF.setArg(0, buffer_syn);
+			decoderUF.setArg(1, correction_in_buf);
+			decoderUF.setArg(2, correction_out_buf);
+			decoderUF.setArg(3, insert);
+			// Data will be migrated to kernel space
+			q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf}, 0); /*0 means from host*/
+
+			q.finish();
+
+			//Launch the Kernel
+			q.enqueueTask(decoderUF);
+
+			q.finish();
+		
+			//Data from Kernel to Host
+			q.enqueueMigrateMemObjects({correction_out_buf},CL_MIGRATE_MEM_OBJECT_HOST);
+
+			q.finish();
+
+			insert = 0;
+
+			decoderUF.setArg(0, buffer_syn);
+			decoderUF.setArg(1, correction_in_buf);
+			decoderUF.setArg(2, correction_out_buf);
+			decoderUF.setArg(3, insert);
+			// Data will be migrated to kernel space
+			q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf}, 0); /*0 means from host*/
+
+			q.finish();
+
+			//Launch the Kernel
+			q.enqueueTask(decoderUF);
+
+			q.finish();
+		
+			//Data from Kernel to Host
+			q.enqueueMigrateMemObjects({correction_out_buf},CL_MIGRATE_MEM_OBJECT_HOST);
+
+			q.finish();
+
+			for(int i = 0; i < CORR_LEN; i++)
+			{
+				assert(correctionTestLUT[i] == correction_out[i]);
+			}
+			
+		}
+		printf("LUT is loaded\n");
+
+
 	for(int it = 0; it < 100; it++)
 	{
 		int noiseVec[CORR_LEN] = {0};
