@@ -18,11 +18,11 @@ void startExecution(cl::CommandQueue& q, cl::Kernel& decoderUF, cl::Buffer& syn,
 	q.enqueueMigrateMemObjects({corrOut},CL_MIGRATE_MEM_OBJECT_HOST);
 
 	q.finish();
-}	
+}
 
 int main(int argc, char* argv[]){
 
-	std::vector<uint8_t, aligned_allocator<uint8_t>> syndrome(SYN_LEN);
+	std::vector<uint8_t, aligned_allocator<uint8_t>> syndrome_in(SYN_LEN);
 	std::vector<uint8_t, aligned_allocator<uint8_t>> correction_in(CORR_LEN);
 	std::vector<uint8_t, aligned_allocator<uint8_t>> correction_out(CORR_LEN);
 	bool insert;
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
 
-    cl::Buffer buffer_syn(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, syndrome_size, syndrome.data());
+    cl::Buffer buffer_syn(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, syndrome_size, syndrome_in.data());
     cl::Buffer correction_in_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, correction_in_size, correction_in.data());
     cl::Buffer correction_out_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY, correction_out_size, correction_out.data());
 	//cl::Buffer insert_buf(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, insert_size, &insert);
@@ -82,19 +82,21 @@ int main(int argc, char* argv[]){
 
     bool correctionTestLUT[CORR_LEN] = {0};
 
-    while(!feof(f))
+    int size = 0;
+
+    while(!feof(f) && size < 50)
     {
 	fgetc(f); //square bracket
 	for(int i=0;i<SYN_LEN;i++)
 	{
-		syndrome[i]=fgetc(f)-48;
+		syndrome_in[i]=fgetc(f)-48;
 		fgetc(f); //space
 		}
 		fgetc(f); //end of line
 		fgetc(f); //square bracket
 		for(int i=0;i<CORR_LEN;i++)
 		{
-			correction[i]=fgetc(f)-48;
+			correction_in[i]=fgetc(f)-48;
 			fgetc(f);
 		}
 		fgetc(f);
@@ -104,8 +106,11 @@ int main(int argc, char* argv[]){
 		
 		for(int i = 0; i < CORR_LEN; i++)
 		{
+			//printf("%d == %d\n", correction_in[i], correction_out[i]);
 			assert(correction_in[i] == correction_out[i]);
 		}
+
+		size++;
 			
 	}
 	printf("LUT is loaded\n");
@@ -124,12 +129,12 @@ int main(int argc, char* argv[]){
 		printf("Measured syndrome:\n");
 		noise=distribution(generator);
 			for(int i=0;i<SYN_LEN;i++){
-				syndrome[i]=0;
+				syndrome_in[i]=0;
 				for(int j=0;j<CORR_LEN;j++){
-					syndrome[i]+=stabilizers[i][j]*noiseVec[j];
+					syndrome_in[i]+=stabilizers[i][j]*noiseVec[j];
 				}
-				syndrome[i]=syndrome[i]%2;
-				printf("%d",syndrome[i]);
+				syndrome_in[i]=syndrome_in[i]%2;
+				printf("%d",syndrome_in[i]);
 			}
 		printf("\n");
 
