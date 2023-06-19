@@ -10,14 +10,25 @@ void startExecution(cl::CommandQueue& q, cl::Kernel& decoderUF, cl::Buffer& syn,
 	// Data will be migrated to kernel space
 	q.enqueueMigrateMemObjects({syn, corrIn}, 0); /*0 means from host*/
 	q.finish();
+	
+	auto start=std::chrono::high_resolution_clock::now();
+	
+	
 	//Launch the Kernel
 	q.enqueueTask(decoderUF);
 	q.finish();
+	
+	auto stop=std::chrono::high_resolution_clock::now();
+        auto duration=std::chrono::duration_cast<std::chrono::nanoseconds>(stop-start);
+        
+        printf("Operation concluded in %f nanoseconds", duration.count());
 	
 	//Data from Kernel to Host
 	q.enqueueMigrateMemObjects({corrOut},CL_MIGRATE_MEM_OBJECT_HOST);
 
 	q.finish();
+	
+	
 }	
 
 int main(int argc, char* argv[]){

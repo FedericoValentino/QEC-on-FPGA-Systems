@@ -6,6 +6,7 @@
 #include <random>
 #include <unistd.h>
 #include <assert.h>
+#include <chrono>
 
 
 #include "common/xcl2.hpp"
