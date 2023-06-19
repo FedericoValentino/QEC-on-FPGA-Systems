@@ -1,5 +1,25 @@
 #include "host.h"
 
+void startExecution(cl::CommandQueue& q, cl::Kernel& decoderUF, cl::Buffer& syn, cl::Buffer& corrIn, cl::Buffer& corrOut, bool insert)
+{
+	decoderUF.setArg(0, syn);
+	decoderUF.setArg(1, corrIn);
+	decoderUF.setArg(2, corrOut);
+	decoderUF.setArg(3, insert);
+
+	// Data will be migrated to kernel space
+	q.enqueueMigrateMemObjects({syn, corrIn}, 0); /*0 means from host*/
+	q.finish();
+	//Launch the Kernel
+	q.enqueueTask(decoderUF);
+	q.finish();
+	
+	//Data from Kernel to Host
+	q.enqueueMigrateMemObjects({corrOut},CL_MIGRATE_MEM_OBJECT_HOST);
+
+	q.finish();
+}	
+
 int main(int argc, char* argv[]){
 
 	std::vector<uint8_t, aligned_allocator<uint8_t>> syndrome(SYN_LEN);
@@ -62,79 +82,39 @@ int main(int argc, char* argv[]){
 
     bool correctionTestLUT[CORR_LEN] = {0};
 
-	while(!feof(f))
-		{
-			fgetc(f); //square bracket
-			for(int i=0;i<SYN_LEN;i++)
-			{
-				syndrome[i]=fgetc(f)-48;
-				fgetc(f); //space
-			}
-			fgetc(f); //end of line
-			fgetc(f); //square bracket
-			for(int i=0;i<CORR_LEN;i++)
-			{
-				correction[i]=fgetc(f)-48;
-				fgetc(f);
-			}
-			fgetc(f);
-
-			insert = 1;
-
-			decoderUF.setArg(0, buffer_syn);
-			decoderUF.setArg(1, correction_in_buf);
-			decoderUF.setArg(2, correction_out_buf);
-			decoderUF.setArg(3, insert);
-			// Data will be migrated to kernel space
-			q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf}, 0); /*0 means from host*/
-
-			q.finish();
-
-			//Launch the Kernel
-			q.enqueueTask(decoderUF);
-
-			q.finish();
-		
-			//Data from Kernel to Host
-			q.enqueueMigrateMemObjects({correction_out_buf},CL_MIGRATE_MEM_OBJECT_HOST);
-
-			q.finish();
-
-			insert = 0;
-
-			decoderUF.setArg(0, buffer_syn);
-			decoderUF.setArg(1, correction_in_buf);
-			decoderUF.setArg(2, correction_out_buf);
-			decoderUF.setArg(3, insert);
-			// Data will be migrated to kernel space
-			q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf}, 0); /*0 means from host*/
-
-			q.finish();
-
-			//Launch the Kernel
-			q.enqueueTask(decoderUF);
-
-			q.finish();
-		
-			//Data from Kernel to Host
-			q.enqueueMigrateMemObjects({correction_out_buf},CL_MIGRATE_MEM_OBJECT_HOST);
-
-			q.finish();
-
-			for(int i = 0; i < CORR_LEN; i++)
-			{
-				assert(correctionTestLUT[i] == correction_out[i]);
-			}
-			
+    while(!feof(f))
+    {
+	fgetc(f); //square bracket
+	for(int i=0;i<SYN_LEN;i++)
+	{
+		syndrome[i]=fgetc(f)-48;
+		fgetc(f); //space
 		}
-		printf("LUT is loaded\n");
+		fgetc(f); //end of line
+		fgetc(f); //square bracket
+		for(int i=0;i<CORR_LEN;i++)
+		{
+			correction[i]=fgetc(f)-48;
+			fgetc(f);
+		}
+		fgetc(f);
+
+		startExecution(q, decoderUF, bufferSyn, correction_in_buf, correction_out_buf, 1)
+		startExecution(q, decoderUF, bufferSyn, correction_in_buf, correction_out_buf, 0)
+		
+		for(int i = 0; i < CORR_LEN; i++)
+		{
+			assert(correction_in[i] == correction_out[i]);
+		}
+			
+	}
+	printf("LUT is loaded\n");
 
 
 	for(int it = 0; it < 100; it++)
 	{
 		int noiseVec[CORR_LEN] = {0};
 
-		int count = 0;
 		for(int i = 0; i < CORR_LEN; i++)
 		{
 			noiseVec[i] = distribution(generator);
@@ -149,15 +129,9 @@ int main(int argc, char* argv[]){
 					syndrome[i]+=stabilizers[i][j]*noiseVec[j];
 				}
 				syndrome[i]=syndrome[i]%2;
-				if(syndrome[i] == 1)
-				{
-					count++;
-				}
 				printf("%d",syndrome[i]);
 			}
 		printf("\n");
-
-		printf("Current Syndrome has %d errors\n", count);
 
 		
 		for(int i=0; i < CORR_LEN; i++)
@@ -166,29 +140,7 @@ int main(int argc, char* argv[]){
 			correction_out[i] = 0;
 		}
 
-		insert = 0;
-
-		decoderUF.setArg(0, buffer_syn);
-		decoderUF.setArg(1, correction_in_buf);
-		decoderUF.setArg(2, correction_out_buf);
-		decoderUF.setArg(3, insert);
-		// Data will be migrated to kernel space
-		q.enqueueMigrateMemObjects({buffer_syn, correction_in_buf}, 0); /*0 means from host*/
-
-		q.finish();
-
-	
-		//Launch the Kernel
-		q.enqueueTask(decoderUF);
-
-		q.finish();
-		
-		// The result of the previous kernel execution will need to be retrieved in
-		// order to view the results. This call will transfer the data from FPGA to
-		// source_results vector
-		q.enqueueMigrateMemObjects({correction_out_buf},CL_MIGRATE_MEM_OBJECT_HOST);
-
-		q.finish();
+		startExecution(q, decoderUF, bufferSyn, correction_in_buf, correction_out_buf, 1)
 
 		//verify result:
 		printf("Correction to apply:\n");
