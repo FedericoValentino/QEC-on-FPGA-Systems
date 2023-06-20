@@ -1,39 +1,57 @@
 #include "Project.h"
 
-
-HashMap decoderLUT;
-Decoder decoderUF;
-
-void test(int syndrome[SYN_LEN])
+void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction_in, ap_uint<CORR_LEN>* correction_out, bool insert)
 {
-	decoderUF.decode(syndrome);
-}
+	static HashMap decoderLUT;
+	static Decoder decoderUF;
+	//axi
+#pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=9
+#pragma HLS INTERFACE m_axi port=correction_in offset=slave bundle=gmem1 depth=18
+#pragma HLS INTERFACE m_axi port=correction_out offset=slave bundle=gmem2 depth=18
 
+#pragma HLS INTERFACE s_axilite port=syndrome bundle=control
+#pragma HLS INTERFACE s_axilite port=correction_in bundle=control
+#pragma HLS INTERFACE s_axilite port=correction_out bundle=control
+#pragma HLS INTERFACE s_axilite port=insert bundle=control
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+/*	//hashmap
+#pragma HLS array_partition variable=decoderLUT.map type=complete
+	//rootManager
+#pragma HLS array_partition variable=decoderUF.mngr.roots.array type=cyclic factor=16
+#pragma HLS array_partition variable=decoderUF.mngr.oddRoots.array type=cyclic factor=16
+#pragma HLS array_partition variable=decoderUF.mngr.sizes type=cyclic factor=64
+#pragma HLS array_partition variable=decoderUF.mngr.parity type=cyclic factor=64
+		//Decoder
+#pragma HLS array_partition variable=decoderUF.syndrome type=complete
+#pragma HLS array_partition variable=decoderUF.support type=cyclic factor=16
+#pragma HLS array_partition variable=decoderUF.root_of_vertex type=complete
+#pragma HLS array_partition variable=decoderUF.border_vertices->array type=cyclic factor=16*/
+	bool tmp = false;
 
-void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert)
-{
-#pragma HLS ARRAY_PARTITION variable=decoderUF.connection_counts.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.support.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.root_of_vertex.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.fuseList.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.border_vertices.map.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.peeling_edges.array type=complete
-
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.roots.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.oddRoots.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.sizes.map.array type=complete
-#pragma HLS ARRAY_PARTITION variable=decoderUF.mngr.parity.map.array type=complete
-	if(insert)
+	//hls::print("insert: %d\n", insert);
+	switch(insert)
 	{
-		decoderLUT.insert(*correction, syndrome);
+		case 1:
+			decoderLUT.insert(*correction_in, syndrome);
+			tmp = true;
+			//hls::print("Inserted in LUT\n");
+			break;
+		case 0:
+			//hls::print("Retrieving from LUT\n");
+			tmp = decoderLUT.retrieve(syndrome, correction_out);
+			break;
 	}
-	else
+
+	switch(tmp)
 	{
-		*correction = decoderLUT.retrieve(syndrome);
-		if(*correction == 0)
-		{
-			*correction = decoderUF.decode(syndrome);
-		}
+		case 0:
+			decoderUF.decode(syndrome, correction_out);
+			//hls::print("Syndrome has been decoded\n");
+			break;
+		case 1:
+			//hls::print("Nothing else to do\n");
+			break;
 	}
+
 
 }

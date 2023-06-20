@@ -5,10 +5,9 @@
 #include "LUT/Hashmap.h"
 #include "UnionFind/Decoder.h"
 
-extern HashMap decoderLUT;
-extern Decoder decoderUF;
 
-void decoderTop(int syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, bool insert);
-void test(int syndrome[SYN_LEN]);
-
+extern "C"
+{
+void decoderTop(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction_in, ap_uint<CORR_LEN>* correction_out, bool insert);
+}
 #endif

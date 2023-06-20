@@ -8,54 +8,47 @@
 #include "RootManager.h"
 #include "SurfaceCode.h"
 
-struct VertexNeighbors
-{
-	uint32_t vertex;
-	Vector<uint32_t> borders;
-};
+#include "hls_stream.h"
 
 class Decoder
 {
 public:
 
+	int syndrome[SYN_LEN];
+
 	SurfaceCode Code;
 
-	Vector<uint32_t> connection_counts;
-	Vector<uint32_t> support;
-	Vector<uint32_t> root_of_vertex;
-
-	Vector<Edge> fuseList;
+	uint32_t support[CORR_LEN];
+	uint32_t root_of_vertex[SYN_LEN];
+	Vector<uint32_t> border_vertices[SYN_LEN];
 
 
 	RootManager mngr;
+	
+	void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
 
-	Map<uint32_t, Vector<uint32_t>> border_vertices;
+	void initialization(bool syndrome[SYN_LEN], hls::stream<uint32_t>& syn_stream);
+	void populate(hls::stream<uint32_t>& syn_stream);
 
-	Vector<Edge> peeling_edges;
-
-	void init_cluster(Vector<uint32_t> roots);
-
-
-
-	void fusion();
-
+	void UF(hls::stream<Edge>& fuseList, hls::stream<Edge>& peeling_edges);
+	void grow(uint32_t root, hls::stream<Edge>& fuseList);
 	uint32_t findRoot(uint32_t vertex);
 
-
-	Vector<Edge> peel(int syndrome[SYN_LEN]);
-
-	ap_uint<CORR_LEN> translate(Vector<Edge> correctionEdges);
-
-	void grow(uint32_t root);
+	void fusion(hls::stream<Edge>& fuseList, hls::stream<Edge>& peeling_edges);
+	void fuse(uint32_t root1, uint32_t root2, Edge e);
+	void whenroot(uint32_t root1, uint32_t root2);
+	void elseroot(uint32_t root1, uint32_t root2);
 
 	void mergeBoundary(uint32_t r1, uint32_t r2);
 
-	ap_uint<CORR_LEN> decode(int syndrome[SYN_LEN]);
+	void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections);
+
+	void translate(hls::stream<Edge>& correctionEdges, ap_uint<CORR_LEN>* correction);
 
 	void clear();
 
-	//void buildCode();
+
+
 
 };
-
 #endif

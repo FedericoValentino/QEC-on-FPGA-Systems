@@ -21,14 +21,13 @@ public:
 	Vector<uint32_t> roots;
 	Vector<uint32_t> oddRoots;
 
-	Map<uint32_t, uint32_t> sizes;
-	Map<uint32_t, uint32_t> parity;
+	uint32_t sizes[SYN_LEN];
+	uint32_t parity[SYN_LEN];
+
 
 	void initializeRoots(Vector<uint32_t> roots);
 
 	bool hasOddRoots();
-
-	Vector<uint32_t>* oddRoots_();
 
 	uint32_t size(uint32_t root);
 
@@ -37,6 +36,10 @@ public:
 	bool isRoot(uint32_t root);
 
 	void merge(uint32_t r1, uint32_t r2);
+
+	void EraseFromAll(uint32_t root);
+
+	void fillNFO(uint32_t NFO);
 
 	void clear();
 };

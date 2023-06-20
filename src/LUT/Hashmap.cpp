@@ -1,57 +1,86 @@
 #include "Hashmap.h"
 
-ap_uint<SYN_LEN> HashMap::binToDec(int syndrome[SYN_LEN])
+
+ap_uint<SYN_LEN> HashMap::binToDec(bool syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> sum = 0;
 BINARY_TO_DECIMAL_LOOP:
 	for(int i = 0; i < SYN_LEN; i++)
 	{
-#pragma HLS UNROLL factor=SYN_LEN
+#pragma HLS UNROLL
 		sum += syndrome[i] * (1<<i);
 	}
 	return sum;
 }
 
-int HashMap::hash(ap_uint<SYN_LEN> synDec, int i)
+int HashMap::hash(ap_uint<SYN_LEN> synDec)
 {
-	int hash;
-	do{
-		hash = (synDec+3*i) % MAX_SIZE/2;
-		++i;
-		if(this->map[hash].syndrome==synDec)
-			return hash;
-		if(i==MAX_SIZE)
-			return -1;
-	}while(this->map[hash].full);
-
-	return hash;
+#pragma HLS INLINE
+	return synDec % MAX_SIZE;
 }
 
 
-void HashMap::insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN])
+
+void HashMap::insert(ap_uint<CORR_LEN> correction, bool syndrome[SYN_LEN])
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
-    int index = this->hash(synDec,0);
+    int index = this->hash(synDec);
+    int counter = 0;
+    int finalidx = 0;
+    bool found = 0;
 
-    if(index!=-1){
-    	this->map[index].syndrome = synDec;
-    	this->map[index].correction = correction;
-    	this->map[index].full = true;
-    	++this->lastBlockUsed;
-    }
-   //it has to be managed the case in which we want to insert but no space available TODO
+HASHMAP_INSERT_LOOP:
+	while(counter < MAX_SIZE){
+#pragma HLS PIPELINE II=1
+		counter++;
+		if (!map[index].full && !found){
+			finalidx = index;
+			found=1;
+		}
+		index++;
+		if(index==MAX_SIZE){
+			index=0;
+		}
+	}
+
+    map[finalidx].correction = correction;
+    map[finalidx].syndrome = synDec;
+    map[finalidx].full = true;
 
 
 }
 
-ap_uint<CORR_LEN> HashMap::retrieve(int syndrome[SYN_LEN])
+bool HashMap::retrieve(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 {
 	ap_uint<SYN_LEN> synDec = this->binToDec(syndrome);
-	int index = this->hash(synDec,0);
+	int index = this->hash(synDec);
+	int counter = 0;
+	int finalidx = 0;
+	bool found = 0;
 
-    if(index!=-1)
-    	return this->map[index].correction;
-    else
-    	return 0;
+
+
+HASHMAP_RETRIEVE_LOOP:
+	while(counter < MAX_SIZE){
+#pragma HLS PIPELINE II=1
+		counter++;
+		if (synDec == map[index].syndrome){
+			finalidx = index;
+			found = 1;
+		}
+		index++;
+		if(index==MAX_SIZE){
+			index=0;
+		}
+	}
+
+	if(!found){
+		return 0;
+	}
+	else{
+		*correction = map[index].correction;
+		return 1;
+	}
+
 
 }

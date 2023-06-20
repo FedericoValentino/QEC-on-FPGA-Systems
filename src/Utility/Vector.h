@@ -8,24 +8,12 @@ template <class T>
 class Vector
 {
 public:
-	T array[CORR_LEN * 2] = {};
+	T array[SYN_LEN];
 	uint32_t lastPos = 0;
 	uint32_t size = 0;
-
-	void insert(T element, uint32_t pos)
+	Vector()
 	{
-		if(array[pos])
-		{
-			for(int i = lastPos; i > pos; --i)
-			{
-#pragma HLS PIPELINE
-				array[i] = array[i-1];
-			}
-
-		}
-		array[pos] = element;
-		++lastPos;
-		++size;
+//#pragma HLS ARRAY_PARTITION variable=array type=cyclic factor=16
 	}
 
 	void emplace(T element)
@@ -40,14 +28,14 @@ public:
 	}
 	T at(uint32_t i)
 	{
-		return array[i];
-	}
-	T* get(uint32_t i)
-	{
-		return &array[i];
+		if(i >= 0 && i < SYN_LEN)
+			return array[i];
+		else
+			return array[0];
 	}
 	void set(T element, uint32_t pos)
 	{
+#pragma HLS INLINE off
 		array[pos] = element;
 	}
 	T back()
@@ -61,86 +49,70 @@ public:
 	}
 	void erase(uint32_t pos)
 	{
-ERASING_LOOP:
-		for(int i = pos; i < lastPos; ++i)
+		if(pos < SYN_LEN - 1)
 		{
-#pragma HLS PIPELINE
-			array[i] = array[i+1];
+			T tmp = array[pos+1];
+			int i = pos;
+	ERASING_LOOP:
+			while(i < size)
+			{
+	//#pragma HLS DEPENDENCE variable=tmp type=inter false
+	#pragma HLS PIPELINE II=1
+				array[i] = tmp;
+				tmp = array[i+2];
+				i++;
+			}
 		}
 		size--;
 		lastPos--;
 	}
 
-	void pushFront(T element)
-	{
-PUSHFRONT_LOOP:
-		for(int i = lastPos; i >0 ; --i)
-		{
-#pragma HLS PIPELINE
-			array[i] = array[i-1];
-		}
-		array[0] = element;
-		size++;
-		lastPos++;
-	}
-
 	void elementErase(T element)
 	{
-ERASE_LOOP:
-		for(int i = 0; i < 256; ++i)
+		bool found = false;
+		int pos;
+		T tmp = array[0];
+ELEMENT_ERASE_LOOP:
+		for(int i = 0; i < size; i++)
 		{
-#pragma HLS UNROLL
-			if(array[i] == element)
+#pragma HLS PIPELINE II=1
+			if(tmp == element)
 			{
-				erase(i);
-				break;
+				found = true;
+				pos = i;
 			}
+			tmp = array[i+1];
 		}
+		if(found)
+			erase(pos);
 	}
 
 	void elementEmplace(T element)
 	{
-SEARCH_ELEMENT_LOOP:
-		for(int i = 0; i < 256; ++i)
+		bool found = false;
+		T tmp = array[0];
+ELEMENT_EMPLACE_LOOP:
+		for(int i = 0; i < size; i++)
 		{
-#pragma HLS UNROLL
-			if(array[i] == element)
+#pragma HLS PIPELINE II=1
+			if(tmp == element)
 			{
-				return;
+				found = true;
 			}
+			tmp = array[i+1];
 		}
 
-		uint32_t pos = 0;
-		if(size == 0)
-		{
+		if(!found)
 			emplace(element);
-		}
-		else
-		{
-			for(int i = 0; i < lastPos; i++)
-			{
-#pragma HLS PIPELINE
-				if(element < array[i])
-				{
-					insert(element, i);
-					return;
-				}
-				else
-				{
-					pos = i+1;
-				}
-			}
-			insert(element, pos);
-			return;
-		}
 	}
 
 	void fillnReset(T element)
 	{
+#pragma HLS INLINE off
 RESET_LOOP:
-		for(int i = 0; i < CORR_LEN*2; ++i)
+		for(int i = 0; i < SYN_LEN; ++i)
 		{
-#pragma HLS UNROLL
+#pragma HLS PIPELINE II=1
 			array[i] = element;
 		}
 		size = 0;
@@ -149,7 +121,22 @@ RESET_LOOP:
 
 	void plusOne(uint32_t pos)
 	{
-		++array[pos];
+#pragma HLS INLINE off
+		uint32_t tmp = array[pos];
+		tmp += 1;
+		array[pos] = tmp;
+	}
+
+	void operator=(const Vector<T>& vec)
+	{
+		for(int i = 0; i < vec.size; i++)
+		{
+#pragma HLS LOOP_TRIPCOUNT min=0 max=64
+#pragma HLS PIPELINE II=1
+			this->array[i] = vec.array[i];
+		}
+		this->lastPos = vec.lastPos;
+		this->size = vec.size;
 	}
 };
 

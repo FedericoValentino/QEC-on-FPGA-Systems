@@ -3,86 +3,40 @@
 
 #include "Vector.h"
 
-template <typename T1, typename T2>
-struct Touple
-{
-	T1 v1;
-	T2 v2;
-};
 
-template <class T, class U>
+template <class U>
 class Map
 {
 public:
-	Vector<Touple<T, U>> map;
+	U map[SYN_LEN] = {};
 	U defaultValue;
 
-	void add(T v1, U v2)
+
+	void add(uint32_t pos, U v2)
 	{
-		Touple<T, U> tmp = {v1, v2};
-		map.emplace(tmp);
+		map[pos] = v2;
 	}
 
-	U find(T v1)
+	U find(uint32_t pos)
 	{
-FIND_LOOP:
-		for(int i = 0; i < 256; ++i)
-		{
-#pragma HLS UNROLL
-			if(map.at(i).v1 == v1)
-			{
-				return map.get(i)->v2;
-			}
-		}
-		return defaultValue;
+		return map[pos];
 	}
 
-	void update(T v1, U v2)
+	void update(uint32_t v1, U v2)
 	{
-UPDATE_LOOP:
-		for(int i = 0; i < 256; ++i)
-		{
-#pragma HLS UNROLL
-			if(map.at(i).v1 == v1)
-			{
-				map.get(i)->v2 = v2;
-				return;
-			}
-		}
-	}
-
-	Touple<T, U>* get(uint32_t pos)
-	{
-		return map.get(pos);
-	}
-
-	uint32_t size()
-	{
-		return map.getSize();
+		map[v1] = v2;
 	}
 
 	void erase(uint32_t key)
 	{
-		uint32_t pos;
-ERASE_LOOP:
-		for(int i = 0; i < 256; ++i)
-		{
-#pragma HLS UNROLL
-			if(map.at(i).v1 == key)
-			{
-				pos = i;
-				break;
-			}
-		}
-		map.erase(pos);
+		map[key] = defaultValue;
 	}
 
 	void reset()
 	{
-RESET_LOOP:
-		while(map.getSize() != 0)
+		for(int i = 0; i < SYN_LEN; i++)
 		{
-			map.erase(0);
+			map[i] = defaultValue;
 		}
 	}
 };

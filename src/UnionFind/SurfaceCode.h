@@ -65,11 +65,16 @@ public:
 		int col = v%L;
 
 		Vector<uint32_t> vector;
+//#pragma HLS ARRAY_PARTITION variable=vector.array type=complete
 
-		vector.emplace(to_vertex_index(row - 1, col));
-		vector.emplace(to_vertex_index(row + 1, col));
-		vector.emplace(to_vertex_index(row, col - 1));
-		vector.emplace(to_vertex_index(row, col + 1));
+		uint32_t idx1 = to_vertex_index(row - 1, col);
+		vector.emplace(idx1);
+		uint32_t idx2 = to_vertex_index(row + 1, col);
+		vector.emplace(idx2);
+		uint32_t idx3 = to_vertex_index(row, col - 1);
+		vector.emplace(idx3);
+		uint32_t idx4 = to_vertex_index(row, col + 1);
+		vector.emplace(idx4);
 
 		return vector;
 	}

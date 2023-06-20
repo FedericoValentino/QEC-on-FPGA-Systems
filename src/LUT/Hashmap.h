@@ -19,19 +19,21 @@ typedef struct entry Entry;
 class HashMap
 {
 private:
-    Entry map[MAX_SIZE/2];
 
     unsigned int lastBlockUsed = 0;
 
-	ap_uint<SYN_LEN> binToDec(int syndrome[SYN_LEN]);
-
-	int hash(ap_uint<SYN_LEN> synDec, int i);
 
 public:
 
-	void insert(ap_uint<CORR_LEN> correction, int syndrome[SYN_LEN]);
+    ap_uint<SYN_LEN> binToDec(bool syndrome[SYN_LEN]);
 
-	ap_uint<CORR_LEN> retrieve(int syndrome[SYN_LEN]);
+	int hash(ap_uint<SYN_LEN> synDec);
+
+	Entry map[MAX_SIZE];
+
+	void insert(ap_uint<CORR_LEN> correction, bool syndrome[SYN_LEN]);
+
+	bool retrieve(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction);
 
 };
 
