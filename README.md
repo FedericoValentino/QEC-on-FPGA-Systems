@@ -20,6 +20,6 @@ When importing the project into vitis you need to import the following:
 The decoder has been tested to work for Toric codes up to d=13. In case you want to use a different d the following parameters inside of Defines.h need to be changed: 
 
  - D = d;
- - N = 2*d^2
- - CORR_LEN = 2*d^2
- - SYN_LEN = d^2
+ - N = 2*d<sup>2</sup>
+ - CORR_LEN = 2*d<sup>2</sup>
+ - SYN_LEN = d<sup>2</sup>
