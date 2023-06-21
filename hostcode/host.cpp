@@ -1,6 +1,6 @@
 #include "host.h"
 
-void startExecution(cl::CommandQueue& q, cl::Kernel& decoderUF, cl::Buffer& syn, cl::Buffer& corrIn, cl::Buffer& corrOut, bool insert)
+float startExecution(cl::CommandQueue& q, cl::Kernel& decoderUF, cl::Buffer& syn, cl::Buffer& corrIn, cl::Buffer& corrOut, bool insert)
 {
 	decoderUF.setArg(0, syn);
 	decoderUF.setArg(1, corrIn);
@@ -28,6 +28,7 @@ void startExecution(cl::CommandQueue& q, cl::Kernel& decoderUF, cl::Buffer& syn,
 
 	q.finish();
 	
+	return (float)duration.count();
 	
 }	
 
@@ -37,6 +38,10 @@ int main(int argc, char* argv[]){
 	std::vector<uint8_t, aligned_allocator<uint8_t>> correction_in(CORR_LEN);
 	std::vector<uint8_t, aligned_allocator<uint8_t>> correction_out(CORR_LEN);
 	bool insert;
+
+	float insertAVG = 0;
+	float retrieveAVG = 0;
+	float decodeAVG = 0;
 
 	size_t syndrome_size = sizeof(bool) * SYN_LEN;
 	size_t correction_in_size = sizeof(bool) * CORR_LEN;
@@ -112,8 +117,8 @@ int main(int argc, char* argv[]){
 		}
 		fgetc(f);
 
-		startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 1);
-		startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 0);
+		insertAVG += startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 1);
+		retrieveAVG += startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 0);
 		
 		for(int i = 0; i < CORR_LEN; i++)
 		{
@@ -156,7 +161,7 @@ int main(int argc, char* argv[]){
 			correction_out[i] = 0;
 		}
 
-		startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 1);
+		decodeAVG += startExecution(q, decoderUF, buffer_syn, correction_in_buf, correction_out_buf, 1);
 
 		//verify result:
 		printf("Correction to apply:\n");
@@ -165,7 +170,8 @@ int main(int argc, char* argv[]){
 		}
 		printf("\n");
 	}
-
+	
+	printf("Insert AVG: %f\nRetrieve AVG: %f\nDecode AVG: %f\n", insertAVG/50.0f, retrieveAVG/50.0f, decodeAVG/100.0f); 
     q.finish();
 
 	return 0;
