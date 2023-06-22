@@ -99,7 +99,7 @@ int main(int argc, char* argv[]){
     bool correctionTestLUT[CORR_LEN] = {0};
 
     int size = 0;
-
+/*
     while(!feof(f) && size < 50)
     {
 	fgetc(f); //square bracket
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]){
 			
 	}
 	printf("LUT is loaded\n");
-
+*/
 
 	for(int it = 0; it < 100; it++)
 	{
