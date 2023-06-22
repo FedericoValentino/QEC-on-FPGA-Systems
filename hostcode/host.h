@@ -17,6 +17,7 @@
 #define DATA_SIZE 4098
 #define CL_HPP_CL_1_2_DEFAULT_BUILD
 #define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY 1
+#define TESTSIZE 5
 
 
 std::binomial_distribution<int> distribution(1,0.1);

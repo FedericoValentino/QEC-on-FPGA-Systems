@@ -713,9 +713,9 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 
 void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool correction_out[CORR_LEN], bool insert)
 {
-	static Entry map[MAX_SIZE];
+	/*static Entry map[MAX_SIZE];
 #pragma HLS ARRAY_PARTITION variable=map type=complete
-#pragma HLS BIND_STORAGE variable=map type=RAM_2P impl=LUTRAM
+#pragma HLS BIND_STORAGE variable=map type=RAM_2P impl=LUTRAM*/
 	ap_uint<CORR_LEN> correction_input = 0;
 	ap_uint<CORR_LEN> correction_output = 0;
 
@@ -733,6 +733,13 @@ void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool corre
 
 	bool tmp = false;
 
+	decode(syndrome, &correction_output);
+	for(int i = 0; i < CORR_LEN; ++i)
+	{
+		correction_out[i] = 0;
+		correction_out[i] = correction_output[i];
+	}
+
 	//hls::print("insert: %d\n", insert);
 	switch(insert)
 	{
@@ -748,10 +755,6 @@ void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool corre
 		case 0:
 			//hls::print("Retrieving from LUT\n");
 			tmp = hashRetrieve(syndrome, &correction_output, map);
-			for(int i = 0; i < CORR_LEN; ++i)
-			{
-				correction_out[i] = correction_output[i];
-			}
 			break;
 	}
 
@@ -761,12 +764,18 @@ void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool corre
 			decode(syndrome, &correction_output);
 			for(int i = 0; i < CORR_LEN; ++i)
 			{
+				correction_out[i] = 0;
 				correction_out[i] = correction_output[i];
 			}
 			//hls::print("Syndrome has been decoded\n");
 			break;
 		case 1:
 			//hls::print("Nothing else to do\n");
+			for(int i = 0; i < CORR_LEN; ++i)
+			{
+				correction_out[i] = 0;
+				correction_out[i] = correction_output[i];
+			}
 			break;
 	}
 
