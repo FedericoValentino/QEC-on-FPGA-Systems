@@ -739,7 +739,7 @@ void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool corre
 		correction_out[i] = 0;
 		correction_out[i] = correction_output[i];
 	}
-
+	/*
 	//hls::print("insert: %d\n", insert);
 	switch(insert)
 	{
@@ -778,6 +778,6 @@ void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool corre
 			}
 			break;
 	}
-
+	*/
 
 }
