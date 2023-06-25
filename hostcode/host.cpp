@@ -153,7 +153,7 @@ int main(int argc, char* argv[]){
 			bitcheck[i] = 0;
 			for(int j = 0; j < CORR_LEN; j++)
 			{
-				bitcheck[i][j] += logicals[i][j] * noiseVec[j];
+				bitcheck[i] += logicals[i][j] * noiseVec[j];
 			}
 			bitcheck[i] %= 2;
 		}
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]){
 			bitpred[i] = 0;
 			for(int j = 0; j < CORR_LEN; j++)
 			{
-				bitpred[i][j] += logicals[i][j] * correction_out[j];
+				bitpred[i] += logicals[i][j] * correction_out[j];
 			}
 			bitpred[i] %= 2;
 		}
