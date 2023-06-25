@@ -43,6 +43,13 @@ int main(int argc, char* argv[]){
 	float retrieveAVG = 0;
 	float decodeAVG = 0;
 
+	uint8_t bitcheck[K] = {0};
+	uint8_t bitpred[K] = {0};
+
+	int acc = 0;
+
+
+
 	size_t syndrome_size = sizeof(bool) * SYN_LEN;
 	size_t correction_in_size = sizeof(bool) * CORR_LEN;
 	size_t correction_out_size = sizeof(bool) * CORR_LEN;
@@ -140,6 +147,16 @@ int main(int argc, char* argv[]){
 		{
 			noiseVec[i] = distribution(generator);
 		}
+		
+		for(int i = 0; i < K; i++)
+		{
+			bitcheck[i] = 0;
+			for(int j = 0; j < CORR_LEN; j++)
+			{
+				bitcheck[i][j] += logicals[i][j] * noiseVec[j];
+			}
+			bitcheck[i] %= 2;
+		}
 
 		//setting the input data
 		printf("Measured syndrome:\n");
@@ -169,10 +186,27 @@ int main(int argc, char* argv[]){
 			printf("%d",correction_out[i]);
 		}
 		printf("\n");
+
+		for(int i = 0; i < K; i++)
+		{
+			bitpred[i] = 0;
+			for(int j = 0; j < CORR_LEN; j++)
+			{
+				bitpred[i][j] += logicals[i][j] * correction_out[j];
+			}
+			bitpred[i] %= 2;
+		}
+
+		if(bitcheck[0] == bitpred[0] && bitcheck[1] == bitpred[1])
+		{
+			acc++;
+		}
+
+
 	}
 	
-	printf("Insert AVG: %f\nRetrieve AVG: %f\nDecode AVG: %f\n", insertAVG/50.0f, retrieveAVG/50.0f, decodeAVG/100.0f); 
-    q.finish();
+	printf("Insert AVG: %f\nRetrieve AVG: %f\nDecode AVG: %f\nDecode Accuracy: %f\n", insertAVG/50.0f, retrieveAVG/50.0f, decodeAVG/100.0f, (float)acc*100.0f/100.0f); 
+    	q.finish();
 
 	return 0;
 }
