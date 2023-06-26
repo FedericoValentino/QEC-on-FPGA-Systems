@@ -252,9 +252,8 @@ void populate(hls::stream<uint32_t>& syn_stream,
 			  uint32_t sizes[SYN_LEN],
 			  uint32_t parity[SYN_LEN])
 {
-	uint32_t i = 0;
 POPULATE:
-	while(!syn_stream.empty())
+	for(int i = 0; i < SYN_LEN; i++)
 	{
 		uint32_t tmp = syn_stream.read();
 		if(tmp == 1)
@@ -262,7 +261,6 @@ POPULATE:
 			border_vertices[i].emplace(i);
 			fillNFO(i,roots, oddRoots, sizes, parity);
 		}
-		i++;
 	}
 }
 
