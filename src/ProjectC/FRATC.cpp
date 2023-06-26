@@ -663,17 +663,21 @@ void phase1(bool syndrome[SYN_LEN],
 	    Vector<uint32_t>& roots, 
 	    Vector<uint32_t>& oddRoots, 
 	    uint32_t sizes[SYN_LEN],
-	    uint32_t parity[SYN_LEN],
-	    hls::stream<uint32_t>& syn_stream)
+	    uint32_t parity[SYN_LEN])
 {
+	hls::stream<uint32_t> syn_stream("syn_stream");
+#pragma HLS STREAM variable=syn_stream depth=64
+
 #pragma HLS DATAFLOW
 	initialization(syndrome, syn_stream, syndrome_cpy, root_of_vertex);
 	populate(syn_stream, border_vertices, roots, oddRoots, sizes, parity);
 }
 
-void phase3(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& correction_edges, uint32_t syndrome_cpy[SYN_LEN], ap_uint<CORR_LEN>* tmp)
+void phase3(hls::stream<Edge>& peeling_edges, uint32_t syndrome_cpy[SYN_LEN], ap_uint<CORR_LEN>* tmp)
 {
-#pragma HLS DATAFLOW
+	hls::stream<Edge> correction_edges("correction_edges");
+#pragma HLS STREAM variable=correction_edges depth=128
+
 	peel(peeling_edges, correction_edges, syndrome_cpy);
 	translate(correction_edges, tmp);
 }
@@ -699,29 +703,25 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 
 
 	ap_uint<CORR_LEN> tmp = 0;
-	hls::stream<uint32_t> syn_stream("syn_stream");
-#pragma HLS STREAM variable=syn_stream depth=64
 	hls::stream<uint32_t> syn_vert_stream("syn_vert_stream");
 #pragma HLS STREAM variable=syn_vert_stream depth=64
 	hls::stream<Edge> fuseList("fuseList");
 #pragma HLS STREAM variable=fuseList depth=128
 	hls::stream<Edge> peeling_edges("peeling_edges");
 #pragma HLS STREAM variable=peeling_edges depth=128
-	hls::stream<Edge> correction_edges("correction_edges");
-#pragma HLS STREAM variable=correction_edges depth=128
 
 
 	//phase 0: clear ds
 	clear(syndrome_cpy, support, root_of_vertex, border_vertices, roots, oddRoots, sizes, parity, connection_counts);
 	//phase 1: read syndrome and populate data structs
-	phase1(syndrome, syndrome_cpy, root_of_vertex, border_vertices, roots, oddRoots, sizes, parity, syn_stream);
+	phase1(syndrome, syndrome_cpy, root_of_vertex, border_vertices, roots, oddRoots, sizes, parity);
 	//phase 2: grow and fuse
 	UF(fuseList,peeling_edges, border_vertices, support, root_of_vertex, sizes, parity, roots, oddRoots, connection_counts, status);
 
 	if(status)
 	{
 		//phase 3: Peeling and Translation
-		phase3(peeling_edges, correction_edges, syndrome_cpy, &tmp);
+		phase3(peeling_edges, syndrome_cpy, &tmp);
 	}
 
 
