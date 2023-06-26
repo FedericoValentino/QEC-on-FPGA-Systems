@@ -286,6 +286,7 @@ void grow(uint32_t root,
 		  uint32_t connection_counts[SYN_LEN])
 {
 	static Vector<uint32_t> borders;
+#pragma HLS ARRAY_PARTITION variable = borders.array type = cyclic factor = 4
 	borders = border_vertices[root];
 	//hls::print("entering GROW loop\n");
 GROW:
@@ -293,18 +294,18 @@ GROW:
 	{
 #pragma HLS loop_tripcount min=1 max=128
 		static Vector<uint32_t> connections;
+#pragma HLS ARRAY_PARTITION variable=connections.array type = cyclic factor = 4
 		uint32_t idk = borders.at(i);
 		connections = vertex_connections(idk);
 		//hls::print("entering INNERGROW loop\n");
 INNER_GROW:
-		for(int j = 0; j < connections.getSize(); ++j)
+		for(int j = 0; j < 4; ++j)
 		{
-#pragma HLS loop_tripcount min=1 max=4
-#pragma HLS PIPELINE II=1
+#pragma HLS UNROLL
 			Edge e;
 
-			e.u = min(borders.at(i), connections.at(j));
-			e.v = max(borders.at(i), connections.at(j));
+			e.u = min(idk, connections.at(j));
+			e.v = max(idk, connections.at(j));
 
 			uint32_t edgeIdx = edge_idx(e);
 			uint32_t elt = support[edgeIdx];
@@ -329,8 +330,7 @@ INNER_GROW:
 	}
 }
 
-uint32_t findRoot(uint32_t vertex,
-				  uint32_t root_of_vertex[SYN_LEN])
+uint32_t findRoot(uint32_t vertex, uint32_t root_of_vertex[SYN_LEN])
 {
 	//hls::print("Finding root for vertex %d\n", vertex);
 	uint32_t tmp = root_of_vertex[vertex];
