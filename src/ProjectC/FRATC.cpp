@@ -355,10 +355,10 @@ FIND_ROOT:
 	}
 
 SET_ROOT:
-	while(path.getSize() > 0)
+	for(int i = 0; i < path.getSize(); i++)
 	{
-		uint32_t tmp2= path.at(0);
-		path.erase(0);
+#pragma HLS PIPELINE II=1
+		uint32_t tmp2= path.at(i);
 		root_of_vertex[tmp2] = root;
 	}
 	return root;
@@ -561,6 +561,7 @@ UNION_FIND:
 		//hls::print("growing\n");
 		for(int i = 0; i < oddRoots.getSize(); ++i)
 		{
+#pragma HLS UNROLL factor = 2
 			grow(oddRoots.at(i), fuseList, border_vertices, support, connection_counts);
 		}
 		fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
