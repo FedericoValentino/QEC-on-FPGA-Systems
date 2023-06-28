@@ -559,10 +559,13 @@ UNION_FIND:
 	while(oddRoots.getSize() > 0 && iterations < MAX_ITERATIONS)
 	{
 		//hls::print("growing\n");
-		for(int i = 0; i < oddRoots.getSize(); ++i)
+		for(int i = 0; i < SYN_LEN; ++i)
 		{
-#pragma HLS UNROLL factor = 2
-			grow(oddRoots.at(i), fuseList, border_vertices, support, connection_counts);
+#pragma HLS UNROLL
+			if(i < oddRoots.getSize())
+			{
+				grow(oddRoots.at(i), fuseList, border_vertices, support, connection_counts);
+			}
 		}
 		fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
 		iterations++;
