@@ -693,14 +693,23 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	static uint32_t syndrome_cpy[SYN_LEN];
 	//decoder
 	static uint32_t support[CORR_LEN];
+#pragma HLS ARRAY_PARTITION variable=support type=complete
+
 	static uint32_t root_of_vertex[SYN_LEN];
 	static Vector<uint32_t> border_vertices[SYN_LEN];
+#pragma HLS ARRAY_PARTITION variable=border_vertices->array type=complete
+
 	static uint32_t connection_counts[SYN_LEN];
-#pragma ARRAY_PARTITION variable=connection_counts type=complete
+#pragma HLS ARRAY_PARTITION variable=connection_counts type=complete
+
 	//manager
 	static Vector<uint32_t> roots;
 	static Vector<uint32_t> oddRoots;
+#pragma HLS ARRAY_PARTITION variable=oddRoots.array type=complete
+
 	static uint32_t sizes[SYN_LEN];
+#pragma HLS ARRAY_PARTITION variable=sizes type=complete
+
 	static uint32_t parity[SYN_LEN];
 
 	bool status = true;
