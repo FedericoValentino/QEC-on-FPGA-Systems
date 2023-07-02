@@ -24,6 +24,13 @@ struct Edge
 	}
 };
 
+struct TreeNode{
+	Vector<uint32_t> connections;
+	uint32_t total_conn = 0;
+};
+
+typedef struct TreeNode TreeNode;
+
 struct Coord
 {
 	uint32_t x;

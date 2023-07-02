@@ -439,34 +439,20 @@ void mergeBoundary(uint32_t r1, uint32_t r2, Vector<uint32_t> border_vertices[SY
 {
 	//hls::print("Merging\n");
 #pragma HLS INLINE off
-	static Vector<uint32_t> borderR1;
-	static Vector<uint32_t> borderR2;
-	borderR1 = border_vertices[r1];
-	borderR2 = border_vertices[r2];
-	uint32_t size2 = borderR2.getSize();
+
+	uint32_t size2 = border_vertices[r2].getSize();
 
 MERGE:
 	for(int i = 0; i<size2; ++i)
 	{
 #pragma HLS loop_tripcount min=4 max=64
-		uint32_t vertex = borderR2.at(i);
-		borderR1.elementEmplace(vertex);
-	}
-
-ERASE_LEFTOVERS:
-	for(int i = 0; i<borderR2.getSize(); ++i)
-	{
-		uint32_t vertex = borderR2.at(i);
-		if(connection_counts[vertex] == 4)
+		uint32_t vertex = border_vertices[r2].at(i);
+		if(connection_counts[vertex] != 4)
 		{
-			borderR1.elementErase(vertex);
+			border_vertices[r1].elementEmplace(vertex);
 		}
 	}
-
-	border_vertices[r1] = borderR1;
-	border_vertices[r2].fillnReset(0);
 }
-
 
 void elseroot(uint32_t root1,
 			  uint32_t root2,
@@ -582,67 +568,50 @@ UNION_FIND:
 
 void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections, uint32_t syndrome_cpy[SYN_LEN])
 {
-	//hls::print("starting peeling process\n");
+	TreeNode forest[SYN_LEN];
 
-	static Vector<Edge> peelingVec;
-	peelingVec.fillnReset({0,0});
-
-	int vertex_count[SYN_LEN] = {0};
-#pragma HLS ARRAY_PARTITION variable=vertex_count type=complete
+	uint32_t nodes_to_peel = peeling_edges.size();
 
 PEEL_PREPARE:
 	while(!peeling_edges.empty())
 	{
-#pragma HLS PIPELINE II=1
 		Edge e = peeling_edges.read();
-		uint32_t tmp1 = vertex_count[e.u];
-		uint32_t tmp2 = vertex_count[e.v];
-		tmp1++;
-		tmp2++;
-		vertex_count[e.u] = tmp1;
-		vertex_count[e.v] = tmp2;
-		peelingVec.emplace(e);
+		forest[e.u].connections.elementEmplace(e.v);
+		forest[e.u].total_conn++;
+
+		forest[e.v].connections.elementEmplace(e.u);
+		forest[e.v].total_conn++;
 	}
-	//hls::print("read peelng_edges\n");
-PEELING:
-	while(peelingVec.getSize() > 0)
+
+PEEL:
+	while(nodes_to_peel > 0)
 	{
-#pragma HLS DEPENDENCE variable=vertex_count inter false
-		Edge leaf_edge = peelingVec.at(0);
-		peelingVec.erase(0);
-		uint32_t u = 0;
-		uint32_t v = 0;
-
-		if(vertex_count[leaf_edge.u] == 1 || vertex_count[leaf_edge.v] == 1)
+		uint32_t toPeel = 0;
+		bool found = false;
+		for(int i = 0; i < SYN_LEN; i++)
 		{
-			if(vertex_count[leaf_edge.u] == 1)
+			if(forest[i].total_conn == 1 && !found)
 			{
-				u = leaf_edge.u;
-				v = leaf_edge.v;
-			}
-			else if(vertex_count[leaf_edge.v] == 1)
-			{
-				u = leaf_edge.v;
-				v = leaf_edge.u;
-			}
-
-			--vertex_count[u];
-			--vertex_count[v];
-
-			if(syndrome_cpy[u] == 1)
-			{
-				corrections.write(leaf_edge);
-				syndrome_cpy[u] = 0;
-				syndrome_cpy[v] ^= 1U;
+				toPeel = i;
+				found = true;
+				nodes_to_peel--;
 			}
 		}
-		else
-		{
-			peelingVec.emplace(leaf_edge);
-		}
 
+		uint32_t neighbor = forest[toPeel].connections.at(0);
+		forest[toPeel].total_conn = 0;
+
+		forest[neighbor].total_conn--;
+		forest[neighbor].connections.elementErase(toPeel);
+
+		if(syndrome_cpy[toPeel] == 1)
+		{
+			corrections.write({min(toPeel, neighbor), max(toPeel, neighbor)});
+			syndrome_cpy[toPeel] = 0;
+			syndrome_cpy[neighbor] ^= 1U;
+		}
 	}
-	//hls::print("corrections done\n");
+
 }
 
 void translate(hls::stream<Edge>& correctionEdges, ap_uint<CORR_LEN>* correction)
@@ -686,8 +655,6 @@ void phase3(hls::stream<Edge>& peeling_edges, uint32_t syndrome_cpy[SYN_LEN], ap
 	translate(correction_edges, tmp);
 }
 
-
-
 void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 {
 	static uint32_t syndrome_cpy[SYN_LEN];
@@ -697,7 +664,7 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 
 	static uint32_t root_of_vertex[SYN_LEN];
 	static Vector<uint32_t> border_vertices[SYN_LEN];
-#pragma HLS ARRAY_PARTITION variable=border_vertices->array type=complete
+#pragma HLS ARRAY_PARTITION variable=border_vertices dim=2 type=complete
 
 	static uint32_t connection_counts[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=connection_counts type=complete
