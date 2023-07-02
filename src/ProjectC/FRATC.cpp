@@ -570,7 +570,7 @@ void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections, uint
 {
 	TreeNode forest[SYN_LEN];
 
-	uint32_t nodes_to_peel = peeling_edges.size();
+	uint32_t nodes_to_peel = 0;
 
 PEEL_PREPARE:
 	while(!peeling_edges.empty())
@@ -581,6 +581,8 @@ PEEL_PREPARE:
 
 		forest[e.v].connections.elementEmplace(e.u);
 		forest[e.v].total_conn++;
+
+		nodes_to_peel++;
 	}
 
 PEEL:
