@@ -681,7 +681,7 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	static uint32_t root_of_vertex[SYN_LEN];
 	static Vector<uint32_t> border_vertices[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=border_vertices dim=2 type=cyclic factor=16
-#pragma HLS BIND_STORAGE variable=border_vertices type=RAM_T2P impl=URAM
+#pragma HLS BIND_STORAGE variable=border_vertices->array type=RAM_T2P impl=URAM
 
 	static uint32_t connection_counts[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=connection_counts type=complete
