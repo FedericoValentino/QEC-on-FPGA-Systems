@@ -571,6 +571,8 @@ void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections, uint
 	TreeNode forest[SYN_LEN];
 
 	uint32_t nodes_to_peel = 0;
+	uint32_t toPeel = 0;
+	bool found = false;
 
 PEEL_PREPARE:
 	while(!peeling_edges.empty())
@@ -588,8 +590,6 @@ PEEL_PREPARE:
 PEEL:
 	while(nodes_to_peel > 0)
 	{
-		uint32_t toPeel = 0;
-		bool found = false;
 		for(int i = 0; i < SYN_LEN; i++)
 		{
 			if(forest[i].total_conn == 1 && !found)
@@ -605,6 +605,16 @@ PEEL:
 
 		forest[neighbor].total_conn--;
 		forest[neighbor].connections.elementErase(toPeel);
+
+		if(forest[neighbor].total_conn == 1)
+		{
+			found = true;
+			toPeel = neighbor;
+		}
+		else
+		{
+			found = false;
+		}
 
 		if(syndrome_cpy[toPeel] == 1)
 		{
@@ -632,11 +642,11 @@ CORRECTION_TRANSLATION:
 }
 
 void phase1(bool syndrome[SYN_LEN],
-	    uint32_t syndrome_cpy[SYN_LEN], 
-	    uint32_t root_of_vertex[SYN_LEN], 
-	    Vector<uint32_t> border_vertices[SYN_LEN], 
-	    Vector<uint32_t>& roots, 
-	    Vector<uint32_t>& oddRoots, 
+	    uint32_t syndrome_cpy[SYN_LEN],
+	    uint32_t root_of_vertex[SYN_LEN],
+	    Vector<uint32_t> border_vertices[SYN_LEN],
+	    Vector<uint32_t>& roots,
+	    Vector<uint32_t>& oddRoots,
 	    uint32_t sizes[SYN_LEN],
 	    uint32_t parity[SYN_LEN])
 {
