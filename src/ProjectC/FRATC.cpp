@@ -590,13 +590,16 @@ PEEL_PREPARE:
 PEEL:
 	while(nodes_to_peel > 0)
 	{
-		for(int i = 0; i < SYN_LEN; i++)
+		if(!found)
 		{
-			if(forest[i].total_conn == 1 && !found)
+			for(int i = 0; i < SYN_LEN; i++)
 			{
-				toPeel = i;
-				found = true;
-				nodes_to_peel--;
+				if(forest[i].total_conn == 1 && !found)
+				{
+					toPeel = i;
+					found = true;
+					nodes_to_peel--;
+				}
 			}
 		}
 
