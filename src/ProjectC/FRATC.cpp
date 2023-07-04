@@ -290,54 +290,57 @@ void grow(uint32_t root,
 	borders = border_vertices[root];
 	//hls::print("entering GROW loop\n");
 GROW:
-	for(int i = 0; i < borders.getSize(); i++)
+	for(int i = 0; i < SYN_LEN; i++)
 	{
-#pragma HLS loop_tripcount min=1 max=128
-		static Vector<uint32_t> connections;
+#pragma HLS UNROLL
+		if(i < borders.getSize())
+		{
+			static Vector<uint32_t> connections;
 #pragma HLS ARRAY_PARTITION variable=connections.array type = cyclic factor = 4
-		uint32_t idk = borders.at(i);
-		connections = vertex_connections(idk);
+			uint32_t idk = borders.at(i);
+			connections = vertex_connections(idk);
 		//hls::print("entering INNERGROW loop\n");
 INNER_GROW:
-		for(int j = 0; j < 4; ++j)
-		{
-#pragma HLS UNROLL
-			Edge e;
-
-			e.u = min(idk, connections.at(j));
-			e.v = max(idk, connections.at(j));
-
-			uint32_t edgeIdx = edge_idx(e);
-			uint32_t elt = support[edgeIdx];
-
-			uint32_t u = connection_counts[e.u]+1;
-			uint32_t v = connection_counts[e.v]+1;
-
-
-			if(elt != 2)
+			for(int j = 0; j < 4; ++j)
 			{
-				elt++;
-				if(elt == 2)
-				{
-					connection_counts[e.u]=u;
-					connection_counts[e.v]=v;
-					fuseList.write(e);
-				}
-				support[edgeIdx] = elt;
-			}
+#pragma HLS loop_flatten
+				Edge e;
 
+				e.u = min(idk, connections.at(j));
+				e.v = max(idk, connections.at(j));
+
+				uint32_t edgeIdx = edge_idx(e);
+				uint32_t elt = support[edgeIdx];
+	
+				uint32_t u = connection_counts[e.u]+1;
+				uint32_t v = connection_counts[e.v]+1;
+
+
+				if(elt != 2)
+				{
+					elt++;
+					if(elt == 2)
+					{
+						connection_counts[e.u]=u;
+						connection_counts[e.v]=v;
+						fuseList.write(e);
+					}
+					support[edgeIdx] = elt;
+				}
+
+			}
 		}
 	}
 }
 
-uint32_t findRoot(uint32_t vertex, uint32_t root_of_vertex[SYN_LEN])
+void findRoot(uint32_t vertex, uint32_t root_of_vertex[SYN_LEN], uint32_t& answer)
 {
 	//hls::print("Finding root for vertex %d\n", vertex);
 	uint32_t tmp = root_of_vertex[vertex];
 
 	if(tmp == vertex)
 	{
-		return vertex;
+		answer = vertex;
 	}
 
 	static Vector<uint32_t> path;
@@ -361,7 +364,7 @@ SET_ROOT:
 		uint32_t tmp2= path.at(i);
 		root_of_vertex[tmp2] = root;
 	}
-	return root;
+	answer = root;
 }
 
 bool isRoot(uint32_t root, Vector<uint32_t>& roots)
@@ -494,6 +497,13 @@ void fuse(uint32_t root1,
 	}
 }
 
+void dataflowRoots(uint32_t u, uint32_t v, uint32_t root_of_vertex[SYN_LEN], uint32_t& root1, uint32_t& root2)
+{
+#pragma HLS DATAFLOW
+	findRoot(u, root_of_vertex, root1);
+	findRoot(v, root_of_vertex, root2);
+}
+
 void fusion(hls::stream<Edge>& fuseList,
 			hls::stream<Edge>& peeling_edges,
 			uint32_t root_of_vertex[SYN_LEN],
@@ -509,8 +519,9 @@ FUSE:
 	{
 		Edge e;
 		fuseList.read(e);
-		uint32_t tmp1 = findRoot(e.u, root_of_vertex);
-		uint32_t tmp2 = findRoot(e.v, root_of_vertex);
+		uint32_t tmp1;
+		uint32_t tmp2;
+		dataflowRoots(e.u, e.v, root_of_vertex, tmp1, tmp2);
 		uint32_t root1=tmp1;
 		uint32_t root2=tmp2;
 		if(sizes[root1]<sizes[root2])
@@ -573,6 +584,7 @@ void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections, uint
 	uint32_t nodes_to_peel = 0;
 	uint32_t toPeel = 0;
 	bool found = false;
+	uint32_t neighbor = 0;
 
 PEEL_PREPARE:
 	while(!peeling_edges.empty())
@@ -587,11 +599,19 @@ PEEL_PREPARE:
 		nodes_to_peel++;
 	}
 
+
 PEEL:
 	while(nodes_to_peel > 0)
 	{
-		if(!found)
+		if(forest[neighbor].total_conn == 1 && found == true)
 		{
+			toPeel = neighbor;
+			nodes_to_peel--;
+		}
+		else
+		{
+			found = false;
+FIND_LEAF:
 			for(int i = 0; i < SYN_LEN; i++)
 			{
 				if(forest[i].total_conn == 1 && !found)
@@ -603,21 +623,11 @@ PEEL:
 			}
 		}
 
-		uint32_t neighbor = forest[toPeel].connections.at(0);
+		neighbor = forest[toPeel].connections.at(0);
 		forest[toPeel].total_conn = 0;
 
 		forest[neighbor].total_conn--;
 		forest[neighbor].connections.elementErase(toPeel);
-
-		if(forest[neighbor].total_conn == 1)
-		{
-			found = true;
-			toPeel = neighbor;
-		}
-		else
-		{
-			found = false;
-		}
 
 		if(syndrome_cpy[toPeel] == 1)
 		{
@@ -679,6 +689,7 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 #pragma HLS BIND_STORAGE variable=support type=RAM_1P impl=LUTRAM
 
 	static uint32_t root_of_vertex[SYN_LEN];
+#pragma HLS ARRAY_PARTITION variable=root_of_vertex type=complete
 	static Vector<uint32_t> border_vertices[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=border_vertices dim=2 type=cyclic factor=16
 #pragma HLS BIND_STORAGE variable=border_vertices->array type=RAM_T2P impl=URAM
