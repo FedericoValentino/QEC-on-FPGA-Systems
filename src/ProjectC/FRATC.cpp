@@ -343,8 +343,7 @@ void findRoot(uint32_t vertex, uint32_t root_of_vertex[SYN_LEN], uint32_t& answe
 		answer = vertex;
 	}
 
-	static Vector<uint32_t> path;
-	path.fillnReset(0);
+	Vector<uint32_t> path;
 	uint32_t root=tmp;
 	tmp = root_of_vertex[root];
 	path.emplace(root);
