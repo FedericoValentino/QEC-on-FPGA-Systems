@@ -285,32 +285,16 @@ void grow(uint32_t root,
 		  uint32_t support[CORR_LEN],
 		  uint32_t connection_counts[SYN_LEN])
 {
-	//support structure for parallelization
-	static uint32_t support_cpy[CORR_LEN][CORR_LEN];
-	for(int i = 0; i < CORR_LEN; i++)
-	{
-		for(int j = 0; j < CORR_LEN; j++)
-		{
-#pragma HLS UNROLL
-			support_cpy[i][j] = support[j];
-		}
-	}
-
-
-
-	static Vector<uint32_t> borders;
-#pragma HLS ARRAY_PARTITION variable = borders.array type = cyclic factor = 4
-	borders = border_vertices[root];
-	
+	int size = border_vertices[root].getSize();
 GROW:
 	for(int i = 0; i < SYN_LEN; i++)
 	{
 #pragma HLS UNROLL factor = 16
-		if(i < borders.getSize())
+		if(i < size)
 		{
 			static Vector<uint32_t> connections;
 #pragma HLS ARRAY_PARTITION variable=connections.array type = cyclic factor = 4
-			uint32_t idk = borders.at(i);
+			uint32_t idk = border_vertices[root].at(i);
 			connections = vertex_connections(idk);
 INNER_GROW:
 			for(int j = 0; j < 4; ++j)
@@ -322,43 +306,28 @@ INNER_GROW:
 				e.v = max(idk, connections.at(j));
 
 				uint32_t edgeIdx = edge_idx(e);
-				uint32_t elt = support_cpy[i][edgeIdx];
-				if(elt !=2)
-					elt++;
+				uint32_t elt = support[edgeIdx];
 	
 				uint32_t u = connection_counts[e.u]+1;
 				uint32_t v = connection_counts[e.v]+1;
-
-
-				switch(elt)
+				
+				if(elt != 2)
 				{
-				case 2:
-					connection_counts[e.u]=u;
-					connection_counts[e.v]=v;
-					fuseList.write(e);
-					break;
-				default:
-					support_cpy[i][edgeIdx] = elt;
-					break;
+					elt++;
+					if(elt == 2)
+					{
+						connection_counts[e.u]=u;
+						connection_counts[e.v]=v;
+						fuseList.write(e);
+					}
+					support[edgeIdx] = elt;
 				}
+
+
+				
 			}
 		}
 	}
-
-
-	for(int i = 0; i < CORR_LEN; i++)
-	{
-		for(int j = 0; j < CORR_LEN; j++)
-		{
-#pragma HLS UNROLL
-			if(support[j] < 2)
-			{
-				support[j] += support_cpy[i][j];
-			}
-		}
-	}	
-
-	
 }
 
 void findRoot(uint32_t vertex, uint32_t root_of_vertex[SYN_LEN], uint32_t& answer)
