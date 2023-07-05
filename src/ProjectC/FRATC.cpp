@@ -285,10 +285,23 @@ void grow(uint32_t root,
 		  uint32_t support[CORR_LEN],
 		  uint32_t connection_counts[SYN_LEN])
 {
+	//support structure for parallelization
+	static uint32_t support_cpy[CORR_LEN][CORR_LEN];
+	for(int i = 0; i < CORR_LEN; i++)
+	{
+		for(int j = 0; j < CORR_LEN; j++)
+		{
+#pragma HLS UNROLL
+			support_cpy[i][j] = support[j];
+		}
+	}
+
+
+
 	static Vector<uint32_t> borders;
 #pragma HLS ARRAY_PARTITION variable = borders.array type = cyclic factor = 4
 	borders = border_vertices[root];
-	//hls::print("entering GROW loop\n");
+	
 GROW:
 	for(int i = 0; i < SYN_LEN; i++)
 	{
@@ -299,7 +312,6 @@ GROW:
 #pragma HLS ARRAY_PARTITION variable=connections.array type = cyclic factor = 4
 			uint32_t idk = borders.at(i);
 			connections = vertex_connections(idk);
-		//hls::print("entering INNERGROW loop\n");
 INNER_GROW:
 			for(int j = 0; j < 4; ++j)
 			{
@@ -310,27 +322,43 @@ INNER_GROW:
 				e.v = max(idk, connections.at(j));
 
 				uint32_t edgeIdx = edge_idx(e);
-				uint32_t elt = support[edgeIdx];
+				uint32_t elt = support_cpy[i][edgeIdx];
+				if(elt !=2)
+					elt++;
 	
 				uint32_t u = connection_counts[e.u]+1;
 				uint32_t v = connection_counts[e.v]+1;
 
 
-				if(elt != 2)
+				switch(elt)
 				{
-					elt++;
-					if(elt == 2)
-					{
-						connection_counts[e.u]=u;
-						connection_counts[e.v]=v;
-						fuseList.write(e);
-					}
-					support[edgeIdx] = elt;
+				case 2:
+					connection_counts[e.u]=u;
+					connection_counts[e.v]=v;
+					fuseList.write(e);
+					break;
+				default:
+					support_cpy[i][edgeIdx] = elt;
+					break;
 				}
-
 			}
 		}
 	}
+
+
+	for(int i = 0; i < CORR_LEN; i++)
+	{
+		for(int j = 0; j < CORR_LEN; j++)
+		{
+#pragma HLS UNROLL
+			if(support[j] < 2)
+			{
+				support[j] += support_cpy[i][j];
+			}
+		}
+	}	
+
+	
 }
 
 void findRoot(uint32_t vertex, uint32_t root_of_vertex[SYN_LEN], uint32_t& answer)
@@ -718,9 +746,9 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	hls::stream<uint32_t> syn_vert_stream("syn_vert_stream");
 #pragma HLS STREAM variable=syn_vert_stream depth=64
 	hls::stream<Edge> fuseList("fuseList");
-#pragma HLS STREAM variable=fuseList depth=128
+#pragma HLS STREAM variable=fuseList depth=256
 	hls::stream<Edge> peeling_edges("peeling_edges");
-#pragma HLS STREAM variable=peeling_edges depth=128
+#pragma HLS STREAM variable=peeling_edges depth=256
 
 
 	//phase 0: clear ds
