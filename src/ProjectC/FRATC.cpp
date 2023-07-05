@@ -292,7 +292,7 @@ void grow(uint32_t root,
 GROW:
 	for(int i = 0; i < SYN_LEN; i++)
 	{
-#pragma HLS UNROLL
+#pragma HLS UNROLL factor = 16
 		if(i < borders.getSize())
 		{
 			static Vector<uint32_t> connections;
