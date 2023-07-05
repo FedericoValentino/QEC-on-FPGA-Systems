@@ -682,31 +682,31 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	//decoder
 	static uint32_t support[CORR_LEN];
 #pragma HLS ARRAY_PARTITION variable=support type=cyclic factor=8
-#pragma HLS BIND_STORAGE variable=support type=RAM_1P impl=LUTRAM
+
 
 	static uint32_t root_of_vertex[SYN_LEN];
-#pragma HLS ARRAY_PARTITION variable=root_of_vertex type=complete
+
 	static Vector<uint32_t> border_vertices[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=border_vertices dim=2 type=cyclic factor=16
-#pragma HLS BIND_STORAGE variable=border_vertices->array type=RAM_T2P impl=URAM
+#pragma HLS ARRAY_PARTITION variable=border_vertices dim=1 type=cyclic factor=16
 
 	static uint32_t connection_counts[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=connection_counts type=complete
-#pragma HLS BIND_STORAGE variable=connection_counts type=RAM_T2P impl=URAM
+
 
 	//manager
 	static Vector<uint32_t> roots;
 	static Vector<uint32_t> oddRoots;
 #pragma HLS ARRAY_PARTITION variable=oddRoots.array type=complete
-#pragma HLS BIND_STORAGE variable=oddRoots.array type=RAM_2P impl=LUTRAM
+
 
 	static uint32_t sizes[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=sizes type=complete
-#pragma HLS BIND_STORAGE variable=sizes type=RAM_T2P impl=URAM
+
 
 	static uint32_t parity[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=parity type=complete
-#pragma HLS BIND_STORAGE variable=parity type=RAM_T2P impl=URAM
+
 
 	bool status = true;
 
