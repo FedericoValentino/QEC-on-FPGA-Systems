@@ -131,7 +131,6 @@ RESET_LOOP:
 	{
 		for(int i = 0; i < vec.size; i++)
 		{
-#pragma HLS LOOP_TRIPCOUNT min=0 max=64
 #pragma HLS PIPELINE II=1
 			this->array[i] = vec.array[i];
 		}

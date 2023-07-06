@@ -299,7 +299,8 @@ GROW:
 INNER_GROW:
 			for(int j = 0; j < 4; ++j)
 			{
-#pragma HLS loop_flatten
+#pragma HLS LOOP_FLATTEN
+#pragma HLS DEPENDENCE variable=support type=inter dependent=false
 				Edge e;
 
 				e.u = min(idk, connections.at(j));
@@ -552,6 +553,7 @@ UNION_FIND:
 	while(oddRoots.getSize() > 0 && iterations < MAX_ITERATIONS)
 	{
 		//hls::print("growing\n");
+GROW_LOOP:
 		for(int i = 0; i < SYN_LEN; ++i)
 		{
 #pragma HLS UNROLL
@@ -685,7 +687,7 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 
 
 	static uint32_t root_of_vertex[SYN_LEN];
-
+#pragma HLS ARRAY_PARTITION variable=root_of_vertex type=complete
 	static Vector<uint32_t> border_vertices[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=border_vertices dim=2 type=cyclic factor=16
 #pragma HLS ARRAY_PARTITION variable=border_vertices dim=1 type=cyclic factor=16
