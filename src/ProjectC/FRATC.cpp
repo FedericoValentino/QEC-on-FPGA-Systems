@@ -563,7 +563,7 @@ UNION_FIND:
 GROW_LOOP:
 		for(int i = 0; i < SYN_LEN; ++i)
 		{
-#pragma HLS UNROLL
+#pragma HLS UNROLL factor=8
 #pragma HLS DEPENDENCE variable=connection_counts type=inter dependent=false
 			if(i < oddRoots.getSize())
 			{
