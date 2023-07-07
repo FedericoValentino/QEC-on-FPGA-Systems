@@ -287,45 +287,39 @@ void grow(uint32_t root,
 {
 	int size = border_vertices[root].getSize();
 GROW:
-	for(int i = 0; i < SYN_LEN; i++)
+	for(int i = 0; i < size; i++)
 	{
-#pragma HLS UNROLL factor = 16
-		if(i < size)
-		{
-			static Vector<uint32_t> connections;
+		static Vector<uint32_t> connections;
 #pragma HLS ARRAY_PARTITION variable=connections.array type = cyclic factor = 4
-			uint32_t idk = border_vertices[root].at(i);
-			connections = vertex_connections(idk);
+		uint32_t idk = border_vertices[root].at(i);
+		connections = vertex_connections(idk);
 INNER_GROW:
-			for(int j = 0; j < 4; ++j)
-			{
+		for(int j = 0; j < 4; ++j)
+		{
 #pragma HLS LOOP_FLATTEN
 #pragma HLS DEPENDENCE variable=support type=inter dependent=false
-				Edge e;
+			Edge e;
 
-				e.u = min(idk, connections.at(j));
-				e.v = max(idk, connections.at(j));
+			e.u = min(idk, connections.at(j));
+			e.v = max(idk, connections.at(j));
 
-				uint32_t edgeIdx = edge_idx(e);
-				uint32_t elt = support[edgeIdx];
-	
-				uint32_t u = connection_counts[e.u]+1;
-				uint32_t v = connection_counts[e.v]+1;
-				
-				if(elt != 2)
-				{
-					elt++;
-					if(elt == 2)
-					{
-						connection_counts[e.u]=u;
-						connection_counts[e.v]=v;
-						fuseList.write(e);
-					}
-					support[edgeIdx] = elt;
-				}
+			uint32_t edgeIdx = edge_idx(e);
+			uint32_t elt = support[edgeIdx];
 
+			uint32_t u = connection_counts[e.u]+1;
+			uint32_t v = connection_counts[e.v]+1;
 
-				
+			switch(elt)
+			{
+			case 2:
+				connection_counts[e.u]=u;
+				connection_counts[e.v]=v;
+				fuseList.write(e);
+				break;
+			default:
+				elt++;
+				support[edgeIdx] = elt;
+				break;
 			}
 		}
 	}
@@ -549,15 +543,44 @@ void UF(hls::stream<Edge>& fuseList,
 		bool& status)
 {
 	int iterations = 0;
+
+	static uint32_t support_cpy[SYN_LEN][CORR_LEN];
+#pragma HLS ARRAY_PARTITION variable=support_cpy dim=1 type=complete
+#pragma HLS ARRAY_PARTITION variable=support_cpy dim=2 type=cyclic factor=4
+
 UNION_FIND:
 	while(oddRoots.getSize() > 0 && iterations < MAX_ITERATIONS)
 	{
 		//hls::print("growing\n");
-GROW_LOOP:
-		for(int i = 0; i < oddRoots.getSize(); ++i)
+
+		for(int i = 0; i < oddRoots.getSize(); i++)
 		{
-			grow(oddRoots.at(i), fuseList, border_vertices, support, connection_counts);
+			for(int j = 0; j < CORR_LEN; j++)
+			{
+				support_cpy[i][j] = support[j];
+			}
 		}
+GROW_LOOP:
+		for(int i = 0; i < SYN_LEN; ++i)
+		{
+#pragma HLS UNROLL
+			if(i < oddRoots.getSize())
+			{
+				grow(oddRoots.at(i), fuseList, border_vertices, support_cpy[i], connection_counts);
+			}
+		}
+
+		for(int i = 0; i < oddRoots.getSize(); i++)
+		{
+			for(int j = 0; j < CORR_LEN; j++)
+			{
+				if(support[j] + support_cpy[i][j] < 2)
+					support[j] += support_cpy[i][j];
+				else
+					support[j] = 2;
+			}
+		}
+
 		fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
 		iterations++;
 	}
