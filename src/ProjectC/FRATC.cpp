@@ -281,17 +281,17 @@ uint32_t max(uint32_t a, uint32_t b){
 
 void grow(uint32_t root,
 		  hls::stream<Edge>& fuseList,
-		  Vector<uint32_t> border_vertices[SYN_LEN],
+		  Vector<uint32_t>& border_vertices,
 		  uint32_t support[CORR_LEN],
 		  uint32_t connection_counts[SYN_LEN])
 {
-	int size = border_vertices[root].getSize();
+	int size = border_vertices.getSize();
 GROW:
 	for(int i = 0; i < size; i++)
 	{
 		static Vector<uint32_t> connections;
 #pragma HLS ARRAY_PARTITION variable=connections.array type = cyclic factor = 4
-		uint32_t idk = border_vertices[root].at(i);
+		uint32_t idk = border_vertices.at(i);
 		connections = vertex_connections(idk);
 INNER_GROW:
 		for(int j = 0; j < 4; ++j)
@@ -564,9 +564,11 @@ GROW_LOOP:
 		for(int i = 0; i < SYN_LEN; ++i)
 		{
 #pragma HLS UNROLL
+#pragma HLS DEPENDENCE variable=connection_counts type=inter dependent=false
 			if(i < oddRoots.getSize())
 			{
-				grow(oddRoots.at(i), fuseList, border_vertices, support_cpy[i], connection_counts);
+				uint32_t root = oddRoots.at(i);
+				grow(root, fuseList, border_vertices[root], support_cpy[i], connection_counts);
 			}
 		}
 
