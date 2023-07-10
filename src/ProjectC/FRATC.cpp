@@ -538,20 +538,22 @@ void UFgrowth(Vector<uint32_t>& oddRoots,
 						  hls::stream<Edge>& fuseList)
 {
 	static uint32_t support_cpy[SYN_LEN][CORR_LEN];
-#pragma HLS ARRAY_PARTITION variable=support_cpy dim=1 type=complete
+#pragma HLS ARRAY_PARTITION variable=support_cpy dim=1 type=cyclic factor=32
+#pragma HLS ARRAY_PARTITION variable=support_cpy dim=2 type=complete
 
 	for(int i = 0; i < oddRoots.getSize(); i++)
 	{
+#pragma HLS LOOP_FLATTEN off
 		for(int j = 0; j < CORR_LEN; j++)
 		{
-#pragma HLS LOOP_FLATTEN off
+#pragma HLS UNROLL factor=32
 			support_cpy[i][j] = support[j];
 		}
 	}
 GROW_LOOP:
 	for(int i = 0; i < SYN_LEN; ++i)
 	{
-#pragma HLS UNROLL factor=8
+#pragma HLS UNROLL factor=32
 		if(i < oddRoots.getSize())
 		{
 			uint32_t root = oddRoots.at(i);
@@ -560,11 +562,13 @@ GROW_LOOP:
 	}
 	for(int i = 0; i < oddRoots.getSize(); i++)
 	{
+#pragma HLS LOOP_FLATTEN off
 		for(int j = 0; j < CORR_LEN; j++)
 		{
-#pragma HLS LOOP_FLATTEN off
-			if(support[j] + support_cpy[i][j] < 2)
-				support[j] += support_cpy[i][j];
+#pragma HLS UNROLL factor=32
+			uint32_t tmp = support[j] + support_cpy[i][j]; 
+			if(tmp < 2)
+				support[j] = tmp;
 			else
 				support[j] = 2;
 		}
@@ -725,14 +729,13 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	static uint32_t syndrome_cpy[SYN_LEN];
 	//decoder
 	static uint32_t support[CORR_LEN];
-#pragma HLS ARRAY_PARTITION variable=support type=cyclic factor=8
+#pragma HLS ARRAY_PARTITION variable=support type=complete
 
 
 	static uint32_t root_of_vertex[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=root_of_vertex type=complete
+
 	static Vector<uint32_t> border_vertices[SYN_LEN];
-#pragma HLS ARRAY_PARTITION variable=border_vertices dim=2 type=cyclic factor=16
-#pragma HLS ARRAY_PARTITION variable=border_vertices dim=1 type=cyclic factor=16
 
 	static uint32_t connection_counts[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=connection_counts type=complete
@@ -749,7 +752,6 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 
 
 	static uint32_t parity[SYN_LEN];
-#pragma HLS ARRAY_PARTITION variable=parity type=complete
 
 
 	bool status = true;
