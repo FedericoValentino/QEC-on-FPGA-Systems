@@ -533,14 +533,11 @@ FUSE:
 
 void UFgrowth(Vector<uint32_t>& oddRoots,
               uint32_t support[CORR_LEN],
-						  Vector<uint32_t> border_vertices[SYN_LEN],
-						  uint32_t connection_counts[SYN_LEN],
-						  hls::stream<Edge>& fuseList)
+	      Vector<uint32_t> border_vertices[SYN_LEN],
+	      uint32_t connection_counts[SYN_LEN],
+	      hls::stream<Edge>& fuseList,
+	      uint32_t support_cpy[SYN_LEN][CORR_LEN])
 {
-	static uint32_t support_cpy[SYN_LEN][CORR_LEN];
-#pragma HLS ARRAY_PARTITION variable=support_cpy dim=1 type=cyclic factor=32
-#pragma HLS ARRAY_PARTITION variable=support_cpy dim=2 type=complete
-
 	for(int i = 0; i < oddRoots.getSize(); i++)
 	{
 #pragma HLS LOOP_FLATTEN off
@@ -560,7 +557,13 @@ GROW_LOOP:
 			grow(root, fuseList, border_vertices[root], support_cpy[i], connection_counts);
 		}
 	}
-	for(int i = 0; i < oddRoots.getSize(); i++)
+	
+}
+
+
+void fuseCopies(uint32_t support[CORR_LEN], uint32_t support_cpy[SYN_LEN][CORR_LEN], int size)
+{
+	for(int i = 0; i < size; i++)
 	{
 #pragma HLS LOOP_FLATTEN off
 		for(int j = 0; j < CORR_LEN; j++)
@@ -575,6 +578,23 @@ GROW_LOOP:
 	}
 }
 
+void UFfusion(hls::stream<Edge>& fuseList,
+			hls::stream<Edge>& peeling_edges,
+			uint32_t root_of_vertex[SYN_LEN],
+			Vector<uint32_t> border_vertices[SYN_LEN],
+			uint32_t sizes[SYN_LEN],
+			uint32_t parity[SYN_LEN],
+			Vector<uint32_t>& roots,
+			Vector<uint32_t>& oddRoots,
+			uint32_t connection_counts[SYN_LEN],
+			uint32_t support_cpy[SYN_LEN][CORR_LEN],
+			uint32_t support[CORR_LEN])
+{
+#pragma HLS DATAFLOW
+	fuseCopies(support, support_cpy, oddRoots.getSize());
+	fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
+}
+
 void UFcycle(hls::stream<Edge>& fuseList,
 		hls::stream<Edge>& peeling_edges,
 		Vector<uint32_t> border_vertices[SYN_LEN],
@@ -586,8 +606,12 @@ void UFcycle(hls::stream<Edge>& fuseList,
 		Vector<uint32_t>& oddRoots,
 		uint32_t connection_counts[SYN_LEN])
 {
-	UFgrowth(oddRoots, support, border_vertices, connection_counts, fuseList);
-	fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
+	static uint32_t support_cpy[SYN_LEN][CORR_LEN];
+#pragma HLS ARRAY_PARTITION variable=support_cpy dim=1 type=cyclic factor=32
+#pragma HLS ARRAY_PARTITION variable=support_cpy dim=2 type=complete
+
+	UFgrowth(oddRoots, support, border_vertices, connection_counts, fuseList, support_cpy);
+	UFfusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts, support_cpy, support);
 }
 
 void UF(hls::stream<Edge>& fuseList,
