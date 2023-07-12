@@ -327,7 +327,6 @@ INNER_GROW:
 
 void findRoot(uint32_t vertex, uint32_t root_of_vertex[SYN_LEN], uint32_t& answer)
 {
-	//hls::print("Finding root for vertex %d\n", vertex);
 	uint32_t tmp = root_of_vertex[vertex];
 
 	if(tmp == vertex)
@@ -440,6 +439,7 @@ MERGE:
 	for(int i = 0; i<size2; ++i)
 	{
 #pragma HLS loop_tripcount min=4 max=64
+#pragma HLS PIPELINE II=1
 		uint32_t vertex = border_vertices[r2].at(i);
 		if(connection_counts[vertex] != 4)
 		{
@@ -508,6 +508,7 @@ void fusion(hls::stream<Edge>& fuseList,
 FUSE:
 	while(!fuseList.empty())
 	{
+#pragma HLS PIPELINE II=1
 		Edge e;
 		fuseList.read(e);
 		uint32_t tmp1;
@@ -540,17 +541,17 @@ void UFgrowth(Vector<uint32_t>& oddRoots,
 {
 	for(int i = 0; i < oddRoots.getSize(); i++)
 	{
-#pragma HLS LOOP_FLATTEN off
+#pragma HLS LOOP_FLATTEN
 		for(int j = 0; j < CORR_LEN; j++)
 		{
-#pragma HLS UNROLL factor=32
+#pragma HLS UNROLL
 			support_cpy[i][j] = support[j];
 		}
 	}
 GROW_LOOP:
 	for(int i = 0; i < SYN_LEN; ++i)
 	{
-#pragma HLS UNROLL factor=32
+#pragma HLS UNROLL
 		if(i < oddRoots.getSize())
 		{
 			uint32_t root = oddRoots.at(i);
@@ -565,15 +566,12 @@ void fuseCopies(uint32_t support[CORR_LEN], uint32_t support_cpy[SYN_LEN][CORR_L
 {
 	for(int i = 0; i < size; i++)
 	{
-#pragma HLS LOOP_FLATTEN off
+#pragma HLS LOOP_FLATTEN
 		for(int j = 0; j < CORR_LEN; j++)
 		{
-#pragma HLS UNROLL factor=32
+#pragma HLS UNROLL
 			uint32_t tmp = support[j] + support_cpy[i][j]; 
-			if(tmp < 2)
-				support[j] = tmp;
-			else
-				support[j] = 2;
+			support[j] = (tmp < 2) ? tmp : 2;
 		}
 	}
 }
@@ -607,7 +605,6 @@ void UFcycle(hls::stream<Edge>& fuseList,
 		uint32_t connection_counts[SYN_LEN])
 {
 	static uint32_t support_cpy[SYN_LEN][CORR_LEN];
-#pragma HLS ARRAY_PARTITION variable=support_cpy dim=1 type=cyclic factor=32
 #pragma HLS ARRAY_PARTITION variable=support_cpy dim=2 type=complete
 
 	UFgrowth(oddRoots, support, border_vertices, connection_counts, fuseList, support_cpy);
@@ -627,22 +624,24 @@ void UF(hls::stream<Edge>& fuseList,
 		bool& status)
 {
 	int iterations = 0;
-
 UNION_FIND:
-	while(oddRoots.getSize() > 0 && iterations < MAX_ITERATIONS)
+	while(iterations < MAX_ITERATIONS)
 	{
 		//hls::print("growing\n");
-		UFcycle(fuseList, peeling_edges, border_vertices, support, root_of_vertex, sizes, parity, roots, oddRoots, connection_counts);
+		if(oddRoots.getSize() > 0)
+		{
+			UFcycle(fuseList, peeling_edges, border_vertices, support, root_of_vertex, sizes, parity, roots, oddRoots, connection_counts);
+		}
 		iterations++;
 	}
-	if(iterations == MAX_ITERATIONS)
+	/*if(iterations == MAX_ITERATIONS)
 	{
 		while(!peeling_edges.empty())
 		{
 			peeling_edges.read();
 		}
 		status = false;
-	}
+	}*/
 }
 
 void peel(hls::stream<Edge>& peeling_edges, hls::stream<Edge>& corrections, uint32_t syndrome_cpy[SYN_LEN])
@@ -760,6 +759,7 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 #pragma HLS ARRAY_PARTITION variable=root_of_vertex type=complete
 
 	static Vector<uint32_t> border_vertices[SYN_LEN];
+#pragma HLS ARRAY_PARTITION variable=border_vertices dim=2 type=complete
 
 	static uint32_t connection_counts[SYN_LEN];
 #pragma HLS ARRAY_PARTITION variable=connection_counts type=complete
