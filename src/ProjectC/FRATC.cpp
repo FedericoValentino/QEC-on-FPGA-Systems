@@ -1,5 +1,17 @@
 #include "FRATC.h"
 
+void debugPrintGraphStatus(uint32_t root_of_vertex[SYN_LEN])
+{
+	for(int i = 0; i < D; i++)
+	{
+		for(int j = 0; j < D; j++)
+		{
+			printf("%d\t", root_of_vertex[i*D+j]);
+		}
+		printf("\n");
+	}
+}
+
 
 ap_uint<SYN_LEN> binToDec(bool syndrome[SYN_LEN])
 {
@@ -348,11 +360,14 @@ FIND_ROOT:
 	}
 
 SET_ROOT:
-	for(int i = 0; i < path.getSize(); i++)
+	for(int i = 0; i < SYN_LEN; i++)
 	{
-#pragma HLS PIPELINE II=1
-		uint32_t tmp2= path.at(i);
-		root_of_vertex[tmp2] = root;
+#pragma HLS UNROLL
+		if(i < path.getSize())
+		{
+			uint32_t tmp2= path.at(i);
+			root_of_vertex[tmp2] = root;
+		}
 	}
 	answer = root;
 }
@@ -364,6 +379,7 @@ bool isRoot(uint32_t root, Vector<uint32_t>& roots)
 IS_ROOT:
 	for(int i = 0; i < roots.getSize(); ++i)
 	{
+#pragma HLS PIPELINE II=1
 		if(root == tmp)
 		{
 			++count;
@@ -428,7 +444,10 @@ void merge(uint32_t r1,
 
 }
 
-void mergeBoundary(uint32_t r1, uint32_t r2, Vector<uint32_t> border_vertices[SYN_LEN], uint32_t connection_counts[SYN_LEN])
+void mergeBoundary(uint32_t r1, uint32_t r2,
+				   Vector<uint32_t> border_vertices[SYN_LEN],
+				   uint32_t connection_counts[SYN_LEN],
+				   uint32_t root_of_vertex[SYN_LEN])
 {
 	//hls::print("Merging\n");
 #pragma HLS INLINE off
@@ -441,6 +460,7 @@ MERGE:
 #pragma HLS loop_tripcount min=4 max=64
 #pragma HLS PIPELINE II=1
 		uint32_t vertex = border_vertices[r2].at(i);
+		//root_of_vertex[vertex] = r1;
 		if(connection_counts[vertex] != 4)
 		{
 			border_vertices[r1].elementEmplace(vertex);
@@ -455,11 +475,12 @@ void elseroot(uint32_t root1,
 			  uint32_t sizes[SYN_LEN],
 			  uint32_t parity[SYN_LEN],
 			  Vector<uint32_t> border_vertices[SYN_LEN],
-			  uint32_t connection_counts[SYN_LEN])
+			  uint32_t connection_counts[SYN_LEN],
+			  uint32_t root_of_vertex[SYN_LEN])
 {
 #pragma HLS DATAFLOW
 	merge(root1, root2, oddRoots, roots, sizes, parity);
-	mergeBoundary(root1, root2, border_vertices, connection_counts);
+	mergeBoundary(root1, root2, border_vertices, connection_counts, root_of_vertex);
 }
 
 void fuse(uint32_t root1,
@@ -484,7 +505,7 @@ void fuse(uint32_t root1,
 	else
 	{
 		//hls::print("elseroot\n");
-		elseroot(root1,root2, oddRoots, roots, sizes, parity, border_vertices, connection_counts);
+		elseroot(root1,root2, oddRoots, roots, sizes, parity, border_vertices, connection_counts, root_of_vertex);
 	}
 }
 
@@ -511,8 +532,8 @@ FUSE:
 #pragma HLS PIPELINE II=1
 		Edge e;
 		fuseList.read(e);
-		uint32_t tmp1;
-		uint32_t tmp2;
+		uint32_t tmp1 = root_of_vertex[e.u];
+		uint32_t tmp2 = root_of_vertex[e.v];
 		dataflowRoots(e.u, e.v, root_of_vertex, tmp1, tmp2);
 		uint32_t root1=tmp1;
 		uint32_t root2=tmp2;
@@ -606,7 +627,8 @@ void UFcycle(hls::stream<Edge>& fuseList,
 {
 	static uint32_t support_cpy[SYN_LEN][CORR_LEN];
 #pragma HLS ARRAY_PARTITION variable=support_cpy dim=2 type=complete
-
+	//debugPrintGraphStatus(root_of_vertex);
+	//printf("----------------------------\n");
 	UFgrowth(oddRoots, support, border_vertices, connection_counts, fuseList, support_cpy);
 	UFfusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts, support_cpy, support);
 }
