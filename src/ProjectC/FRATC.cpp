@@ -556,6 +556,8 @@ void UF(hls::stream<Edge>& fuseList,
 		uint32_t connection_counts[SYN_LEN],
 		bool& status)
 {
+	hls::stream<Edge> fuse;
+#pragma HLS STREAM variable=fuse depth=128
 	int iterations = 0;
 UNION_FIND:
 	while(oddRoots.getSize() > 0 && iterations < MAX_ITERATIONS)
@@ -563,18 +565,10 @@ UNION_FIND:
 		//hls::print("growing\n");
 		for(int i = 0; i < oddRoots.getSize(); ++i)
 		{
-			grow(oddRoots.at(i), fuseList, border_vertices, support, connection_counts);
+			grow(oddRoots.at(i), fuse, border_vertices, support, connection_counts);
 		}
-		fusion(fuseList, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
+		fusion(fuse, peeling_edges, root_of_vertex, border_vertices, sizes, parity, roots, oddRoots, connection_counts);
 		iterations++;
-	}
-	if(iterations == MAX_ITERATIONS)
-	{
-		while(!peeling_edges.empty())
-		{
-			peeling_edges.read();
-		}
-		status = false;
 	}
 }
 
@@ -658,7 +652,158 @@ CORRECTION_TRANSLATION:
 	*correction = tmp;
 }
 
-void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
+void perfCounterProc(hls::stream<int64_t>& cmd, int64_t* out) {
+    int64_t val;
+    // wait to receive a value to start counting
+    int64_t cnt = cmd.read();
+// keep counting until a value is available
+    count:
+    while (cmd.read_nb(val) == false) {
+        cnt++;
+    }
+
+    *out = cnt;
+}
+
+void populateCounter(hls::stream<uint32_t>& syn_stream,
+		Vector<uint32_t> border_vertices[SYN_LEN],
+		uint32_t sizes[SYN_LEN],
+		uint32_t parity[SYN_LEN],
+		Vector<uint32_t>& roots,
+		Vector<uint32_t>& oddRoots,
+		hls::stream<Edge>& fuseList,
+		hls::stream<Edge>& peeling_edges,
+		uint32_t support[CORR_LEN],
+		uint32_t root_of_vertex[SYN_LEN],
+		uint32_t connection_counts[SYN_LEN],
+		bool& status,
+		hls::stream<Edge>& correction_edges,
+		uint32_t syndrome_cpy[SYN_LEN],
+              hls::stream<int64_t>& cmd)
+{
+    cmd.write(1);
+    populate(syn_stream, border_vertices, roots, oddRoots, sizes, parity);
+    cmd.write(1);
+}
+
+
+void populateCounterDF(hls::stream<uint32_t>& syn_stream,
+		Vector<uint32_t> border_vertices[SYN_LEN],
+		uint32_t sizes[SYN_LEN],
+		uint32_t parity[SYN_LEN],
+		Vector<uint32_t>& roots,
+		Vector<uint32_t>& oddRoots,
+		hls::stream<Edge>& fuseList,
+		hls::stream<Edge>& peeling_edges,
+		uint32_t support[CORR_LEN],
+		uint32_t root_of_vertex[SYN_LEN],
+		uint32_t connection_counts[SYN_LEN],
+		bool& status,
+		hls::stream<Edge>& correction_edges,
+		uint32_t syndrome_cpy[SYN_LEN],
+               int64_t* cc)
+{
+    hls::stream<int64_t> cmdForCounter;
+
+#pragma HLS DATAFLOW
+    populateCounter(syn_stream, border_vertices, sizes, parity, roots, oddRoots, fuseList,
+		    peeling_edges, support, root_of_vertex, connection_counts, status, correction_edges, syndrome_cpy, cmdForCounter);
+    perfCounterProc(cmdForCounter, cc);
+}
+
+void UFCounter(hls::stream<uint32_t>& syn_stream,
+		Vector<uint32_t> border_vertices[SYN_LEN],
+		uint32_t sizes[SYN_LEN],
+		uint32_t parity[SYN_LEN],
+		Vector<uint32_t>& roots,
+		Vector<uint32_t>& oddRoots,
+		hls::stream<Edge>& fuseList,
+		hls::stream<Edge>& peeling_edges,
+		uint32_t support[CORR_LEN],
+		uint32_t root_of_vertex[SYN_LEN],
+		uint32_t connection_counts[SYN_LEN],
+		bool& status,
+		hls::stream<Edge>& correction_edges,
+		uint32_t syndrome_cpy[SYN_LEN],
+              hls::stream<int64_t>& cmd)
+{
+    cmd.write(1);
+    UF(fuseList,peeling_edges, border_vertices, support, root_of_vertex, sizes, parity, roots, oddRoots, connection_counts, status);
+    cmd.write(1);
+}
+
+
+void UFCounterDF(hls::stream<uint32_t>& syn_stream,
+		Vector<uint32_t> border_vertices[SYN_LEN],
+		uint32_t sizes[SYN_LEN],
+		uint32_t parity[SYN_LEN],
+		Vector<uint32_t>& roots,
+		Vector<uint32_t>& oddRoots,
+		hls::stream<Edge>& fuseList,
+		hls::stream<Edge>& peeling_edges,
+		uint32_t support[CORR_LEN],
+		uint32_t root_of_vertex[SYN_LEN],
+		uint32_t connection_counts[SYN_LEN],
+		bool& status,
+		hls::stream<Edge>& correction_edges,
+		uint32_t syndrome_cpy[SYN_LEN],
+               int64_t* cc)
+{
+    hls::stream<int64_t> cmdForCounter;
+
+#pragma HLS DATAFLOW
+    UFCounter(syn_stream, border_vertices, sizes, parity, roots, oddRoots, fuseList,
+		    peeling_edges, support, root_of_vertex, connection_counts, status, correction_edges, syndrome_cpy, cmdForCounter);
+    perfCounterProc(cmdForCounter, cc);
+}
+
+void peelCounter(hls::stream<uint32_t>& syn_stream,
+		Vector<uint32_t> border_vertices[SYN_LEN],
+		uint32_t sizes[SYN_LEN],
+		uint32_t parity[SYN_LEN],
+		Vector<uint32_t>& roots,
+		Vector<uint32_t>& oddRoots,
+		hls::stream<Edge>& fuseList,
+		hls::stream<Edge>& peeling_edges,
+		uint32_t support[CORR_LEN],
+		uint32_t root_of_vertex[SYN_LEN],
+		uint32_t connection_counts[SYN_LEN],
+		bool& status,
+		hls::stream<Edge>& correction_edges,
+		uint32_t syndrome_cpy[SYN_LEN],
+              hls::stream<int64_t>& cmd)
+{
+    cmd.write(1);
+    peel(peeling_edges, correction_edges, syndrome_cpy);
+    cmd.write(1);
+}
+
+
+void peelCounterDF(hls::stream<uint32_t>& syn_stream,
+		Vector<uint32_t> border_vertices[SYN_LEN],
+		uint32_t sizes[SYN_LEN],
+		uint32_t parity[SYN_LEN],
+		Vector<uint32_t>& roots,
+		Vector<uint32_t>& oddRoots,
+		hls::stream<Edge>& fuseList,
+		hls::stream<Edge>& peeling_edges,
+		uint32_t support[CORR_LEN],
+		uint32_t root_of_vertex[SYN_LEN],
+		uint32_t connection_counts[SYN_LEN],
+		bool& status,
+		hls::stream<Edge>& correction_edges,
+		uint32_t syndrome_cpy[SYN_LEN],
+               int64_t* cc)
+{
+    hls::stream<int64_t> cmdForCounter;
+
+#pragma HLS DATAFLOW
+    peelCounter(syn_stream, border_vertices, sizes, parity, roots, oddRoots, fuseList,
+		    peeling_edges, support, root_of_vertex, connection_counts, status, correction_edges, syndrome_cpy, cmdForCounter);
+    perfCounterProc(cmdForCounter, cc);
+}
+
+void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction, int64_t* cc)
 {
 	static uint32_t syndrome_cpy[SYN_LEN];
 	//decoder
@@ -674,6 +819,10 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	static uint32_t parity[SYN_LEN];
 
 	bool status = true;
+
+	int64_t CCPopulate;
+	int64_t CCUF;
+	int64_t CCPeel;
 
 
 	ap_uint<CORR_LEN> tmp = 0;
@@ -693,25 +842,28 @@ void decode(bool syndrome[SYN_LEN], ap_uint<CORR_LEN>* correction)
 	clear(syndrome_cpy, support, root_of_vertex, border_vertices, roots, oddRoots, sizes, parity, connection_counts);
 	//phase 1: read syndrome and populate data structs
 	initialization(syndrome, syn_stream, syndrome_cpy, root_of_vertex);
-	populate(syn_stream, border_vertices, roots, oddRoots, sizes, parity);
-	//phase 2: grow and fuse
-	UF(fuseList,peeling_edges, border_vertices, support, root_of_vertex, sizes, parity, roots, oddRoots, connection_counts, status);
+	populateCounterDF(syn_stream, border_vertices, sizes, parity, roots, oddRoots, fuseList,
+			peeling_edges, support, root_of_vertex, connection_counts, status, correction_edges, syndrome_cpy, &CCPopulate);
+	//phase 2
+	UFCounterDF(syn_stream, border_vertices, sizes, parity, roots, oddRoots, fuseList,
+				peeling_edges, support, root_of_vertex, connection_counts, status, correction_edges, syndrome_cpy, &CCUF);
 
-	if(status)
-	{
-		//phase 3: Peeling
-		peel(peeling_edges, correction_edges, syndrome_cpy);
+	//phase 3
+	peelCounterDF(syn_stream, border_vertices, sizes, parity, roots, oddRoots, fuseList,
+					peeling_edges, support, root_of_vertex, connection_counts, status, correction_edges, syndrome_cpy, &CCPeel);
 
-		//phase 4: Translate
-		translate(correction_edges, &tmp);
-	}
+
+	//phase 4: Translate
+	translate(correction_edges, &tmp);
+
+	*cc = CCPopulate + CCUF + CCPeel;
 
 
 	*correction = tmp;
 }
 
 
-void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool correction_out[CORR_LEN], bool insert)
+void decoderTop(bool syndrome[SYN_LEN], bool correction_out[CORR_LEN], int64_t* totalClocks)
 {
 	/*static Entry map[MAX_SIZE];
 #pragma HLS ARRAY_PARTITION variable=map type=complete
@@ -722,62 +874,20 @@ void decoderTop(bool syndrome[SYN_LEN], bool correction_in[CORR_LEN], bool corre
 
 	//axi
 #pragma HLS INTERFACE m_axi port=syndrome offset=slave bundle=gmem0 depth=64
-#pragma HLS INTERFACE m_axi port=correction_in offset=slave bundle=gmem1 depth=128
-#pragma HLS INTERFACE m_axi port=correction_out offset=slave bundle=gmem2 depth=128
+#pragma HLS INTERFACE m_axi port=correction_out offset=slave bundle=gmem1 depth=128
+#pragma HLS INTERFACE m_axi port=totalClocks offset=slave bundle=gmem2 depth=2
 
 #pragma HLS INTERFACE s_axilite port=syndrome bundle=control
-#pragma HLS INTERFACE s_axilite port=correction_in bundle=control
 #pragma HLS INTERFACE s_axilite port=correction_out bundle=control
-#pragma HLS INTERFACE s_axilite port=insert bundle=control
+#pragma HLS INTERFACE s_axilite port=totalClocks bundle=control
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 	bool tmp = false;
 
-	decode(syndrome, &correction_output);
+	decode(syndrome, &correction_output, totalClocks);
 	for(int i = 0; i < CORR_LEN; ++i)
 	{
 		correction_out[i] = 0;
 		correction_out[i] = correction_output[i];
 	}
-	/*
-	//hls::print("insert: %d\n", insert);
-	switch(insert)
-	{
-		case 1:
-			for(int i = 0; i < CORR_LEN; ++i)
-			{
-				correction_input[i] = correction_in[i];
-			}
-			hashInsert(correction_input, syndrome, map);
-			tmp = true;
-			//hls::print("Inserted in LUT\n");
-			break;
-		case 0:
-			//hls::print("Retrieving from LUT\n");
-			tmp = hashRetrieve(syndrome, &correction_output, map);
-			break;
-	}
-
-	switch(tmp)
-	{
-		case 0:
-			decode(syndrome, &correction_output);
-			for(int i = 0; i < CORR_LEN; ++i)
-			{
-				correction_out[i] = 0;
-				correction_out[i] = correction_output[i];
-			}
-			//hls::print("Syndrome has been decoded\n");
-			break;
-		case 1:
-			//hls::print("Nothing else to do\n");
-			for(int i = 0; i < CORR_LEN; ++i)
-			{
-				correction_out[i] = 0;
-				correction_out[i] = correction_output[i];
-			}
-			break;
-	}
-	*/
-
 }
